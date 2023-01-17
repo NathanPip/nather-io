@@ -1,6 +1,8 @@
+import { trpc } from "~/utils/trpc";
 import SocialLink from "./SocialLink";
 
 const HomePage = () => {
+
   return (
     <div class="h-screen flex flex-col py-12">
       <h1 class="text-6xl border-r-2 border-t-2 border-black w-fit h-fit p-2 rounded-tr-md">

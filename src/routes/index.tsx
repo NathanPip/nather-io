@@ -1,6 +1,7 @@
 import { type VoidComponent, Switch, Match } from "solid-js";
 import { Title } from "solid-start";
 import HomePage from "~/components/Homepage";
+import Projects from "~/components/Projects";
 import { trpc } from "~/utils/trpc";
 
 const Home: VoidComponent = () => {
@@ -11,6 +12,7 @@ const Home: VoidComponent = () => {
       <Title>nather.io</Title>
       <main class="px-4 max-w-7xl mx-auto">
         <HomePage />
+        <Projects />
         {/* <Switch 
           fallback={
             <pre class="font-bold text-2xl text-gray-500">
