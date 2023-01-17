@@ -8,12 +8,15 @@ datasource db {
 }
 
 model Project {
-    id           String  @id @default(auto()) @map("_id") @db.ObjectId
+    id           String   @id @default(auto()) @map("_id") @db.ObjectId
+    created_at   DateTime
+    updated_at   DateTime
     name         String
-    full_name    String  @unique
+    full_name    String   @unique
     description  String
     languages    String
     commit_count Int
     stars        Int
     fork         Boolean
+    website      String
 }
