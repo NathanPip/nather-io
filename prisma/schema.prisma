@@ -3,11 +3,17 @@ generator client {
 }
 
 datasource db {
-    provider = "sqlite"
+    provider = "mongodb"
     url      = env("DATABASE_URL")
 }
 
-model Notes {
-    id   String @id @default(cuid())
-    text String
+model Project {
+    id           String  @id @default(auto()) @map("_id") @db.ObjectId
+    name         String
+    full_name    String  @unique
+    description  String
+    languages    String
+    commit_count Int
+    stars        Int
+    fork         Boolean
 }
