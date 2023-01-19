@@ -5,6 +5,8 @@ export const serverScheme = z.object({
   ENABLE_VC_BUILD: z.string().default("1").transform((v) => parseInt(v)),
   DATABASE_URL: z.string(),
   GITHUB_TOKEN: z.string(),
+  EMAIL: z.string(),
+  EMAIL_AUTH: z.string(),
 });
 
 export const clientScheme = z.object({
