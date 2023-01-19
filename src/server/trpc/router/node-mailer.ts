@@ -17,35 +17,33 @@ const inputParser = z.object({
 
 export default router({
   sendEmail: procedure.input(inputParser).mutation(async ({ input }) => {
-    try {
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: serverEnv.EMAIL,
+        pass: serverEnv.EMAIL_AUTH,
+      },
+    });
 
-      const transporter = nodemailer.createTransport({
-        service: "gmail",
-        auth: {
-          user: serverEnv.EMAIL,
-          pass: serverEnv.EMAIL_AUTH,
-        },
-      });
+    const mailOptions = {
+      to: serverEnv.EMAIL,
+      from: serverEnv.EMAIL,
+      name: input.name,
+      subject: `New Message from ${input.name} at ${input.email}`,
+      text: input.message,
+    };
 
-      const mailOptions = {
-        to: serverEnv.EMAIL,
-        from: serverEnv.EMAIL,
-        name: input.name,
-        subject: `New Message from ${input.name} at ${input.email}`,
-        text: input.message,
-      };
+    await (async () =>
+      new Promise((resolve, reject) => {
+        transporter.sendMail(mailOptions, (error, info) => {
+          if (error) {
+            reject(error);
+          } else {
+            resolve(info);
+          }
+        });
+      }))();
 
-      transporter.sendMail(mailOptions, (error, info) => {
-        if (error) {
-          console.log(error);
-        } else {
-          console.log("Email sent: " + info.response);
-        }
-      });
-      return { success: true };
-    } catch (e) {
-      console.log(e);
-      return { success: false };
-    }
+    return { success: true };
   }),
 });
