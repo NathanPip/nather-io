@@ -28,11 +28,18 @@ const getCommitCount = async (project: string) => {
   return count;
 };
 
-const getLanguages = async (project: string) => {
-  const res = await octokit.request(`/repos/${project}/languages`);
-  const languages = res.data;
-  return languages as Record<string, number>;
+const getTags = async (project: string) => {
+  const res = await octokit.request(`/repos/${project}/tags`);
+  const tags = res.data;
+  return tags as Record<string, number>;
 };
+
+const isFeatured = (description: string | null): [boolean, string] => {
+  if(description === null) return [false, ""];
+  if(description.includes("[featured]")) 
+  return [true, description.replace("[featured]", "")];
+  else return [false, description];
+}
 
 export const getProjectData = async () => {
   const projects: Project[] = [];
@@ -44,10 +51,11 @@ export const getProjectData = async () => {
       const name = project.name as string;
       const full_name = project.full_name as string;
       const description = project.description as string | null;
+      const featured = isFeatured(description);
       const isFork = project.fork as boolean;
       const website = project.homepage as string | null;
       const count = await getCommitCount(full_name);
-      const languages = await getLanguages(full_name);
+      const languages = await getTags(full_name);
       const created_at = project.created_at as string;
       const updated_at = project.updated_at as string;
       const languagesStringified = JSON.stringify(languages);
@@ -61,7 +69,8 @@ export const getProjectData = async () => {
           created_at: new Date(created_at),
           updated_at: new Date(updated_at),
           full_name,
-          description: description !== null ? description : "",
+          description: featured[1],
+          featured: featured[0],
           website: website !== null ? website : "",
           languages: languagesStringified,
           commit_count: count,
@@ -73,7 +82,8 @@ export const getProjectData = async () => {
           created_at: new Date(created_at),
           updated_at: new Date(updated_at),
           full_name,
-          description: description !== null ? description : "",
+          description: featured[1],
+          featured: featured[0],
           website: website !== null ? website : "",
           languages: languagesStringified,
           commit_count: count,
