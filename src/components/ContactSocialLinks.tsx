@@ -1,12 +1,12 @@
 
 const ContactSocialLinks = () => {
     return (
-        <ul class="w-fit">
-            <li class="w-full"><a class="text-lg font-semibold flex w-full justify-between" href="">phone<img class="h-6 w-6 ml-2 inline" src="/phone-icon.svg" /></a></li>
-            <li class="w-full"><a class="text-lg font-semibold flex w-full justify-between" href="">email<img class="h-6 w-6 ml-2 inline" src="/email-icon.svg" /></a></li>
-            <li class="w-full"><a class="text-lg font-semibold flex w-full justify-between" href="">github<img class="h-6 w-6 ml-2 inline" src="/github-icon.svg" /></a></li>
-            <li class="w-full"><a class="text-lg font-semibold flex w-full justify-between" href="">linkedin<img class="h-6 w-6 ml-2 inline" src="/linkedin-icon.svg" /></a></li>
-            <li class="w-full"><a class="text-lg font-semibold flex w-full justify-between" href="">twitter<img class="h-6 w-6 ml-2 inline" src="/twitter-icon.svg" /></a></li>
+        <ul class="flex justify-around my-2">
+            <li class=""><a class="text-lg font-semibold flex justify-between" href=""><span class="hidden">phone</span><img class="h-8 w-8 ml-2 inline" src="/phone-icon.svg" /></a></li>
+            <li class=""><a class="text-lg font-semibold flex justify-between" href=""><span class="hidden">email</span><img class="h-8 w-8 ml-2 inline" src="/email-icon.svg" /></a></li>
+            <li class=""><a class="text-lg font-semibold flex justify-between" href=""><span class="hidden">github</span><img class="h-8 w-8 ml-2 inline" src="/github-icon.svg" /></a></li>
+            <li class=""><a class="text-lg font-semibold flex justify-between" href=""><span class="hidden">linkedin</span><img class="h-8 w-8 ml-2 inline" src="/linkedin-icon.svg" /></a></li>
+            <li class=""><a class="text-lg font-semibold flex justify-between" href=""><span class="hidden">twitter</span><img class="h-8 w-8 ml-2 inline" src="/twitter-icon.svg" /></a></li>
         </ul>
     )
 }
