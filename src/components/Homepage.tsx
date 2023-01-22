@@ -1,5 +1,3 @@
-import { trpc } from "~/utils/trpc";
-import SocialLink from "./SocialLink";
 
 const HomePage = () => {
 
