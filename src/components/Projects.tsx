@@ -46,13 +46,13 @@ const Projects = () => {
 
   // tailwind styles
   const projectFilterButtonStyles =
-    "mx-2 font-semibold mb-2 bg-stone-300 shadow-md px-2 rounded-md";
+    "mx-2 font-semibold mb-2 bg-stone-300 shadow-md px-2 rounded-md md:text-2xl md:px-4 md:py-2";
   const projectFilterButtonSelectedStyles = "bg-stone-400";
 
   return (
-    <div>
+    <div class="mb-10">
       <div class="flex">
-        <h1 class="text-2xl font-semibold mb-2">Projects</h1>
+        <h1 class="text-2xl font-semibold mb-2 md:text-4xl">Projects</h1>
         <div class="ml-auto mt-auto flex justify-around">
           <button
             class={`${projectFilterButtonStyles} ${
@@ -86,7 +86,7 @@ const Projects = () => {
           </button>
         </div>
       </div>
-      <div class="overflow-y-scroll h-screen shadow-inner p-2">
+      <div class="overflow-y-scroll max-h-screen shadow-inner p-2">
         {projectsRes.isLoading ? <p>loading...</p> : displayedProjects()}
       </div>
     </div>

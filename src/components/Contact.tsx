@@ -3,9 +3,12 @@ import ContactSocialLinks from "./ContactSocialLinks";
 
 const Contact = () => {
   return (
-    <div class="my-4 flex flex-col">
+    <div >
+      <h2 class="text-2xl font-semibold mb-2 lg:text-4xl">Contact</h2>
+      <div class="my-4 flex flex-col lg:flex-row-reverse lg:items-center lg:justify-center shadow-inner">
       <ContactForm />
       <ContactSocialLinks />
+      </div>
     </div>
   );
 };

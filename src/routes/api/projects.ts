@@ -1,5 +1,5 @@
 import { json } from "solid-start";
-import { getProjectData } from "~/utils/githubUtils";
+import { getProjectData } from "~/server/utils/githubUtils";
 
 export const GET = async () => {
     try {

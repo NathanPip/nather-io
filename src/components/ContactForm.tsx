@@ -41,12 +41,10 @@ const ContactForm = () => {
   });
 
   return (
-    <div>
-      <h2 class="text-2xl font-semibold mb-2">Contact</h2>
-      <form class="flex flex-col" onSubmit={handleSubmit}>
+      <form class="flex flex-col lg:flex-1 lg:px-4" onSubmit={handleSubmit}>
         <div class="flex justify-between pr-4">
           <label
-            class={`font-semibold ${
+            class={`font-semibold lg:text-xl mb-1 ${
               error()[0] === "name" ? "text-rose-500" : ""
             }`}
             for="name"
@@ -62,7 +60,7 @@ const ContactForm = () => {
         <input
           onChange={(e) => setNameValue(e.currentTarget.value)}
           value={nameValue()}
-          class={`bg-stone-50 rounded-md p-2 mb-2 focus:outline-none border-2 ${
+          class={`bg-stone-50 rounded-md p-2 mb-2 focus:outline-none border-2 shadow-lg ${
             error()[0] === "name" ? "border-rose-500 border-2" : ""
           }`}
           id="name"
@@ -70,7 +68,7 @@ const ContactForm = () => {
         />
         <div class="flex justify-between pr-4">
           <label
-            class={`font-semibold ${
+            class={`font-semibold lg:text-xl mb-1 ${
               error()[0] === "email" ? "text-rose-500" : ""
             }`}
             for="email"
@@ -86,7 +84,7 @@ const ContactForm = () => {
         <input
           onChange={(e) => setEmailValue(e.currentTarget.value)}
           value={emailValue()}
-          class={`bg-stone-50 rounded-md p-2 mb-2 focus:outline-none ${
+          class={`bg-stone-50 rounded-md p-2 mb-2 focus:outline-none shadow-lg ${
             error()[0] === "email" ? "border-rose-500 border-2" : ""
           }`}
           id="email"
@@ -94,7 +92,7 @@ const ContactForm = () => {
         />
         <div class="flex justify-between pr-4">
           <label
-            class={`font-semibold ${
+            class={`font-semibold lg:text-xl mb-1 ${
               error()[0] === "message" ? "text-rose-500" : ""
             }`}
             for="message"
@@ -110,13 +108,13 @@ const ContactForm = () => {
         <textarea
           onChange={(e) => setMessageValue(e.currentTarget.value)}
           value={messageValue()}
-          class={`bg-stone-50 rounded-md px-2 py-1 mb-2 focus:outline-0 h-40 ${
+          class={`bg-stone-50 rounded-md px-2 py-1 mb-2 focus:outline-0 h-40 shadow-lg ${
             error()[0] === "message" ? "border-rose-500 border-2" : ""
           }`}
           id="message"
         />
         <button
-          class=" font-semibold mb-2 bg-stone-300 shadow-md px-2 py-2 rounded-md"
+          class=" font-semibold bg-stone-300 shadow-md px-2 py-2 rounded-md mb-4 mt-2"
           type="submit"
         >
           {!sendMail.isSuccess
@@ -128,7 +126,6 @@ const ContactForm = () => {
             : "Message Sent"}
         </button>
       </form>
-    </div>
   );
 };
 

@@ -1,24 +1,7 @@
 import { createEffect, createSignal } from "solid-js";
+import { scrollDown } from "~/utils/scroll-state";
 
 const Nav = () => {
-
-  const [scrollDown, setScrollDown] = createSignal(false);
-  const [scrollY, setScrollY] = createSignal(0);
-  const [prevScrollY, setPrevScrollY] = createSignal(0);
-  createEffect(() => {
-    window.addEventListener(("scroll"), () => {
-      setPrevScrollY(scrollY());
-      setScrollY(window.scrollY);
-    })
-  })
-
-  createEffect(() => {
-    if (scrollY() > prevScrollY()) {
-      setScrollDown(true);
-    } else {
-      setScrollDown(false);
-    }
-  })
 
   return (
     <nav class={`fixed flex justify-end w-full bg-stone-300 shadow-md px-4 py-2 z-10 transition-transform ${scrollDown() ? "-translate-y-16" : ""}`}>
