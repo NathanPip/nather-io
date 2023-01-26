@@ -1,8 +1,7 @@
-import SendmailTransport from "nodemailer/lib/sendmail-transport";
-import { createEffect, createSignal } from "solid-js";
+import { type Component, createEffect, createSignal } from "solid-js";
 import { trpc } from "~/utils/trpc";
 
-const ContactForm = () => {
+const ContactForm: Component = () => {
   const sendMail = trpc.sendEmail.useMutation();
   const [nameValue, setNameValue] = createSignal<string>("");
   const [emailValue, setEmailValue] = createSignal<string>("");
@@ -114,7 +113,7 @@ const ContactForm = () => {
           id="message"
         />
         <button
-          class=" font-semibold bg-stone-300 shadow-md px-2 py-2 rounded-md mb-4 mt-2"
+          class=" font-semibold bg-stone-300 shadow-md px-2 py-2 rounded-md mb-4 mt-2 lg:text-xl"
           type="submit"
         >
           {!sendMail.isSuccess

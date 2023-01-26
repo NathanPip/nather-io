@@ -13,9 +13,12 @@ import {
   Title,
 } from "solid-start";
 import { trpc, client, queryClient } from "~/utils/trpc";
-import Nav from "./components/Nav";
+import HeaderBar from "./components/HeaderBar";
+import { PageStateProvider, useDarkModeCookie } from "./components/page-state";
 
 export default function Root() {
+  const darkMode = useDarkModeCookie();
+
   return (
     <Html lang="en">
       <Head>
@@ -25,14 +28,16 @@ export default function Root() {
       </Head>
       <Body>
         <trpc.Provider client={client} queryClient={queryClient}>
-          <Suspense>
-            <Nav />
-            <ErrorBoundary>
-              <Routes>
-                <FileRoutes />
-              </Routes>
-            </ErrorBoundary>
-          </Suspense>
+          {/* <Suspense> */}
+            <PageStateProvider darkMode={darkMode}>
+              <HeaderBar />
+              <ErrorBoundary>
+                <Routes>
+                  <FileRoutes />
+                </Routes>
+              </ErrorBoundary>
+            </PageStateProvider>
+          {/* </Suspense> */}
         </trpc.Provider>
         <Scripts />
       </Body>

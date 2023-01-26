@@ -1,8 +1,8 @@
-import { createMemo, createSignal } from "solid-js";
+import { type Component, createMemo, createSignal } from "solid-js";
 import { trpc } from "~/utils/trpc";
 import ProjectCard from "./ProjectCard";
 
-const Projects = () => {
+const Projects: Component = () => {
   const projectsRes = trpc.projects.useQuery();
 
   //signals
@@ -46,13 +46,13 @@ const Projects = () => {
 
   // tailwind styles
   const projectFilterButtonStyles =
-    "mx-2 font-semibold mb-2 bg-stone-300 shadow-md px-2 rounded-md md:text-2xl md:px-4 md:py-2";
+    "mx-2 font-semibold mb-2 bg-stone-300 shadow-md px-2 rounded-md lg:text-2xl lg:px-4 lg:py-2";
   const projectFilterButtonSelectedStyles = "bg-stone-400";
 
   return (
     <div class="mb-10">
       <div class="flex">
-        <h1 class="text-2xl font-semibold mb-2 md:text-4xl">Projects</h1>
+        <h1 class="text-2xl font-semibold mb-2 lg:text-4xl">Projects</h1>
         <div class="ml-auto mt-auto flex justify-around">
           <button
             class={`${projectFilterButtonStyles} ${
@@ -86,7 +86,7 @@ const Projects = () => {
           </button>
         </div>
       </div>
-      <div class="overflow-y-scroll max-h-screen shadow-inner p-2">
+      <div class="overflow-y-scroll max-h-screen shadow-inner p-2 px-4 scrollbar-thin scrollbar-rounded-lg scrollbar-thumb-stone-900">
         {projectsRes.isLoading ? <p>loading...</p> : displayedProjects()}
       </div>
     </div>

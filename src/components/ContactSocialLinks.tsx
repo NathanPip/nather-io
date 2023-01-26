@@ -1,4 +1,6 @@
-const ContactSocialLinks = () => {
+import { type Component } from "solid-js";
+
+const ContactSocialLinks: Component = () => {
 
   const listItemStyles = "lg:shadow-lg py-2 lg:w-1/2 lg:py-4 rounded-md";
   const linkStyles = "flex justify-between lg:flex-row lg:justify-around lg:gap-4 text-lg font-semibold";
