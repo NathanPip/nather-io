@@ -24,6 +24,7 @@ export default function Root() {
       <Head>
         <Title>nather.io</Title>
         <Meta charset="utf-8" />
+        <Meta name="description" content="The Nather Hub of all things Nather, but mostly just software" />
         <Meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
       <Body>

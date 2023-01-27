@@ -10,33 +10,33 @@ const ContactSocialLinks: Component = () => {
   return (
     <div class="my-2 flex justify-around lg:flex-col lg:justify-evenly lg:items-center lg:w-1/3 lg:h-full rounded-md">
       <div class={`${listItemStyles}`}>
-        <a class={`${linkStyles}`} href="tel:17075099345">
+        <a class={`${linkStyles}`} aria-label="phone" href="tel:17075099345">
           <span class={`${labelStyles}`}>phone</span>
-          <img class={`${iconStyles}`} src="/phone-icon.svg" />
+          <img class={`${iconStyles}`} alt="phone icon" src="/phone-icon.svg" />
         </a>
       </div>
       <div class={`${listItemStyles}`}>
-        <a class={`${linkStyles}`} href="mailto:nathan.piper.sd@gmail.com">
+        <a class={`${linkStyles}`} aria-label="email" href="mailto:nathan.piper.sd@gmail.com">
           <span class={`${labelStyles}`}>email</span>
-          <img class={`${iconStyles}`} src="/email-icon.svg" />
+          <img class={`${iconStyles}`} alt="email icon" src="/email-icon.svg" />
         </a>
       </div>
       <div class={`${listItemStyles}`}>
-        <a class={`${linkStyles}`} href="https://github.com/NathanPip">
+        <a class={`${linkStyles}`} aria-label="Github" href="https://github.com/NathanPip">
           <span class={`${labelStyles}`}>github</span>
-          <img class={`${iconStyles}`} src="/github-icon.svg" />
+          <img class={`${iconStyles}`} alt="github icon" src="/github-icon.svg" />
         </a>
       </div>
       <div class={`${listItemStyles}`}>
-        <a class={`${linkStyles}`} href="https://www.linkedin.com/in/nathanpiperr/">
+        <a class={`${linkStyles}`} aria-label="Linkedin" href="https://www.linkedin.com/in/nathanpiperr/">
           <span class={`${labelStyles}`}>linkedin</span>
-          <img class={`${iconStyles}`} src="/linkedin-icon.svg" />
+          <img class={`${iconStyles}`} alt="linkedin icon" src="/linkedin-icon.svg" />
         </a>
       </div>
       <div class={`${listItemStyles}`}>
-        <a class={`${linkStyles}`} href="https://twitter.com/NathanPiperr">
+        <a class={`${linkStyles}`} aria-label="Twitter" href="https://twitter.com/NathanPiperr">
           <span class={`${labelStyles}`}>twitter</span>
-          <img class={`${iconStyles}`} src="/twitter-icon.svg" />
+          <img class={`${iconStyles}`} alt="twitter icon" src="/twitter-icon.svg" />
         </a>
       </div>
     </div>
