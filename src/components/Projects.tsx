@@ -1,9 +1,10 @@
 import { type Component, createSignal, For, Switch, Match, createEffect } from "solid-js";
 import ProjectCard from "./ProjectCard";
 import { trpc } from "~/utils/trpc";
+import { createStore } from "solid-js/store";
 
 const Projects: Component = () => {
-  const projects = trpc.projects.useQuery();
+  const [projects] = createStore(trpc.projects.useQuery());
 
   //signals
   const [selectedFilter, setSelectedFilter] = createSignal<

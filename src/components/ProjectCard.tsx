@@ -21,7 +21,7 @@ const ProjectCard: Component<{ project: Project }> = (props) => {
       <p class="mb-4 mt-2 lg:text-lg">{props.project.description}</p>
       {props.project.stars > 0 ? (
         <div class="absolute top-0 right-0 m-4 flex items-center lg:text-xl font-semibold">
-          <img class="w-4 h-4 lg:h-6 lg:w-6 mr-1" src="/star-icon.svg"/> {props.project.stars}
+          <img class="w-4 h-4 lg:h-6 lg:w-6 mr-1" src="/star-icon.svg" alt="star icon"/> {props.project.stars}
         </div>
       ) : (
         ""
