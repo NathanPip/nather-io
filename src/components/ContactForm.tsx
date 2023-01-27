@@ -113,7 +113,7 @@ const ContactForm: Component = () => {
           id="message"
         />
         <button
-          class=" font-semibold bg-stone-300 shadow-md px-2 py-2 rounded-md mb-4 mt-2 lg:text-xl"
+          class=" font-semibold bg-stone-300 shadow-md px-2 py-2 rounded-md mb-4 mt-2 lg:text-xl hover:bg-stone-400 transition-colors duration-300"
           type="submit"
         >
           {!sendMail.isSuccess

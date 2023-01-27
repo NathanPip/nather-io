@@ -16,19 +16,13 @@ const Projects: Component = () => {
     setSelectedFilter(name as "featured" | "github" | "oss");
   };
 
-  createEffect(() => {
-    console.log(projects.isLoading)
-    console.log(projects.isSuccess)
-    console.log(projects.data)
-  })
-
   // tailwind styles
   const projectFilterButtonStyles =
-    "mx-2 font-semibold mb-2 bg-stone-300 shadow-md px-2 rounded-md lg:text-2xl lg:px-4 lg:py-2";
+    "mx-2 font-semibold mb-2 bg-stone-300 shadow-md px-2 rounded-md lg:text-xl lg:px-4 lg:py-2 hover:bg-stone-400 transition-colors duration-300 ease-in-out";
   const projectFilterButtonSelectedStyles = "bg-stone-400";
 
   return (
-    <div class="mb-10">
+    <div class="mb-10 projects">
       <div class="flex">
         <h1 class="mb-2 text-2xl font-semibold lg:text-4xl">Projects</h1>
         <div class="ml-auto mt-auto flex justify-around">
@@ -64,13 +58,13 @@ const Projects: Component = () => {
           </button>
         </div>
       </div>
-      <div class="scrollbar-rounded-lg max-h-screen overflow-y-scroll p-2 px-4 shadow-inner scrollbar-thin scrollbar-thumb-stone-900">
+      <div class="scrollbar-rounded-lg max-h-screen md:max-h-[75vh] overflow-y-scroll p-2 px-4 shadow-inner scrollbar-thin scrollbar-thumb-stone-900">
         <Switch>
           <Match when={projects.isLoading}>
-            <p>loading</p>
+            <h3 class="font-semibold text-xl">loading...</h3>
           </Match>
           <Match when={projects.isError}>
-            <p>error</p>
+            <p class="font-semibold text-xl">An error has occured while retrieving projects</p>
           </Match>
           <Match when={projects.isSuccess && projects.data}>
             <Switch>

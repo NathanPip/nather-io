@@ -1,3 +1,4 @@
+import { Motion } from "@motionone/solid";
 import { type Component } from "solid-js";
 import { usePageState } from "../Context/page-state";
 
@@ -5,9 +6,9 @@ const HeaderBar: Component = () => {
   const pageState = usePageState();
 
   return (
-    <div
+    <Motion.div
       class={`fixed z-10 flex w-full justify-end bg-stone-300 dark:bg-stone-900 px-4 py-2 shadow-md transition-transform duration-75 ${
-        pageState && pageState[0].scrollDown ? "-translate-y-16" : ""
+        pageState && pageState[0].scrollDown ? "animate-none -translate-y-16" : ""
       }`}
     >
       {/* <button
@@ -41,7 +42,7 @@ const HeaderBar: Component = () => {
           alt={`github logo`}
         />
       </a>
-    </div>
+    </Motion.div>
   );
 };
 

@@ -2,7 +2,7 @@ import { type Component } from "solid-js";
 
 const ContactSocialLinks: Component = () => {
 
-  const listItemStyles = "lg:shadow-lg py-2 lg:w-1/2 lg:py-4 rounded-md";
+  const listItemStyles = "lg:shadow-lg py-2 lg:w-1/2 lg:py-4 rounded-md hover:translate-x-1 hover:z-10 transition-transform duration-200";
   const linkStyles = "flex justify-between lg:flex-row lg:justify-around lg:gap-4 text-lg font-semibold";
   const labelStyles = "hidden lg:block text-xl";
   const iconStyles = "ml-2 inline h-8 w-8";

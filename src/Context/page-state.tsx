@@ -68,21 +68,21 @@ export const PageStateProvider: Component<
     }
   });
 
-  createEffect(() => {
-    document.cookie = `dark_mode=${pageState.darkMode}; path=/; max-age=31536000;`;
-    if (pageState.darkMode !== "none") {
-      document.documentElement.classList.remove(
-        pageState.darkMode === "light" ? "dark" : "light"
-      );
-      document.documentElement.classList.add(pageState.darkMode);
-    } else if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
-      setPageState("darkMode", "dark");
-      document.documentElement.classList.add("dark");
-    } else {
-      setPageState("darkMode", "light");
-      document.documentElement.classList.add("light");
-    }
-  });
+  // createEffect(() => {
+  //   document.cookie = `dark_mode=${pageState.darkMode}; path=/; max-age=31536000;`;
+  //   if (pageState.darkMode !== "none") {
+  //     document.documentElement.classList.remove(
+  //       pageState.darkMode === "light" ? "dark" : "light"
+  //     );
+  //     document.documentElement.classList.add(pageState.darkMode);
+  //   } else if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+  //     setPageState("darkMode", "dark");
+  //     document.documentElement.classList.add("dark");
+  //   } else {
+  //     setPageState("darkMode", "light");
+  //     document.documentElement.classList.add("light");
+  //   }
+  // });
 
   return (
     <PageStateContext.Provider value={[pageState, setPageState]}>
