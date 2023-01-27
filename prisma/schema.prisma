@@ -16,6 +16,7 @@ model Project {
     description  String
     featured     Boolean
     languages    String
+    tags         String
     commit_count Int
     stars        Int
     fork         Boolean

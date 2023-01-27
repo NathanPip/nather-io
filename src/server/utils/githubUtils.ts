@@ -29,9 +29,15 @@ const getCommitCount = async (project: string) => {
 };
 
 const getTags = async (project: string) => {
-  const res = await octokit.request(`/repos/${project}/tags`);
+  const res = await octokit.request(`/repos/${project}/topics`);
   const tags = res.data;
-  return tags as Record<string, number>;
+  return tags as {names: string[]};
+};
+
+const getLanguages = async (project: string) => {
+  const res = await octokit.request(`/repos/${project}/languages`);
+  const languages = res.data;
+  return languages as Record<string, number>;
 };
 
 const isFeatured = (description: string | null): [boolean, string] => {
@@ -55,10 +61,12 @@ export const getProjectData = async () => {
       const isFork = project.fork as boolean;
       const website = project.homepage as string | null;
       const count = await getCommitCount(full_name);
-      const languages = await getTags(full_name);
+      const tags = await getTags(full_name);
+      const languages = await getLanguages(full_name);
+      const languagesStringified = JSON.stringify(languages);
+      const tagsStringified = JSON.stringify(tags.names);
       const created_at = project.created_at as string;
       const updated_at = project.updated_at as string;
-      const languagesStringified = JSON.stringify(languages);
       const stars = project.stargazers_count as number;
       await prisma.project.upsert({
         where: {
@@ -72,6 +80,7 @@ export const getProjectData = async () => {
           description: featured[1],
           featured: featured[0],
           website: website !== null ? website : "",
+          tags: tagsStringified,
           languages: languagesStringified,
           commit_count: count,
           stars,
@@ -85,6 +94,7 @@ export const getProjectData = async () => {
           description: featured[1],
           featured: featured[0],
           website: website !== null ? website : "",
+          tags: tagsStringified,
           languages: languagesStringified,
           commit_count: count,
           stars,
