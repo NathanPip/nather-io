@@ -1,18 +1,16 @@
-import { useContext, type Component } from "solid-js";
-import { PageStateContext, usePageState } from "./page-state";
+import { type Component } from "solid-js";
+import { usePageState } from "../Context/page-state";
 
 const HeaderBar: Component = () => {
   const pageState = usePageState();
 
-  console.log(pageState)
-
   return (
     <div
-      class={`fixed z-10 flex w-full justify-end bg-stone-300 px-4 py-2 shadow-md transition-transform duration-75 ${
+      class={`fixed z-10 flex w-full justify-end bg-stone-300 dark:bg-stone-900 px-4 py-2 shadow-md transition-transform duration-75 ${
         pageState && pageState[0].scrollDown ? "-translate-y-16" : ""
       }`}
     >
-      <button
+      {/* <button
         onClick={() =>
           pageState ? pageState[0].darkMode == "none" || pageState[0].darkMode == "light"
             ? pageState[1]("darkMode", "dark")
@@ -20,8 +18,8 @@ const HeaderBar: Component = () => {
         }
         class="mr-auto"
       >
-        {pageState && (pageState[0].darkMode == "none" || pageState[0].darkMode == "light" ? "dark" : "light")}
-      </button>
+        {pageState && (pageState[0].darkMode == "none" || pageState[0].darkMode == "light" ? <img class="fill-stone-50" src="/dark-mode.svg"/> : <img class="fill-stone-50" src="/light-mode.svg"/> )}
+      </button> */}
       <a class="mx-2" href="https://github.com/NathanPip">
         <img
           class="h-8 w-8 lg:h-10 lg:w-10"

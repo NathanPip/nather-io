@@ -1,6 +1,6 @@
 import { Motion } from "@motionone/solid";
 import { type Component } from "solid-js";
-import { usePageState } from "~/components/page-state";
+import { usePageState } from "~/Context/page-state";
 
 const HomePage: Component = () => {
 

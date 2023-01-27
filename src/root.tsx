@@ -14,7 +14,7 @@ import {
 } from "solid-start";
 import { trpc, client, queryClient } from "~/utils/trpc";
 import HeaderBar from "./components/HeaderBar";
-import { PageStateProvider, useDarkModeCookie } from "./components/page-state";
+import { PageStateProvider, useDarkModeCookie } from "./Context/page-state";
 
 export default function Root() {
   const darkMode = useDarkModeCookie();
