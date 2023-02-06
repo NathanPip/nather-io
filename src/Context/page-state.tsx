@@ -1,3 +1,4 @@
+import { getSession } from "@auth/solid-start";
 import {
   type Component,
   createContext,
@@ -10,17 +11,21 @@ import {
 import { createStore, type SetStoreFunction } from "solid-js/store";
 import { isServer } from "solid-js/web";
 import { parseCookie, ServerContext } from "solid-start";
-
-const defaultPageState: PageState = {
-  scrollDown: false,
-  scrollY: 0,
-  darkMode: "none",
-};
+import { createServerData$ } from "solid-start/server";
+import { authOpts } from "~/routes/api/auth/[...solid-auth]";
 
 export type PageState = {
   scrollDown: boolean;
   scrollY: number;
   darkMode: "light" | "dark" | "none";
+  signedIn: boolean;
+};
+
+const defaultPageState: PageState = {
+  scrollDown: false,
+  scrollY: 0,
+  darkMode: "none",
+  signedIn: false,
 };
 
 export const useCookies = () => {
@@ -30,6 +35,15 @@ export const useCookies = () => {
     : document.cookie;
 
   return parseCookie(cookies ?? "");
+};
+
+const useSession = () => {
+  return createServerData$(
+    async (_, { request }) => {
+      return await getSession(request, authOpts);
+    },
+    { key: () => ["auth_user"] }
+  );
 };
 
 export const useDarkModeCookie = (): PageState["darkMode"] => {
@@ -52,6 +66,8 @@ export const PageStateProvider: Component<
     darkMode: useDarkModeCookie(),
   });
 
+  const session = useSession();
+
   onMount(() => {
     setPageState("scrollY", window.scrollY);
     window.addEventListener("scroll", () => {
@@ -59,6 +75,14 @@ export const PageStateProvider: Component<
       setPageState("scrollY", window.scrollY);
     });
   });
+
+  createEffect(() => {
+    if (session()?.user?.email === "nathan.piper.sd@gmail.com") {
+      setPageState("signedIn", true);
+    } else {
+      setPageState("signedIn", false);
+    }
+  })
 
   createEffect(() => {
     if (pageState.scrollY > prevScrollY()) {
