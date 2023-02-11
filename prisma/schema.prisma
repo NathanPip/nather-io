@@ -22,3 +22,8 @@ model Project {
     fork         Boolean
     website      String
 }
+
+model Password {
+    id        String   @id @default(auto()) @map("_id") @db.ObjectId
+    password  String
+}

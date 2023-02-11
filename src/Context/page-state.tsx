@@ -75,13 +75,10 @@ export const PageStateProvider: Component<
       setPageState("scrollY", window.scrollY);
     });
   });
-
+  setPageState("signedIn", session()?.user?.email === "nathan.piper.sd@gmail.com");
+  
   createEffect(() => {
-    if (session()?.user?.email === "nathan.piper.sd@gmail.com") {
-      setPageState("signedIn", true);
-    } else {
-      setPageState("signedIn", false);
-    }
+      setPageState("signedIn", session()?.user?.email === "nathan.piper.sd@gmail.com");
   })
 
   createEffect(() => {

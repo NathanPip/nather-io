@@ -33,7 +33,7 @@ export default function Root() {
       </Head>
       <Body>
         <trpc.Provider client={client} queryClient={queryClient}>
-          {/* <Suspense> */}
+          <Suspense>
           <PageStateProvider darkMode={darkMode}>
             <HeaderBar />
             <LoginAccess />
@@ -43,7 +43,7 @@ export default function Root() {
               </Routes>
             </ErrorBoundary>
           </PageStateProvider>
-          {/* </Suspense> */}
+          </Suspense>
         </trpc.Provider>
         <Scripts />
       </Body>

@@ -1,4 +1,4 @@
-import { type VoidComponent, Switch, Match } from "solid-js";
+import { type VoidComponent } from "solid-js";
 import { Title } from "solid-start";
 import Contact from "~/components/Contact";
 import HomePage from "~/components/Homepage";
@@ -13,17 +13,6 @@ const Home: VoidComponent = () => {
         <HomePage />
         <Projects />
         <Contact />
-        {/* <Switch 
-          fallback={
-            <pre class="font-bold text-2xl text-gray-500">
-              {JSON.stringify(res.data, null, 2)}
-            </pre>
-          }
-        >
-          <Match when={res.isLoading}>
-            <div class="font-bold text-2xl text-gray-500">Loading...</div>
-          </Match>
-        </Switch> */}
       </main>
     </>
   );

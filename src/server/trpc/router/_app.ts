@@ -1,8 +1,8 @@
 import { t } from "../utils";
-import exampleRouter from "./example";
 import githubRouter from "./github";
 import emailRouter from "./node-mailer"
+import passwordRouter from "./password";
 
-export const appRouter = t.mergeRouters(exampleRouter, githubRouter, emailRouter);
+export const appRouter = t.mergeRouters(githubRouter, emailRouter, passwordRouter);
 
 export type IAppRouter = typeof appRouter;
