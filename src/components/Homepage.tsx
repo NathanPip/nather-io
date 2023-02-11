@@ -10,7 +10,7 @@ const HomePage: Component = () => {
       <Motion.h1
         animate={{ y: ["-150%", 0] }}
         transition={{ duration: 1, easing: "ease-in-out"}}
-        class="mt-4 h-fit w-fit rounded-tr-md border-r-2 border-t-2 border-black p-2 text-6xl lg:mt-12 lg:text-9xl"
+        class="mt-4 h-fit w-fit rounded-tr-md border-r-2 border-t-2 border-black p-2 text-6xl lg:mt-12 lg:text-9xl -translate-y-[150%]"
       >
         Nathan Piper{" "}
         <span class="mt-6 block text-3xl lg:ml-3 lg:text-4xl">

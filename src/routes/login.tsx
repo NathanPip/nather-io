@@ -1,6 +1,6 @@
 import { signIn } from "@auth/solid-start/client";
 import { createEffect, createSignal, Show, type VoidComponent } from "solid-js";
-import { Navigate, redirect } from "solid-start";
+import { Navigate } from "solid-start";
 import { createServerAction$ } from "solid-start/server";
 import { usePageState } from "~/Context/page-state";
 import { prisma } from "~/server/db/client";
@@ -11,17 +11,14 @@ const Login: VoidComponent = () => {
   let input: HTMLInputElement | undefined;
 
   const pageState = usePageState();
-
   const [signingIn, { Form }] = createServerAction$(
     async (form: FormData) => {
       const ps = form.get("password") as string;
-      console.log(ps);
       if (!ps) return "Enter a password";
       const query = await prisma.password.findFirst();
-      const data = query?.password === ps;
-      if (data) {
-        await signIn("github");
-        return redirect("/");
+      const valid = query?.password === ps;
+      if (valid) {
+        return valid;
       } else {
         return "You're wrong on that one"
       }
@@ -32,11 +29,12 @@ const Login: VoidComponent = () => {
     if (signingIn.error) setError(signingIn.error.message);
     if (typeof signingIn.result === "string") {
         setError(signingIn.result)
+    } else if (typeof signingIn.result === "boolean") {
+        if(signingIn.result) {
+            signIn("github");
+        }
     }
   })
-
-  console.log(pageState)
-
   return (
     <Show when={pageState && !pageState[0].signedIn} fallback={<Navigate href="/" />}>
     <div class="flex justify-center">
