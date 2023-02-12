@@ -18,14 +18,14 @@ export type PageState = {
   scrollDown: boolean;
   scrollY: number;
   darkMode: "light" | "dark" | "none";
-  signedIn: boolean;
+  admin: boolean;
 };
 
 const defaultPageState: PageState = {
   scrollDown: false,
   scrollY: 0,
   darkMode: "none",
-  signedIn: false,
+  admin: false,
 };
 
 export const useCookies = () => {
@@ -75,10 +75,11 @@ export const PageStateProvider: Component<
       setPageState("scrollY", window.scrollY);
     });
   });
-  setPageState("signedIn", session()?.user?.email === "nathan.piper.sd@gmail.com");
+
+  setPageState("admin", session()?.user?.role === "admin");
   
   createEffect(() => {
-      setPageState("signedIn", session()?.user?.email === "nathan.piper.sd@gmail.com");
+      setPageState("admin", session()?.user?.role === "admin");
   })
 
   createEffect(() => {

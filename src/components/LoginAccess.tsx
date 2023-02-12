@@ -13,7 +13,7 @@ const LoginAccess: Component = () => {
         window.addEventListener('keydown', (e) => {
             if (e.key === "n") set_is_n_pressed(true)
             if (e.key === "d") set_is_d_pressed(true);
-            if (e.key === "p" && is_n_pressed() && is_d_pressed() && pageState && !pageState[0].signedIn) {
+            if (e.key === "p" && is_n_pressed() && is_d_pressed() && pageState && !pageState[0].admin) {
                 setRedirecting(true);
             }
         })
