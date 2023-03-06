@@ -21,7 +21,7 @@ const HeaderBar: Component = () => {
       >
         {pageState && (pageState[0].darkMode == "none" || pageState[0].darkMode == "light" ? <img class="fill-stone-50" src="/dark-mode.svg"/> : <img class="fill-stone-50" src="/light-mode.svg"/> )}
       </button> */}
-      <Show when={pageState && pageState[0].signedIn}>
+      <Show when={pageState && pageState[0].admin}>
         <div>signed in</div>
       </Show>
       <a class="mx-2" aria-label="Github" href="https://github.com/NathanPip">
