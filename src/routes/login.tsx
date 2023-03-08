@@ -1,4 +1,3 @@
-import { signIn } from "@auth/solid-start/client";
 import { createEffect, createSignal, Show, type VoidComponent } from "solid-js";
 import { Navigate } from "solid-start";
 import { createServerAction$ } from "solid-start/server";
@@ -31,12 +30,11 @@ const Login: VoidComponent = () => {
         setError(signingIn.result)
     } else if (typeof signingIn.result === "boolean") {
         if(signingIn.result) {
-            signIn("github");
+            // signIn("github");
         }
     }
   })
   return (
-    <Show when={pageState && !pageState[0].signedIn} fallback={<Navigate href="/" />}>
     <div class="flex justify-center">
       <Form class="mt-20 flex w-fit flex-col items-center gap-2 text-2xl font-semibold">
         <label class="mb-2" for="password">
@@ -64,7 +62,6 @@ const Login: VoidComponent = () => {
         </button>
       </Form>
     </div>
-    </Show>
   );
 };
 

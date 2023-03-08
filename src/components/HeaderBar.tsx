@@ -1,5 +1,5 @@
 import { Motion } from "@motionone/solid";
-import { Show, type Component } from "solid-js";
+import { type Component } from "solid-js";
 import { usePageState } from "../Context/page-state";
 
 const HeaderBar: Component = () => {
@@ -21,9 +21,6 @@ const HeaderBar: Component = () => {
       >
         {pageState && (pageState[0].darkMode == "none" || pageState[0].darkMode == "light" ? <img class="fill-stone-50" src="/dark-mode.svg"/> : <img class="fill-stone-50" src="/light-mode.svg"/> )}
       </button> */}
-      <Show when={pageState && pageState[0].admin}>
-        <div>signed in</div>
-      </Show>
       <a class="mx-2" aria-label="Github" href="https://github.com/NathanPip">
         <img
           class="h-8 w-8 lg:h-10 lg:w-10"
