@@ -67,7 +67,6 @@ const Login: VoidComponent = () => {
     } else if (signingIn.result?.session.token.length) {
       document.cookie = `session_token=${signingIn.result.session.token}`;
       document.cookie = `session_expiration=${signingIn.result.session.expires}`
-      document.cookie = "admin=true"
       setPageState(prev => ({...prev, admin: true}))
       setNavigating(true);
     }

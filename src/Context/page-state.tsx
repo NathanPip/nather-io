@@ -10,6 +10,8 @@ import {
 import { createStore, type SetStoreFunction } from "solid-js/store";
 import { isServer } from "solid-js/web";
 import { parseCookie, ServerContext } from "solid-start";
+import { createServerAction$ } from "solid-start/server";
+import {prisma} from "~/server/db/client"
 
 export type PageState = {
   scrollDown: boolean;
@@ -39,15 +41,20 @@ export const useDarkModeCookie = (): PageState["darkMode"] => {
   return (cookies["dark_mode"] as PageState["darkMode"]) || "none";
 };
 
-const useExpireCookie = (): Date | undefined => {
-  const cookies = useCookies();
-  const expire = cookies["session_expire"];
-  return expire ? new Date(cookies["session_expire"]) : undefined;
-}
-
 export const useAdminCookie = (): PageState["admin"] => {
   const cookies = useCookies();
   return cookies["admin"] === "true"
+}
+
+export const useSessionCookie = (): {sessionToken: string | undefined, expires: Date | undefined} => {
+  const cookies = useCookies();
+  const expire = cookies["session_expire"];
+  const expiration = expire ? new Date(expire) : undefined;
+  const token = cookies["session_token"] ?? undefined;
+  return {
+    sessionToken: token,
+    expires: expiration
+  }
 }
 
 const [pageState, setPageState] = createStore({...defaultPageState})
@@ -68,10 +75,28 @@ export const PageStateProvider: Component<
     admin: useAdminCookie(),
   });
 
-  onMount(() => {
-    const expired = useExpireCookie();
-    if(expired !== undefined) {
-      if(expired.getTime() - new Date().getTime() < 0) {
+  const [sessionData, fetchSession] = createServerAction$(async (token: string) => {
+    const session = await prisma.session.findFirst({
+      where: {
+        session_token: token
+      }
+    })
+    if(session === null) return false;
+    if (new Date(session.expires).getTime() - new Date().getTime() < 0) {
+      return false
+    }
+    return true;
+  })
+
+  onMount(async () => {
+    const session = useSessionCookie();
+    if(session.sessionToken !== undefined) {
+      fetchSession(session.sessionToken)
+    } else {
+      setPageState("admin", false)
+    }
+    if(session.expires !== undefined) {
+      if(session.expires.getTime() - new Date().getTime() < 0) {
         setPageState(prev => ({...prev, admin: false}));
       }
     }
@@ -89,6 +114,16 @@ export const PageStateProvider: Component<
       setPageState("scrollDown", false);
     }
   });
+
+  createEffect(() => {
+    document.cookie = `admin=${pageState.admin}`
+  })
+
+  createEffect(() => {
+    if(sessionData.result !== undefined) {
+      setPageState("admin", sessionData.result)
+    }
+  })
 
   // createEffect(() => {
   //   document.cookie = `dark_mode=${pageState.darkMode}; path=/; max-age=31536000;`;
