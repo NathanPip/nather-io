@@ -4,7 +4,7 @@ import { type Component } from "solid-js";
 import { usePageState } from "~/Context/page-state";
 
 const HomePage: Component = () => {
-  const pageState = usePageState();
+  const [pageState] = usePageState();
 
   return (
     <div class="flex h-screen flex-col py-12">
@@ -36,7 +36,7 @@ const HomePage: Component = () => {
         animate={{opacity: [0, 1]}}
         transition={{ duration: 1, delay: 1, easing: "ease-in-out"}}
         class={`mt-auto text-center text-xl font-semibold lg:text-3xl transition-opacity ${
-          pageState && pageState[0].scrollY > 20 ? "animate-out fade-out fill-mode-forwards" : "animate-pulse"
+          pageState.scrollY > 20 ? "animate-out fade-out fill-mode-forwards" : "animate-pulse"
         } `}
       >
         scroll down

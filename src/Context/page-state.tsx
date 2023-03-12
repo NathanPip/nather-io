@@ -10,7 +10,6 @@ import {
 import { createStore, type SetStoreFunction } from "solid-js/store";
 import { isServer } from "solid-js/web";
 import { parseCookie, ServerContext } from "solid-start";
-import { createServerData$ } from "solid-start/server";
 
 export type PageState = {
   scrollDown: boolean;
@@ -40,10 +39,23 @@ export const useDarkModeCookie = (): PageState["darkMode"] => {
   return (cookies["dark_mode"] as PageState["darkMode"]) || "none";
 };
 
+const useExpireCookie = (): Date | undefined => {
+  const cookies = useCookies();
+  const expire = cookies["session_expire"];
+  return expire ? new Date(cookies["session_expire"]) : undefined;
+}
+
+export const useAdminCookie = (): PageState["admin"] => {
+  const cookies = useCookies();
+  return cookies["admin"] === "true"
+}
+
+const [pageState, setPageState] = createStore({...defaultPageState})
 export const PageStateContext =
   createContext<
     [pageState: PageState, setPageState: SetStoreFunction<PageState>]
-  >();
+  >([pageState, setPageState]);
+
 
 export const PageStateProvider: Component<
   ParentProps<{ darkMode: PageState["darkMode"] }>
@@ -53,9 +65,16 @@ export const PageStateProvider: Component<
   const [pageState, setPageState] = createStore<PageState>({
     ...defaultPageState,
     darkMode: useDarkModeCookie(),
+    admin: useAdminCookie(),
   });
 
   onMount(() => {
+    const expired = useExpireCookie();
+    if(expired !== undefined) {
+      if(expired.getTime() - new Date().getTime() < 0) {
+        setPageState(prev => ({...prev, admin: false}));
+      }
+    }
     setPageState("scrollY", window.scrollY);
     window.addEventListener("scroll", () => {
       setPrevScrollY(pageState.scrollY);
