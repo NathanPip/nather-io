@@ -14,6 +14,7 @@ const ProjectCard: Component<{ project: Project }> = (props) => {
     >
       <a
         class="text-lg font-semibold hover:underline lg:text-2xl"
+        aria-label="Github"
         href={`https://github.com/${props.project.full_name}`}
       >
         {props.project.name}
@@ -28,6 +29,7 @@ const ProjectCard: Component<{ project: Project }> = (props) => {
       )}{" "}
       <a
         class="mr-2 rounded-md border-[1px] border-stone-900 bg-stone-300 p-2 font-semibold shadow-md transition-colors hover:bg-stone-400 lg:text-lg"
+        aria-label="Github"
         href={`https://github.com/${props.project.full_name}`}
       >
         Github
@@ -35,6 +37,7 @@ const ProjectCard: Component<{ project: Project }> = (props) => {
       {props.project.website.length ? (
         <a
           class="mr-2 rounded-md border-[1px] border-stone-900 bg-stone-300 p-2 font-semibold shadow-md transition-colors hover:bg-stone-400 lg:text-lg"
+          aria-label="Live Site"
           href={props.project.website}
         >
           Live Site

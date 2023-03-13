@@ -15,6 +15,7 @@ import {
 import { trpc, client, queryClient } from "~/utils/trpc";
 import HeaderBar from "./components/HeaderBar";
 import { PageStateProvider, useDarkModeCookie } from "./Context/page-state";
+import LoginAccess from "./components/LoginAccess";
 
 export default function Root() {
   const darkMode = useDarkModeCookie();
@@ -24,21 +25,27 @@ export default function Root() {
       <Head>
         <Title>nather.io</Title>
         <Meta charset="utf-8" />
-        <Meta name="description" content="The Nather Hub of all things Nather, but mostly just software" />
+        <Meta
+          name="description"
+          content="The Nather Hub of all things Nather, but mostly just software"
+        />
         <Meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
       <Body>
         <trpc.Provider client={client} queryClient={queryClient}>
-          {/* <Suspense> */}
-            <PageStateProvider darkMode={darkMode}>
-              <HeaderBar />
-              <ErrorBoundary>
-                <Routes>
-                  <FileRoutes />
-                </Routes>
-              </ErrorBoundary>
-            </PageStateProvider>
-          {/* </Suspense> */}
+          <Suspense>
+          <PageStateProvider darkMode={darkMode}>
+            <HeaderBar />
+            <LoginAccess />
+            <ErrorBoundary>
+              <main class="px-4 max-w-7xl mx-auto">
+              <Routes>
+                <FileRoutes />
+              </Routes>
+              </main>
+            </ErrorBoundary>
+          </PageStateProvider>
+          </Suspense>
         </trpc.Provider>
         <Scripts />
       </Body>

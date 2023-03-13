@@ -22,3 +22,14 @@ model Project {
     fork         Boolean
     website      String
 }
+
+model Session {
+    id           String   @id @default(auto()) @map("_id") @db.ObjectId
+    session_token String   @unique
+    expires      DateTime 
+}
+
+model Password {
+    id       String @id @default(auto()) @map("_id") @db.ObjectId
+    password String
+}

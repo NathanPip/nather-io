@@ -1,4 +1,4 @@
-import { type Component, createSignal, For, Switch, Match, createEffect } from "solid-js";
+import { type Component, createSignal, For, Switch, Match } from "solid-js";
 import ProjectCard from "./ProjectCard";
 import { trpc } from "~/utils/trpc";
 import { createStore } from "solid-js/store";
