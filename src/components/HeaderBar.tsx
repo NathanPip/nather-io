@@ -7,8 +7,8 @@ const HeaderBar: Component = () => {
 
   return (
     <Motion.div
-      class={`fixed z-10 flex w-full justify-end top-0 bg-stone-300 dark:bg-stone-900 px-4 py-2 shadow-md transition-transform duration-75 ${
-        pageState.scrollDown ? "animate-none -translate-y-16" : ""
+      class={`fixed z-10 flex w-full justify-end top-0 bg-stone-300 dark:bg-stone-900 px-4 py-2 shadow-md transition-transform ease-linear duration-200 ${
+        pageState.scrollDown ? "-translate-y-16" : ""
       }`}
     >
       {/* <button

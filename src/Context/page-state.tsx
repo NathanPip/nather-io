@@ -75,7 +75,7 @@ export const PageStateProvider: Component<
     admin: useAdminCookie(),
   });
 
-  const [sessionData, fetchSession] = createServerAction$(async (token: string) => {
+  const [sessionValid, fetchSession] = createServerAction$(async (token: string) => {
     const session = await prisma.session.findFirst({
       where: {
         session_token: token
@@ -108,20 +108,21 @@ export const PageStateProvider: Component<
   });
 
   createEffect(() => {
+    console.log(pageState.scrollY + " " + prevScrollY())
     if (pageState.scrollY > prevScrollY()) {
-      setPageState("scrollDown", true);
+        setPageState("scrollDown", true);
     } else {
       setPageState("scrollDown", false);
     }
   });
 
   createEffect(() => {
-    document.cookie = `admin=${pageState.admin}`
+    document.cookie = `admin=${pageState.admin};path=/`
   })
 
   createEffect(() => {
-    if(sessionData.result !== undefined) {
-      setPageState("admin", sessionData.result)
+    if(sessionValid.result !== undefined) {
+      setPageState("admin", sessionValid.result)
     }
   })
 

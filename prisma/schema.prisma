@@ -23,6 +23,18 @@ model Project {
     website      String
 }
 
+model BlogPost {
+    id String @id @default(auto()) @map("_id") @db.ObjectId
+    created_at DateTime
+    updated_at DateTime
+    posted_at DateTime
+    posted Boolean
+    title String
+    sub_heading String
+    authors String[]
+    content String
+}
+
 model Session {
     id           String   @id @default(auto()) @map("_id") @db.ObjectId
     session_token String   @unique
