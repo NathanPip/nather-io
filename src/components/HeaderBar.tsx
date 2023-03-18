@@ -1,11 +1,18 @@
 import { Motion } from "@motionone/solid";
-import { type Component } from "solid-js";
+import { createEffect, Show, type Component } from "solid-js";
+import { useLocation } from "solid-start";
 import { usePageState } from "../Context/page-state";
 
 const HeaderBar: Component = () => {
   const [pageState] = usePageState();
+  const location = useLocation();
+  const noShowPaths = new Set(["/blog/create"]);
+  createEffect(() => {
+    console.log(location.pathname);
+  })
 
   return (
+    <Show when={!noShowPaths.has(location.pathname)}>
     <Motion.div
       class={`fixed z-10 flex w-full justify-end top-0 bg-stone-300 dark:bg-stone-900 px-4 py-2 shadow-md transition-transform ease-linear duration-200 ${
         pageState.scrollDown ? "-translate-y-16" : ""
@@ -43,6 +50,7 @@ const HeaderBar: Component = () => {
         />
       </a>
     </Motion.div>
+    </Show>
   );
 };
 

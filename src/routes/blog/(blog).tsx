@@ -1,6 +1,7 @@
 import { type VoidComponent, Show, For, createEffect } from "solid-js";
-import { useRouteData } from "solid-start";
+import { A, useRouteData } from "solid-start";
 import { createServerData$ } from "solid-start/server";
+import { usePageState } from "~/Context/page-state";
 import {prisma} from "~/server/db/client"
 
 export function routeData() {
@@ -21,8 +22,10 @@ export function routeData() {
     })
 }
 
+
 const BlogHome: VoidComponent = () => {
     const posts = useRouteData<typeof routeData>();
+    const [pageState] = usePageState();
 
     createEffect(() => {
         console.log(posts());
@@ -30,7 +33,10 @@ const BlogHome: VoidComponent = () => {
 
     return (
         <div class="mt-14">
-            <h1 class="text-3xl p-2">Blog</h1>
+            <h1 class="text-4xl p-2 inline-block">Blog</h1>
+            <Show when={pageState.admin}>
+                <A class="inline my-2 ml-4 rounded-md bg-stone-300 px-4 font-semibold shadow-md transition-colors duration-300 ease-in-out hover:bg-stone-400 lg:px-6 lg:py-2 lg:text-lg" href="/blog/create">Create Post</A>
+            </Show>
             <Show when={posts() !== undefined && posts()!.length} fallback={
                 <p>No Posts Here</p>
             }>

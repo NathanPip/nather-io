@@ -6,7 +6,7 @@ import {
 } from "solid-start/entry-server";
 import {prisma} from "~/server/db/client"
 
-const protectedRoutes = new Set(["/blog/admin"]);
+const protectedRoutes = new Set(["/blog/create"]);
 
 export default createHandler(
   ({ forward }) => {

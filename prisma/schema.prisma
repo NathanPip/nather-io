@@ -25,10 +25,11 @@ model Project {
 
 model BlogPost {
     id String @id @default(auto()) @map("_id") @db.ObjectId
-    created_at DateTime
-    updated_at DateTime
-    posted_at DateTime
-    posted Boolean
+    blogId Int @unique
+    created_at DateTime @default(now())
+    updated_at DateTime @default(now())
+    posted_at DateTime @default(now())
+    posted Boolean @default(false)
     title String
     sub_heading String
     authors String[]
