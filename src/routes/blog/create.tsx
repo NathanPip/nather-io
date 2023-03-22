@@ -3,6 +3,7 @@ import { Match, Switch } from "solid-js/web";
 import { A, useRouteData } from "solid-start";
 import { createServerAction$, createServerData$ } from "solid-start/server";
 import { prisma } from "~/server/db/client";
+import { MarkdownParser } from "~/utils/markdown";
 
 export function routeData() {
   return createServerData$(async () => {
@@ -23,9 +24,12 @@ const CreatePost: VoidComponent = () => {
   const [contentText, setContentText] = createSignal("");
   const [errorMessage, setErrorMessage] = createSignal("");
 
+  const markdownParser = new MarkdownParser({
+    heading1: { tag: "h2", attributes: { class: "text-3xl" } },
+  });
   createEffect(() => {
-    console.log(blogCount())
-  })
+    console.log(blogCount());
+  });
 
   const [saving, saveBlog] = createServerAction$(
     async (blogData: {
@@ -86,7 +90,7 @@ const CreatePost: VoidComponent = () => {
           }}
           class="my-2 rounded-md bg-stone-300 px-4 font-semibold shadow-md transition-colors duration-300 ease-in-out hover:bg-stone-400 lg:px-6 lg:py-2 lg:text-xl"
         >
-          Save
+          {saving.pending ? "Saving..." : "Save"}
         </button>
         <button class="my-2 rounded-md bg-stone-300 px-4 font-semibold shadow-md transition-colors duration-300 ease-in-out hover:bg-stone-400 lg:px-6 lg:py-2 lg:text-xl">
           Post
@@ -126,7 +130,9 @@ const CreatePost: VoidComponent = () => {
               value={subtitle()}
             />
             <textarea
-              onChange={(e) => setContentText(e.currentTarget.value)}
+              onChange={(e) => {
+                setContentText(e.currentTarget.value);
+              }}
               value={contentText()}
               class="mb-4 h-3/4 flex-1 resize-none rounded-md bg-stone-200 px-4 py-4 shadow-lg placeholder:text-stone-400 focus:outline-0"
               placeholder="type something"
@@ -149,7 +155,7 @@ const CreatePost: VoidComponent = () => {
                 ? subtitle()
                 : "Waiting on a Subtitle Title Pal"}
             </h2>
-            {/* <SolidMarkdown class="mb-4 h-3/4 resize-none rounded-md flex-1 bg-stone-200 px-4 py-4 shadow-lg" children={contentText()}/> */}
+            <div innerHTML={markdownParser.parse(contentText())} />
           </Match>
         </Switch>
       </div>
