@@ -51,6 +51,7 @@ export class MarkdownParser {
   }
 
   createImg(tag: string) {
+    console.log(tag)
     let string = `<img src="${tag.substring(
       tag.indexOf("(") + 1,
       tag.indexOf(")")
@@ -64,6 +65,7 @@ export class MarkdownParser {
   }
 
   createLink(tag: string) {
+    console.log(tag)
     let string = `<a href="${tag.substring(
       tag.indexOf("(") + 1,
       tag.indexOf(")")
@@ -153,6 +155,8 @@ export class MarkdownParser {
               this.exportString += this.openExpression("list_item");
               continue;
             default:
+              if(markdown[i].charCodeAt(0) === 10)
+                break;
               newExpression = true;
               if (isUnorderedList) {
                 isUnorderedList = false;
@@ -193,7 +197,7 @@ export class MarkdownParser {
           const closingIndex = markdown.substring(i).indexOf("]");
           if (markdown.substring(i)[closingIndex + 1] === "(") {
             this.exportString += this.createImg(
-              markdown.substring(i, markdown.substring(i).indexOf(")") + 1)
+              markdown.substring(i, markdown.substring(i).indexOf(")") + 1 + i)
             );
             i += markdown.substring(i).indexOf(")");
             continue;
@@ -204,7 +208,7 @@ export class MarkdownParser {
         const closingIndex = markdown.substring(i).indexOf("]");
           if (markdown.substring(i)[closingIndex + 1] === "(") {
             this.exportString += this.createLink(
-              markdown.substring(i, markdown.substring(i).indexOf(")") + 1)
+              markdown.substring(i, markdown.substring(i).indexOf(")") + 1 + i)
             );
             i += markdown.substring(i).indexOf(")");
             continue;
@@ -224,9 +228,12 @@ export class MarkdownParser {
           this.exportString += this.closeExpression("list_item");
           newExpression = false;
           continue;
-        } else {
+        } else if(newExpression) {
           this.exportString += this.closeExpression();
           newExpression = false;
+          continue;
+        } else {
+          this.exportString += "</br>"
           continue;
         }
       }
