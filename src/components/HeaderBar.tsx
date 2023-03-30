@@ -1,18 +1,25 @@
 import { Motion } from "@motionone/solid";
-import { createEffect, Show, type Component } from "solid-js";
+import { createEffect, createRenderEffect, createSignal, Show, type Component } from "solid-js";
 import { useLocation } from "solid-start";
 import { usePageState } from "../Context/page-state";
 
 const HeaderBar: Component = () => {
   const [pageState] = usePageState();
   const location = useLocation();
-  const noShowPaths = new Set(["/blog/create"]);
+  const noShowPaths = ["/blog/create"];
+  const [noShow, setNoShow] = createSignal(true);
+  createRenderEffect(() => {
+    for(const i of noShowPaths) {
+      if(location.pathname.includes(i)) return;
+    }
+    setNoShow(false);
+  })
   createEffect(() => {
     console.log(location.pathname);
   })
 
   return (
-    <Show when={!noShowPaths.has(location.pathname)}>
+    <Show when={!noShow()}>
     <Motion.div
       class={`fixed z-10 flex w-full justify-end top-0 bg-stone-300 dark:bg-stone-900 px-4 py-2 shadow-md transition-transform ease-linear duration-200 ${
         pageState.scrollDown ? "-translate-y-16" : ""

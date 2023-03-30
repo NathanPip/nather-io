@@ -97,7 +97,7 @@ export const PageStateProvider: Component<
     }
     if(session.expires !== undefined) {
       if(session.expires.getTime() - new Date().getTime() < 0) {
-        setPageState(prev => ({...prev, admin: false}));
+        setPageState("admin", false);
       }
     }
     setPageState("scrollY", window.scrollY);

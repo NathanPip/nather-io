@@ -100,11 +100,8 @@ export class MarkdownParser {
     let isHeading = false,
       isBold = false,
       isItalic = false,
-      isBlockquote = false,
       isUnorderedList = false,
-      isOrderedList = false,
       isListItem = false,
-      isCode = false,
       newExpression = false;
     let headingCount = 1;
     let spaceCount = 0;
@@ -215,7 +212,6 @@ export class MarkdownParser {
           }
       }
       if (markdown[i].charCodeAt(0) === 10) {
-        console.log("breakfound");
         if (isHeading) {
           this.exportString += this.closeExpression(
             `heading${headingCount}` as keyof MappingConfig
@@ -231,9 +227,6 @@ export class MarkdownParser {
         } else if(newExpression) {
           this.exportString += this.closeExpression();
           newExpression = false;
-          continue;
-        } else {
-          this.exportString += "</br>"
           continue;
         }
       }
