@@ -128,7 +128,6 @@ export const PageStateProvider: Component<
   });
 
   createEffect(() => {
-    console.log(pageState.scrollY + " " + prevScrollY())
     if (pageState.scrollY > prevScrollY()) {
         setPageState("scrollDown", true);
     } else {

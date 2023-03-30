@@ -1,3 +1,4 @@
+import { Motion, Presence } from "@motionone/solid";
 import {
   createEffect,
   createRenderEffect,
@@ -40,6 +41,7 @@ export function routeData({ params }: RouteDataArgs) {
 const CreatePost: VoidComponent = () => {
   const blogResponse = useRouteData<typeof routeData>();
   const [pageState] = usePageState();
+  const [showModal, setShowModal] = createSignal(false);
   const [blogId, setBlogId] = createSignal("");
   const [previewMode, setPreviewMode] = createSignal(false);
   const [postTitle, setPostTitle] = createSignal("");
@@ -84,6 +86,7 @@ const CreatePost: VoidComponent = () => {
         where: { blogId },
         data: { posted: true },
       });
+      return true;
     } catch (e: any) {
       console.log(e);
       throw new Error("Error posting blog post");
@@ -156,6 +159,7 @@ const CreatePost: VoidComponent = () => {
       });
     } catch (e) {
       setErrorMessage((e as Error).message);
+      throw new Error((e as Error).message);
     }
   };
 
@@ -250,10 +254,10 @@ const CreatePost: VoidComponent = () => {
             {saving.pending ? "Saving..." : "Save"}
           </button>
           <button
-            onClick={postBlogHandler}
+            onClick={() => setShowModal(true)}
             class="my-2 rounded-md bg-stone-300 px-6 py-2 text-2xl font-semibold shadow-md transition-colors duration-300 ease-in-out hover:bg-stone-400"
           >
-            {posting.pending ? "Posting..." : "Post"}
+            Post
           </button>
           <Show when={errorMessage().length}>
             <div class="text-center text-xl font-semibold text-rose-500">
@@ -262,6 +266,34 @@ const CreatePost: VoidComponent = () => {
           </Show>
         </div>
       </div>
+      <Presence>
+        <Show when={showModal()}>
+          <Motion.div
+            animate={{ opacity: [0, 1] }}
+            transition={{ duration: 0.75, easing: "ease-in-out" }}
+            exit={{ opacity: [1, 0] }}
+            class="fixed w-full h-screen overflow-hidden z-10 top-0 left-0 bg-stone-600 bg-opacity-20"
+          >
+            <div class="absolute top-1/3 left-1/2 z-10 flex -translate-x-1/2 flex-col items-center justify-center rounded-md bg-stone-300 p-4">
+            <h3 class="mb-6 text-3xl font-semibold">Post?</h3>
+            <div class="flex gap-6">
+              <button
+                onClick={postBlogHandler}
+                class="my-2 rounded-md bg-stone-200 px-4 py-2 text-xl font-semibold shadow-md transition-colors duration-300 ease-in-out hover:bg-stone-300"
+              >
+                {posting.pending ? "Posting..." : "Post"}
+              </button>
+              <button
+                onClick={() => setShowModal(false)}
+                class="my-2 rounded-md bg-rose-300 px-4 py-2 text-xl font-semibold shadow-md transition-colors duration-300 ease-in-out hover:bg-rose-400"
+              >
+                Cancel
+              </button>
+              </div>
+            </div>
+          </Motion.div>
+        </Show>
+      </Presence>
     </div>
   );
 };
