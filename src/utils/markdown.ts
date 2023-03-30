@@ -51,7 +51,7 @@ export class MarkdownParser {
   }
 
   createImg(tag: string) {
-    console.log(tag)
+    console.log(tag);
     let string = `<img src="${tag.substring(
       tag.indexOf("(") + 1,
       tag.indexOf(")")
@@ -65,7 +65,7 @@ export class MarkdownParser {
   }
 
   createLink(tag: string) {
-    console.log(tag)
+    console.log(tag);
     let string = `<a href="${tag.substring(
       tag.indexOf("(") + 1,
       tag.indexOf(")")
@@ -112,14 +112,11 @@ export class MarkdownParser {
       if (!isHeading) {
         if (markdown[i] === "#") {
           isHeading = true;
-          if (i + 1 < markdown.length && markdown[i + 1] === "#") {
-            i++;
-            headingCount++;
-          }
-          if (i + 1 < markdown.length && markdown[i + 1] === "#") {
-            i++;
-            headingCount++;
-          }
+          for (let j = 0; j <= 2; j++)
+            if (i + 1 < markdown.length && markdown[i + 1] === "#") {
+              i++;
+              headingCount++;
+            }
           if (!newExpression) {
             if (isUnorderedList)
               this.exportString += this.closeExpression("unordered_list");
@@ -139,6 +136,7 @@ export class MarkdownParser {
         // create block quote
         if (spaceCount >= 4) {
           newExpression = true;
+          
         }
         if (markdown[i] !== " ") {
           switch (markdown[i]) {
@@ -152,8 +150,7 @@ export class MarkdownParser {
               this.exportString += this.openExpression("list_item");
               continue;
             default:
-              if(markdown[i].charCodeAt(0) === 10)
-                break;
+              if (markdown[i].charCodeAt(0) === 10) break;
               newExpression = true;
               if (isUnorderedList) {
                 isUnorderedList = false;
@@ -201,15 +198,15 @@ export class MarkdownParser {
           }
         }
       }
-      if(markdown[i] === "[") {
+      if (markdown[i] === "[") {
         const closingIndex = markdown.substring(i).indexOf("]");
-          if (markdown.substring(i)[closingIndex + 1] === "(") {
-            this.exportString += this.createLink(
-              markdown.substring(i, markdown.substring(i).indexOf(")") + 1 + i)
-            );
-            i += markdown.substring(i).indexOf(")");
-            continue;
-          }
+        if (markdown.substring(i)[closingIndex + 1] === "(") {
+          this.exportString += this.createLink(
+            markdown.substring(i, markdown.substring(i).indexOf(")") + 1 + i)
+          );
+          i += markdown.substring(i).indexOf(")");
+          continue;
+        }
       }
       if (markdown[i].charCodeAt(0) === 10) {
         if (isHeading) {
@@ -224,7 +221,7 @@ export class MarkdownParser {
           this.exportString += this.closeExpression("list_item");
           newExpression = false;
           continue;
-        } else if(newExpression) {
+        } else if (newExpression) {
           this.exportString += this.closeExpression();
           newExpression = false;
           continue;

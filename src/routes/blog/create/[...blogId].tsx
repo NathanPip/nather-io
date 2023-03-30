@@ -1,27 +1,21 @@
-import { type BlogPost } from "@prisma/client";
 import {
   createEffect,
   createRenderEffect,
   createSignal,
   onMount,
+  Show,
   type VoidComponent,
 } from "solid-js";
 import { Match, Switch } from "solid-js";
-import {
-  A,
-  type RouteDataArgs,
-  useParams,
-  useRouteData,
-  useServerContext,
-} from "solid-start";
+import { A, type RouteDataArgs, useParams, useRouteData } from "solid-start";
 import {
   createServerAction$,
   createServerData$,
   redirect,
 } from "solid-start/server";
+import { usePageState } from "~/Context/page-state";
 import { prisma } from "~/server/db/client";
 import { generateId } from "~/utils/generation_tools";
-import { MarkdownParser } from "~/utils/markdown";
 
 export function routeData({ params }: RouteDataArgs) {
   return createServerData$(
@@ -45,6 +39,7 @@ export function routeData({ params }: RouteDataArgs) {
 
 const CreatePost: VoidComponent = () => {
   const blogResponse = useRouteData<typeof routeData>();
+  const [pageState] = usePageState();
   const [blogId, setBlogId] = createSignal("");
   const [previewMode, setPreviewMode] = createSignal(false);
   const [postTitle, setPostTitle] = createSignal("");
@@ -83,23 +78,16 @@ const CreatePost: VoidComponent = () => {
     }
   );
 
-  const markdownParser = new MarkdownParser({
-    baseExpression: { tag: "p", attributes: { class: "text-lg" } },
-    heading1: {
-      tag: "h2",
-      attributes: { class: "text-3xl font-semibold mb-4" },
-    },
-    heading2: {
-      tag: "h3",
-      attributes: { class: "text-2xl font-semibold mb-2" },
-    },
-    heading3: {
-      tag: "h4",
-      attributes: { class: "text-xl font-semibold mb-2" },
-    },
-    unordered_list: { tag: "ul", attributes: { class: "my-2 list-disc pl-5" } },
-    list_item: { tag: "li", attributes: { class: "text-lg" } },
-    link: { tag: "a", attributes: { class: "underline text-sky-500" } },
+  const [posting, postBlog] = createServerAction$(async (blogId: string) => {
+    try {
+      await prisma.blogPost.update({
+        where: { blogId },
+        data: { posted: true },
+      });
+    } catch (e: any) {
+      console.log(e);
+      throw new Error("Error posting blog post");
+    }
   });
 
   onMount(() => {
@@ -145,26 +133,39 @@ const CreatePost: VoidComponent = () => {
     }
   });
 
-  const saveBlogHandler = () => {
-    if (!postTitle().length) {
-      setErrorMessage("need to set a title");
-      return;
+  const saveBlogHandler = async () => {
+    try {
+      if (!postTitle().length) {
+        setErrorMessage("need to set a title");
+        throw new Error("need to set a title");
+      }
+      if (!subtitle().length) {
+        setErrorMessage("need to set a subtitle");
+        throw new Error("need to set a subtitle");
+      }
+      if (!contentText().length) {
+        setErrorMessage("bro write something");
+        throw new Error("need to add content");
+      }
+      if (!blogId().length) setBlogId(generateId());
+      await saveBlog({
+        blogId: blogId(),
+        title: postTitle(),
+        subtitle: subtitle(),
+        content: contentText(),
+      });
+    } catch (e) {
+      setErrorMessage((e as Error).message);
     }
-    if (!subtitle().length) {
-      setErrorMessage("need to set a subtitle");
-      return;
+  };
+
+  const postBlogHandler = async () => {
+    try {
+      await saveBlogHandler();
+      await postBlog(blogId());
+    } catch (e) {
+      setErrorMessage((e as Error).message);
     }
-    if (!contentText().length) {
-      setErrorMessage("bro write something");
-      return;
-    }
-    if (!blogId().length) setBlogId(generateId());
-    saveBlog({
-      blogId: blogId(),
-      title: postTitle(),
-      subtitle: subtitle(),
-      content: contentText(),
-    });
   };
 
   return (
@@ -172,19 +173,7 @@ const CreatePost: VoidComponent = () => {
       <A href="/blog" class="absolute border-b-2 border-stone-900 text-2xl">
         Back
       </A>
-      <div class="ml-auto mt-8 flex flex-row justify-end gap-2">
-        <button
-          onClick={saveBlogHandler}
-          class="my-2 rounded-md bg-stone-300 px-4 font-semibold shadow-md transition-colors duration-300 ease-in-out hover:bg-stone-400 lg:px-6 lg:py-2 lg:text-xl"
-          disabled={saving.pending}
-        >
-          {saving.pending ? "Saving..." : "Save"}
-        </button>
-        <button class="my-2 rounded-md bg-stone-300 px-4 font-semibold shadow-md transition-colors duration-300 ease-in-out hover:bg-stone-400 lg:px-6 lg:py-2 lg:text-xl">
-          Post
-        </button>
-      </div>
-      <div class="flex flex-1 flex-col">
+      <div class="mt-16 flex flex-1 flex-col">
         <div class="ml-4 flex gap-2">
           <button
             onClick={() => (previewMode() ? setPreviewMode(false) : null)}
@@ -246,9 +235,32 @@ const CreatePost: VoidComponent = () => {
                 ? subtitle()
                 : "Waiting on a Subtitle Title Pal"}
             </h2>
-            <div innerHTML={markdownParser.parse(contentText())} />
+            <div
+              class="mb-4 h-3/4 flex-1 resize-none rounded-md bg-stone-200 px-4 py-4 shadow-lg placeholder:text-stone-400 focus:outline-0"
+              innerHTML={pageState.parser.parse(contentText())}
+            />
           </Match>
         </Switch>
+        <div class="flex flex-row items-center gap-2">
+          <button
+            onClick={saveBlogHandler}
+            class="my-2 rounded-md bg-stone-300 px-6 py-2 text-2xl font-semibold shadow-md transition-colors duration-300 ease-in-out hover:bg-stone-400"
+            disabled={saving.pending}
+          >
+            {saving.pending ? "Saving..." : "Save"}
+          </button>
+          <button
+            onClick={postBlogHandler}
+            class="my-2 rounded-md bg-stone-300 px-6 py-2 text-2xl font-semibold shadow-md transition-colors duration-300 ease-in-out hover:bg-stone-400"
+          >
+            {posting.pending ? "Posting..." : "Post"}
+          </button>
+          <Show when={errorMessage().length}>
+            <div class="text-center text-xl font-semibold text-rose-500">
+              {errorMessage()}
+            </div>
+          </Show>
+        </div>
       </div>
     </div>
   );
