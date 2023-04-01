@@ -11,7 +11,7 @@ const HomePage: Component = () => {
       <div class="mt-4 flex flex-col lg:mt-12 lg:flex-row">
         <Motion.h1
           animate={{ y: ["-150%", 0] }}
-          transition={{ duration: 1, delay: 0.5, easing: "ease-in-out" }}
+          transition={{ duration: 1, easing: "ease-in-out" }}
           class="h-fit w-fit -translate-y-[150%] rounded-tr-md border-r-2 border-t-2 border-black p-2 text-6xl lg:text-9xl"
         >
           <Motion.div
@@ -30,52 +30,52 @@ const HomePage: Component = () => {
         </Motion.h1>
         <Motion.ul class="mx-6 mt-4 flex flex-1 flex-col gap-4 text-2xl">
           <Motion.li
-            animate={{ x: ["-1500%", 0] }}
+            animate={{ x: ["-500%", 0] }}
             transition={{
               duration: 1.75,
               delay: 0,
               easing: [0.25, 0.4, 0.54, 1.15],
             }}
-            class="translate-x-[-1500%] border-b-2 border-stone-900 pb-2"
+            class="translate-x-[-500%] border-b-2 border-stone-900 pb-2"
           >
             <Motion.div animate={{opacity: [0,1]}} transition={{duration: 1, delay: 2, easing: "ease-in-out"}}>
               <A href="/blog" class="w-full block hover:translate-x-3 transition-transform">Blog</A>
             </Motion.div>
           </Motion.li>
           <Motion.li
-            animate={{ x: ["-1500%", 0] }}
+            animate={{ x: ["-500%", 0] }}
             transition={{
               duration: 1.75,
               delay: 0.05,
               easing: [0.25, 0.4, 0.54, 1.15],
             }}
-            class="translate-x-[-1500%] border-b-2 border-stone-900 pb-2"
+            class="translate-x-[-500%] border-b-2 border-stone-900 pb-2"
           >
             <Motion.div animate={{opacity: [0,1]}} transition={{duration: 1, delay: 2.05, easing: "ease-in-out"}}>
               <A href="/portfolio" class="w-full block hover:translate-x-3 transition-transform">Portfolio</A>
             </Motion.div>
           </Motion.li>
           <Motion.li
-            animate={{ x: ["-1500%", 0] }}
+            animate={{ x: ["-500%", 0] }}
             transition={{
               duration: 1.75,
               delay: 0.1,
               easing: [0.25, 0.4, 0.54, 1.15],
             }}
-            class="translate-x-[-1500%] border-b-2 border-stone-900 pb-2"
+            class="translate-x-[-500%] border-b-2 border-stone-900 pb-2"
           >
             <Motion.div animate={{opacity: [0,1]}} transition={{duration: 1, delay: 2.1, easing: "ease-in-out"}}>
               <A href="/github" class="w-full block hover:translate-x-3 transition-transform">Github</A>
             </Motion.div>
           </Motion.li>
           <Motion.li
-            animate={{ x: ["-1500%", 0] }}
+            animate={{ x: ["-500%", 0] }}
             transition={{
               duration: 1.75,
               delay: 0.15,
               easing: [0.25, 0.4, 0.54, 1.15],
             }}
-            class="translate-x-[-1500%] border-b-2 border-stone-900 pb-2"
+            class="translate-x-[-500%] border-b-2 border-stone-900 pb-2"
           >
             <Motion.div animate={{opacity: [0,1]}} transition={{duration: 1, delay: 2.15, easing: "ease-in-out"}}>
               <A href="/games" class="w-full block hover:translate-x-3 transition-transform">Games</A>

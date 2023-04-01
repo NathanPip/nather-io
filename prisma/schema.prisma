@@ -33,6 +33,8 @@ model BlogPost {
     title String
     sub_heading String
     authors String[]
+    tags String[] @default([])
+    postedTo String[] @default(["main"])
     content String
 }
 

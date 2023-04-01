@@ -73,7 +73,7 @@ const CreatePost: VoidComponent = () => {
             authors: ["Nathan Piper"],
           },
         });
-      } catch (e: any) {
+      } catch (e) {
         console.log(e);
         throw Error("Error saving blog post");
       }
@@ -87,7 +87,7 @@ const CreatePost: VoidComponent = () => {
         data: { posted: true },
       });
       return true;
-    } catch (e: any) {
+    } catch (e) {
       console.log(e);
       throw new Error("Error posting blog post");
     }
@@ -123,6 +123,7 @@ const CreatePost: VoidComponent = () => {
 
   createRenderEffect(() => {
     if (blogResponse() === undefined || blogResponse() === null) return;
+    if(!blogResponse().blogId) return;
     setPostTitle(blogResponse().title);
     setSubtitle(blogResponse().sub_heading);
     setContentText(blogResponse().content);

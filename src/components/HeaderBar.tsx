@@ -23,7 +23,6 @@ const HeaderBar: Component = () => {
       }
     }
     setNoShow(false);
-    console.log(noShow());
   });
 
   return (
