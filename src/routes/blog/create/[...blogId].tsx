@@ -3,6 +3,8 @@ import {
   createEffect,
   createRenderEffect,
   createSignal,
+  For,
+  onCleanup,
   onMount,
   Show,
   type VoidComponent,
@@ -41,13 +43,15 @@ export function routeData({ params }: RouteDataArgs) {
 const CreatePost: VoidComponent = () => {
   const blogResponse = useRouteData<typeof routeData>();
   const [pageState] = usePageState();
-  const [showModal, setShowModal] = createSignal(false);
+  const [showModal, setShowModal] = createSignal(true);
   const [blogId, setBlogId] = createSignal("");
   const [previewMode, setPreviewMode] = createSignal(false);
   const [postTitle, setPostTitle] = createSignal("");
   const [subtitle, setSubtitle] = createSignal("");
   const [contentText, setContentText] = createSignal("");
   const [errorMessage, setErrorMessage] = createSignal("");
+  const [tags, setTags] = createSignal(["main"] as string[]);
+  let tagInput: HTMLInputElement | undefined;
 
   const [saving, saveBlog] = createServerAction$(
     async (blogData: {
@@ -80,11 +84,11 @@ const CreatePost: VoidComponent = () => {
     }
   );
 
-  const [posting, postBlog] = createServerAction$(async (blogId: string) => {
+  const [posting, postBlog] = createServerAction$(async (params: {blogId: string, tags: string[]}) => {
     try {
       await prisma.blogPost.update({
-        where: { blogId },
-        data: { posted: true },
+        where: { blogId: params.blogId },
+        data: { posted: true, tags: params.tags },
       });
       return true;
     } catch (e) {
@@ -123,11 +127,36 @@ const CreatePost: VoidComponent = () => {
 
   createRenderEffect(() => {
     if (blogResponse() === undefined || blogResponse() === null) return;
-    if(!blogResponse().blogId) return;
+    if (!blogResponse().blogId) return;
     setPostTitle(blogResponse().title);
     setSubtitle(blogResponse().sub_heading);
     setContentText(blogResponse().content);
     setBlogId(blogResponse().blogId);
+  });
+
+  createEffect(() => {
+    if (!tagInput) return;
+    const enterEvent = (e: KeyboardEvent) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        if (!tagInput) return;
+        setTags(prev => [...prev, tagInput!.value]);
+        tagInput.value = "";
+      }
+    }
+    const backspaceEvent = (e: KeyboardEvent) => {
+      if (e.key === "Backspace") {
+        if (!tagInput) return;
+        if (tagInput.value.length) return;
+        setTags(tags().slice(0, tags().length - 1));
+      }
+    }
+    tagInput.addEventListener("keydown", enterEvent);
+    tagInput.addEventListener("keydown", backspaceEvent);
+    onCleanup(() => {
+      tagInput?.removeEventListener("keydown", enterEvent);
+      tagInput?.removeEventListener("keydown", backspaceEvent);
+    })
   });
 
   createEffect(() => {
@@ -167,7 +196,7 @@ const CreatePost: VoidComponent = () => {
   const postBlogHandler = async () => {
     try {
       await saveBlogHandler();
-      await postBlog(blogId());
+      await postBlog({blogId: blogId(), tags: tags()});
     } catch (e) {
       setErrorMessage((e as Error).message);
     }
@@ -273,23 +302,33 @@ const CreatePost: VoidComponent = () => {
             animate={{ opacity: [0, 1] }}
             transition={{ duration: 0.75, easing: "ease-in-out" }}
             exit={{ opacity: [1, 0] }}
-            class="fixed w-full h-screen overflow-hidden z-10 top-0 left-0 bg-stone-600 bg-opacity-20"
+            class="fixed top-0 left-0 z-10 h-screen w-full overflow-hidden bg-stone-600 bg-opacity-20"
           >
             <div class="absolute top-1/3 left-1/2 z-10 flex -translate-x-1/2 flex-col items-center justify-center rounded-md bg-stone-300 p-4">
-            <h3 class="mb-6 text-3xl font-semibold">Post?</h3>
-            <div class="flex gap-6">
-              <button
-                onClick={postBlogHandler}
-                class="my-2 rounded-md bg-stone-200 px-4 py-2 text-xl font-semibold shadow-md transition-colors duration-300 ease-in-out hover:bg-stone-300"
-              >
-                {posting.pending ? "Posting..." : "Post"}
-              </button>
-              <button
-                onClick={() => setShowModal(false)}
-                class="my-2 rounded-md bg-rose-300 px-4 py-2 text-xl font-semibold shadow-md transition-colors duration-300 ease-in-out hover:bg-rose-400"
-              >
-                Cancel
-              </button>
+              <h3 class="mb-6 text-3xl font-semibold">Post?</h3>
+              <ul class="bg-stone-100">
+                <For each={tags()}>
+                  {(tag) => (
+                    <li class="flex gap-2 items-center">
+                      <span class="text-xl">{tag}</span>
+                    </li>
+                  )}
+                  </For>
+                <input class="w-fit bg-stone-100 outline-none" ref={tagInput} />
+              </ul>
+              <div class="flex gap-6">
+                <button
+                  onClick={postBlogHandler}
+                  class="my-2 rounded-md bg-stone-200 px-4 py-2 text-xl font-semibold shadow-md transition-colors duration-300 ease-in-out hover:bg-stone-300"
+                >
+                  {posting.pending ? "Posting..." : "Post"}
+                </button>
+                <button
+                  onClick={() => setShowModal(false)}
+                  class="my-2 rounded-md bg-rose-300 px-4 py-2 text-xl font-semibold shadow-md transition-colors duration-300 ease-in-out hover:bg-rose-400"
+                >
+                  Cancel
+                </button>
               </div>
             </div>
           </Motion.div>
