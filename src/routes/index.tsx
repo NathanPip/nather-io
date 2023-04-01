@@ -3,6 +3,7 @@ import { Title } from "solid-start";
 import Contact from "~/components/Contact";
 import HomePage from "~/components/Homepage";
 import Projects from "~/components/Projects";
+import About from "~/components/About"
 
 const Home: VoidComponent = () => {
   
@@ -10,6 +11,7 @@ const Home: VoidComponent = () => {
     <>
       <Title>nather.io</Title>
       <HomePage />
+      <About />
       {/* <Projects /> */}
       <Contact />
     </>

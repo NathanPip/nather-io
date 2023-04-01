@@ -12,12 +12,14 @@ import { isServer } from "solid-js/web";
 import { parseCookie, ServerContext } from "solid-start";
 import { createServerAction$ } from "solid-start/server";
 import {prisma} from "~/server/db/client"
+import { MarkdownParser } from "~/utils/markdown";
 
 export type PageState = {
   scrollDown: boolean;
   scrollY: number;
   darkMode: "light" | "dark" | "none";
   admin: boolean;
+  parser: MarkdownParser;
 };
 
 const defaultPageState: PageState = {
@@ -25,6 +27,24 @@ const defaultPageState: PageState = {
   scrollY: 0,
   darkMode: "none",
   admin: false,
+  parser: new MarkdownParser({
+    baseExpression: { tag: "p", attributes: { class: "text-lg" } },
+    heading1: {
+      tag: "h2",
+      attributes: { class: "text-3xl font-semibold mb-4" },
+    },
+    heading2: {
+      tag: "h3",
+      attributes: { class: "text-2xl font-semibold mb-2" },
+    },
+    heading3: {
+      tag: "h4",
+      attributes: { class: "text-xl font-semibold mb-2" },
+    },
+    unordered_list: { tag: "ul", attributes: { class: "my-2 list-disc pl-5" } },
+    list_item: { tag: "li", attributes: { class: "text-lg" } },
+    link: { tag: "a", attributes: { class: "underline text-sky-500" } },
+  }),
 };
 
 export const useCookies = () => {
@@ -75,7 +95,7 @@ export const PageStateProvider: Component<
     admin: useAdminCookie(),
   });
 
-  const [sessionData, fetchSession] = createServerAction$(async (token: string) => {
+  const [sessionValid, fetchSession] = createServerAction$(async (token: string) => {
     const session = await prisma.session.findFirst({
       where: {
         session_token: token
@@ -97,7 +117,7 @@ export const PageStateProvider: Component<
     }
     if(session.expires !== undefined) {
       if(session.expires.getTime() - new Date().getTime() < 0) {
-        setPageState(prev => ({...prev, admin: false}));
+        setPageState("admin", false);
       }
     }
     setPageState("scrollY", window.scrollY);
@@ -109,19 +129,19 @@ export const PageStateProvider: Component<
 
   createEffect(() => {
     if (pageState.scrollY > prevScrollY()) {
-      setPageState("scrollDown", true);
+        setPageState("scrollDown", true);
     } else {
       setPageState("scrollDown", false);
     }
   });
 
   createEffect(() => {
-    document.cookie = `admin=${pageState.admin}`
+    document.cookie = `admin=${pageState.admin};path=/`
   })
 
   createEffect(() => {
-    if(sessionData.result !== undefined) {
-      setPageState("admin", sessionData.result)
+    if(sessionValid.result !== undefined) {
+      setPageState("admin", sessionValid.result)
     }
   })
 

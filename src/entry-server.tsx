@@ -1,4 +1,4 @@
-import { createCookieSessionStorage, createSessionStorage, parseCookie, redirect } from "solid-start";
+import { parseCookie, redirect } from "solid-start";
 import {
   StartServer,
   createHandler,
@@ -6,7 +6,7 @@ import {
 } from "solid-start/entry-server";
 import {prisma} from "~/server/db/client"
 
-const protectedRoutes = new Set(["/admin"]);
+const protectedRoutes = new Set(["/blog/create"]);
 
 export default createHandler(
   ({ forward }) => {
@@ -14,9 +14,9 @@ export default createHandler(
       const parsedCookie = parseCookie(event.request.headers.get("Cookie") || "")
       if (protectedRoutes.has(new URL(event.request.url).pathname)) {
         const currentSessionToken = parsedCookie["session_token"];
-        const session = await prisma.session.findFirst({
+        const session = await prisma.session.findUnique({
           where: {
-            session_token: currentSessionToken
+            session_token: currentSessionToken || ""
         }})
         if(!session || !session?.expires) return redirect("/")
         if(session.expires.getTime() - new Date().getTime() < 0) {
