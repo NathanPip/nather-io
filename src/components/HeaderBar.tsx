@@ -6,7 +6,7 @@ import {
   Show,
   type Component,
 } from "solid-js";
-import { useLocation } from "solid-start";
+import { A, useLocation } from "solid-start";
 import { usePageState } from "../Context/page-state";
 
 const HeaderBar: Component = () => {
@@ -42,35 +42,23 @@ const HeaderBar: Component = () => {
       >
         {pageState && (pageState[0].darkMode == "none" || pageState[0].darkMode == "light" ? <img class="fill-stone-50" src="/dark-mode.svg"/> : <img class="fill-stone-50" src="/light-mode.svg"/> )}
       </button> */}
-        <a class="mx-2" aria-label="Github" href="https://github.com/NathanPip">
-          <img
-            class="h-8 w-8 lg:h-10 lg:w-10"
-            src={"/github-icon.svg"}
-            alt={`github logo`}
-          />
-        </a>
-        <a
-          class="mx-2"
-          aria-label="Twitter"
-          href="https://twitter.com/NathanPiperr"
+        <A class="mx-2 text-xl font-semibold" aria-label="Home" href="/">
+          Home
+        </A>
+        <A
+          class="mx-2 text-xl font-semibold"
+          aria-label="Blog"
+          href="/blog"
         >
-          <img
-            class="h-8 w-8 lg:h-10 lg:w-10"
-            src={"/twitter-icon.svg"}
-            alt={`twitter logo`}
-          />
-        </a>
-        <a
-          class="mx-2"
-          aria-label="Linkedin"
-          href="https://linkedin.com/in/nathanpiperr"
+          Blog
+        </A>
+        <A
+          class="mx-2 text-xl font-semibold"
+          aria-label="Games"
+          href="/games"
         >
-          <img
-            class="h-8 w-8 lg:h-10 lg:w-10"
-            src={"/linkedin-icon.svg"}
-            alt={`github logo`}
-          />
-        </a>
+          Games
+        </A>
       </Motion.div>
     </Show>
   );

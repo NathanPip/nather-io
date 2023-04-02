@@ -43,7 +43,7 @@ export function routeData({ params }: RouteDataArgs) {
 const CreatePost: VoidComponent = () => {
   const blogResponse = useRouteData<typeof routeData>();
   const [pageState] = usePageState();
-  const [showModal, setShowModal] = createSignal(true);
+  const [showModal, setShowModal] = createSignal(false);
   const [blogId, setBlogId] = createSignal("");
   const [previewMode, setPreviewMode] = createSignal(false);
   const [postTitle, setPostTitle] = createSignal("");
@@ -51,7 +51,6 @@ const CreatePost: VoidComponent = () => {
   const [contentText, setContentText] = createSignal("");
   const [errorMessage, setErrorMessage] = createSignal("");
   const [tags, setTags] = createSignal(["main"] as string[]);
-  let tagInput: HTMLInputElement | undefined;
 
   const [saving, saveBlog] = createServerAction$(
     async (blogData: {
@@ -127,7 +126,7 @@ const CreatePost: VoidComponent = () => {
 
   createRenderEffect(() => {
     if (blogResponse() === undefined || blogResponse() === null) return;
-    if (!blogResponse().blogId) return;
+    if (!blogResponse()?.blogId) return;
     setPostTitle(blogResponse().title);
     setSubtitle(blogResponse().sub_heading);
     setContentText(blogResponse().content);
@@ -135,6 +134,8 @@ const CreatePost: VoidComponent = () => {
   });
 
   createEffect(() => {
+    if(!showModal()) return;
+    const tagInput = document.querySelector("#tag-input") as HTMLInputElement;
     if (!tagInput) return;
     const enterEvent = (e: KeyboardEvent) => {
       if (e.key === "Enter") {
@@ -306,15 +307,16 @@ const CreatePost: VoidComponent = () => {
           >
             <div class="absolute top-1/3 left-1/2 z-10 flex -translate-x-1/2 flex-col items-center justify-center rounded-md bg-stone-300 p-4">
               <h3 class="mb-6 text-3xl font-semibold">Post?</h3>
-              <ul class="bg-stone-100">
+              <p class="mr-auto font-semibold text-xl">tags</p>
+              <ul class="bg-stone-100 flex">
                 <For each={tags()}>
                   {(tag) => (
-                    <li class="flex gap-2 items-center">
-                      <span class="text-xl">{tag}</span>
+                    <li class="flex gap-2 items-center p-1">
+                      <span class="text-lg font-semibold bg-stone-300 p-1 rounded-md">{tag}</span>
                     </li>
                   )}
                   </For>
-                <input class="w-fit bg-stone-100 outline-none" ref={tagInput} />
+                <input id="tag-input" class="w-fit bg-stone-100 outline-none" />
               </ul>
               <div class="flex gap-6">
                 <button
