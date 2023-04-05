@@ -59,19 +59,6 @@ const HomePage: Component = () => {
             animate={{ x: ["-500%", 0] }}
             transition={{
               duration: 1.75,
-              delay: 0.1,
-              easing: [0.25, 0.4, 0.54, 1.15],
-            }}
-            class="translate-x-[-500%] border-b-2 border-stone-900 pb-2"
-          >
-            <Motion.div animate={{opacity: [0,1]}} transition={{duration: 1, delay: 2.1, easing: "ease-in-out"}}>
-              <A href="/github" class="w-full block hover:translate-x-3 transition-transform">Github</A>
-            </Motion.div>
-          </Motion.li>
-          <Motion.li
-            animate={{ x: ["-500%", 0] }}
-            transition={{
-              duration: 1.75,
               delay: 0.15,
               easing: [0.25, 0.4, 0.54, 1.15],
             }}
@@ -79,6 +66,19 @@ const HomePage: Component = () => {
           >
             <Motion.div animate={{opacity: [0,1]}} transition={{duration: 1, delay: 2.15, easing: "ease-in-out"}}>
               <A href="/games" class="w-full block hover:translate-x-3 transition-transform">Games</A>
+            </Motion.div>
+          </Motion.li>
+          <Motion.li
+            animate={{ x: ["-500%", 0] }}
+            transition={{
+              duration: 1.75,
+              delay: 0.1,
+              easing: [0.25, 0.4, 0.54, 1.15],
+            }}
+            class="translate-x-[-500%] border-b-2 border-stone-900 pb-2"
+          >
+            <Motion.div animate={{opacity: [0,1]}} transition={{duration: 1, delay: 2.1, easing: "ease-in-out"}}>
+              <A href="/github" class="w-full block hover:translate-x-3 transition-transform">Github</A>
             </Motion.div>
           </Motion.li>
         </Motion.ul>

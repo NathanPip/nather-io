@@ -84,7 +84,7 @@ const BlogHome: VoidComponent = () => {
 
   return (
     <div class="mt-14">
-      <h1 class="inline-block p-2 text-4xl">Blog</h1>
+      <h1 class="inline-block font-semibold p-2 text-4xl">Blog</h1>
       <Show when={pageState.admin}>
         <A
           class="my-2 ml-4 inline rounded-md bg-stone-300 px-4 py-2 text-lg font-semibold shadow-md transition-colors duration-300 ease-in-out hover:bg-stone-400 lg:px-6 lg:text-xl"
