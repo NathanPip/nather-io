@@ -1,21 +1,13 @@
 import { type Component, createSignal, For, Switch, Match } from "solid-js";
 import ProjectCard from "./ProjectCard";
-import { trpc } from "~/utils/trpc";
-import { createStore } from "solid-js/store";
+import {type Project} from "@prisma/client";
 
-const Projects: Component = () => {
-  const [projects] = createStore(trpc.projects.useQuery());
+const Projects: Component<{projects: Project[]}> = (props) => {
 
   //signals
   const [selectedFilter, setSelectedFilter] = createSignal<
-    "featured" | "github" | "oss"
+    "featured" | "all" | "oss"
   >("featured");
-
-  const featuredClickHandler = (e: MouseEvent) => {
-    const element = e.target as HTMLButtonElement;
-    const name = element.innerText.toLowerCase();
-    setSelectedFilter(name as "featured" | "github" | "oss");
-  };
 
   // tailwind styles
   const projectFilterButtonStyles =
@@ -33,19 +25,9 @@ const Projects: Component = () => {
                 ? projectFilterButtonSelectedStyles
                 : ""
             }`}
-            onClick={featuredClickHandler}
+            onClick={() => setSelectedFilter("featured")}
           >
             Featured
-          </button>
-          <button
-            class={`${projectFilterButtonStyles} ${
-              selectedFilter() === "github"
-                ? projectFilterButtonSelectedStyles
-                : ""
-            }`}
-            onClick={featuredClickHandler}
-          >
-            Github
           </button>
           <button
             class={`${projectFilterButtonStyles} ${
@@ -53,26 +35,28 @@ const Projects: Component = () => {
                 ? projectFilterButtonSelectedStyles
                 : ""
             }`}
-            onClick={featuredClickHandler}
+            onClick={() => setSelectedFilter("oss")}
           >
             OSS
+          </button>
+          <button
+            class={`${projectFilterButtonStyles} ${
+              selectedFilter() === "all"
+                ? projectFilterButtonSelectedStyles
+                : ""
+            }`}
+            onClick={() => setSelectedFilter("all")}
+          >
+            All
           </button>
         </div>
       </div>
       <div class="scrollbar-rounded-lg max-h-screen md:max-h-[75vh] overflow-y-scroll p-2 px-4 shadow-inner scrollbar-thin scrollbar-thumb-stone-900">
-        <Switch>
-          <Match when={projects.isLoading}>
-            <h3 class="font-semibold text-xl">loading...</h3>
-          </Match>
-          <Match when={projects.isError}>
-            <p class="font-semibold text-xl">An error has occured while retrieving projects</p>
-          </Match>
-          <Match when={projects.isSuccess && projects.data}>
             <Switch>
               <Match when={selectedFilter() === "featured"}>
                 <For
-                  each={projects
-                    .data!.filter((project) => project.featured)
+                  each={props.projects
+                    .filter((project) => project.featured)
                     .sort((a, b) => {
                       const dateA = new Date(a.updated_at).valueOf();
                       const dateB = new Date(b.updated_at).valueOf();
@@ -82,10 +66,10 @@ const Projects: Component = () => {
                   {(project) => <ProjectCard project={project} />}
                 </For>
               </Match>
-              <Match when={selectedFilter() === "github"}>
+              <Match when={selectedFilter() === "all"}>
                 <For
-                  each={projects
-                    .data!.filter((project) => !project.fork)
+                  each={props.projects
+                    .filter((project) => !project.fork)
                     .sort((a, b) => {
                       const dateA = new Date(a.updated_at).valueOf();
                       const dateB = new Date(b.updated_at).valueOf();
@@ -98,13 +82,12 @@ const Projects: Component = () => {
                 </For>
               </Match>
               <Match when={selectedFilter() === "oss"}>
-                <For each={projects.data!.filter((project) => project.fork)}>
+                <For each={props.projects
+                  .filter((project) => project.fork)}>
                   {(project) => <ProjectCard project={project} />}
                 </For>
               </Match>
             </Switch>
-          </Match>
-        </Switch>
       </div>
     </div>
   );
