@@ -12,7 +12,6 @@ import {
   Scripts,
   Title,
 } from "solid-start";
-import { trpc, client, queryClient } from "~/utils/trpc";
 import HeaderBar from "./components/HeaderBar";
 import { PageStateProvider, useDarkModeCookie } from "./Context/page-state";
 import LoginAccess from "./components/LoginAccess";
@@ -32,21 +31,19 @@ export default function Root() {
         <Meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
       <Body>
-        <trpc.Provider client={client} queryClient={queryClient}>
-          <Suspense>
+        <Suspense>
           <PageStateProvider darkMode={darkMode}>
             <HeaderBar />
             <LoginAccess />
             <ErrorBoundary>
-              <main class="px-4 max-w-7xl mx-auto">
-              <Routes>
-                <FileRoutes />
-              </Routes>
+              <main class="mx-auto max-w-7xl px-4">
+                <Routes>
+                  <FileRoutes />
+                </Routes>
               </main>
             </ErrorBoundary>
           </PageStateProvider>
-          </Suspense>
-        </trpc.Provider>
+        </Suspense>
         <Scripts />
       </Body>
     </Html>
