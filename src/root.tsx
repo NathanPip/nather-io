@@ -36,11 +36,11 @@ export default function Root() {
             <HeaderBar />
             <LoginAccess />
             <ErrorBoundary>
-              <main class="mx-auto max-w-7xl px-4">
+              {/* <main class="mx-auto max-w-7xl px-4"> */}
                 <Routes>
                   <FileRoutes />
                 </Routes>
-              </main>
+              {/* </main> */}
             </ErrorBoundary>
           </PageStateProvider>
         </Suspense>

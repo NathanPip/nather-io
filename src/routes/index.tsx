@@ -1,6 +1,8 @@
 import {
   createSignal,
   Show,
+  createEffect,
+  onMount,
   createContext,
   type VoidComponent,
   useContext,
@@ -10,16 +12,13 @@ import { Title } from "solid-start";
 import Contact from "~/components/Contact";
 import HomePage from "~/components/Homepage";
 import About from "~/components/About";
+import Experience from "~/components/Experience";
 
 const defaultPageState = {
-  introFinished: false,
-  introStart: false,
-  actions: {
-    scrollUp: false,
-    scrollDown: false,
-    click: false,
-    keypress: "",
-  }
+  scrollUp: false,
+  scrollDown: false,
+  click: false,
+  keypress: "",
 };
 
 const [homePageState, setHomePageState] = createStore({
@@ -34,18 +33,32 @@ const homePageContext = createContext<
 >([homePageState, setHomePageState]);
 
 const Home: VoidComponent = () => {
-  
+
+  const [gameStart, setGameStart] = createSignal(false);
+
+  onMount(() => {
+    addEventListener("wheel", (e) => {
+      console.log(e.deltaY)
+      if(e.deltaY > 0) {
+        setGameStart(true);
+      }
+    })
+  })
+
+  createEffect(() => {
+    console.log(homePageState.scrollDown);
+  })
+
   return (
     <>
       <Title>nather.io</Title>
       <homePageContext.Provider value={[homePageState, setHomePageState]}>
-        <Show when={!homePageState.introStart || homePageState.introFinished}>
-          <HomePage />
-        </Show>
-        <About />
-        <Show when={homePageState.introFinished}>
-          <Contact />
-        </Show>
+        <div class="h-screen w-screen overflow-hidden">
+          <div class={`${gameStart() ? "translate-y-[-100vh]" : ""} transition-transform duration-500`}>
+            <HomePage />
+            <Experience />
+          </div>
+        </div>
       </homePageContext.Provider>
     </>
   );
