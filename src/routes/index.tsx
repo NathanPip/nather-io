@@ -34,13 +34,12 @@ const homePageContext = createContext<
 
 const Home: VoidComponent = () => {
 
-  const [gameStart, setGameStart] = createSignal(false);
 
   onMount(() => {
     addEventListener("wheel", (e) => {
       console.log(e.deltaY)
       if(e.deltaY > 0) {
-        setGameStart(true);
+        setHomePageState("scrollDown", true);
       }
     })
   })
@@ -54,7 +53,7 @@ const Home: VoidComponent = () => {
       <Title>nather.io</Title>
       <homePageContext.Provider value={[homePageState, setHomePageState]}>
         <div class="h-screen w-screen overflow-hidden">
-          <div class={`${gameStart() ? "translate-y-[-100vh]" : ""} transition-transform duration-500`}>
+          <div class={`${homePageState.scrollDown ? "translate-y-[-100vh]" : ""} transition-transform duration-500`}>
             <HomePage />
             <Experience />
           </div>
