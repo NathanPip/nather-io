@@ -2,15 +2,28 @@
 import { createSignal, type Component, onMount, createEffect } from "solid-js";
 import { createStore } from "solid-js/store";
 import { useHomePageContext } from "~/routes";
+import { collisionMap } from "~/experience/nather-io-map-data";
 
 type Vector = { x: number; y: number };
+
+class Game {
+  static context: CanvasRenderingContext2D | null;
+  static render_scale = 2;
+  static grid_size = 64;
+}
+
+const keys: { [key: string]: boolean } = {
+  w: false,
+  d: false,
+  s: false,
+  a: false,
+};
 
 class Entity {
   position: Vector;
   width: number;
   height: number;
   static entities: Entity[] = [];
-  static context: CanvasRenderingContext2D | null;
 
   constructor(x: number, y: number, width: number, height: number) {
     this.position = { x, y };
@@ -35,12 +48,70 @@ class Entity {
   render() {}
 }
 
+class Boundary extends Entity {
+  renderDebug() {
+    if (!Game.context) return;
+    Game.context.fillStyle = "red";
+    Game.context.fillRect(
+      this.position.x * Game.render_scale - Camera.position.x,
+      this.position.y * Game.render_scale - Camera.position.y,
+      this.width * Game.render_scale,
+      this.height * Game.render_scale
+    );
+    Game.context.fillStyle = "black";
+  }
+}
+
+class Player {
+  static position: Vector = { x: 100, y: 100 };
+  static width = 64;
+  static height = 64;
+  static _speed = 5;
+
+  static get speed() {
+    return Player._speed * Game.render_scale;
+  }
+
+  static render() {
+    if (!Game.context) return;
+    Game.context.fillRect(
+      Player.position.x - Camera.position.x,
+      Player.position.y - Camera.position.y,
+      Player.width * Game.render_scale,
+      Player.height * Game.render_scale
+    );
+  }
+  static update() {
+    if (keys.w) Player.position.y -= Player.speed;
+    if (keys.d) Player.position.x += Player.speed;
+    if (keys.s) Player.position.y += Player.speed;
+    if (keys.a) Player.position.x -= Player.speed;
+    // if(keys.Shift) {
+    //   Player.speed = 10;
+    // } else {
+    //   Player.speed = 5;
+    // }
+  }
+}
+
 class Camera {
   static position: Vector = { x: 0, y: 0 };
   static width = 0;
   static height = 0;
-  static render_scale = 2;
-  static grid_size = 64;
+  static followingVector: Vector = { x: 0, y: 0 };
+
+  static returnToPlayer() {
+    Camera.followingVector = Player.position;
+  }
+
+  static init() {
+    Camera.returnToPlayer();
+  }
+
+  static update() {
+    Camera.position.x = Camera.followingVector.x - Camera.width / 2;
+    Camera.position.y = Camera.followingVector.y - Camera.height / 2;
+  }
 }
 
 class GameLevel {
@@ -49,35 +120,106 @@ class GameLevel {
   static camera_offset: Vector = { x: 0, y: 0 };
   static current_level = 0;
   static levels: { [key: number]: GameLevel } = {};
+  static boundaries: Boundary[] = [];
   static dev_mode = false;
   static context: CanvasRenderingContext2D | null;
   static level_size = 64;
   static image_loaded = false;
   static level_image: any;
 
+  static createBoundaries() {
+    for (let i = 0; i < GameLevel.level_size; i++) {
+      for (let j = 0; j < GameLevel.level_size; j++) {
+        const currentCell = collisionMap[i * GameLevel.level_size + j];
+        if (
+          currentCell === 34 ||
+          currentCell === 32 ||
+          currentCell === 33 ||
+          currentCell === 31 ||
+          currentCell === 13 ||
+          currentCell === 18 ||
+          currentCell === 1 ||
+          currentCell === 2 ||
+          currentCell === 3 ||
+          currentCell === 4 ||
+          currentCell === 22 ||
+          currentCell === 21 ||
+          currentCell === 23 ||
+          currentCell === 24 ||
+          currentCell === 15 ||
+          currentCell === 17 ||
+          currentCell === 11 ||
+          currentCell === 12 ||
+          currentCell === 18 ||
+          currentCell === 6 ||
+          currentCell === 16
+        ) {
+          // let addedTo = false;
+          // for (const boundary of GameLevel.boundaries) {
+          //   if (
+          //     boundary.position.x + boundary.width === j * this.level_size &&
+          //     boundary.position.y === i * this.level_size
+          //   ) {
+          //     boundary.width += this.level_size;
+          //     addedTo = true;
+          //   } else if (
+          //     boundary.position.y + boundary.height === i * this.level_size &&
+          //     boundary.position.x === j * this.level_size
+          //   ) {
+          //     boundary.height += this.level_size;
+          //     addedTo = true;
+          //   }
+          // }
+          // if(addedTo) continue;
+          this.boundaries.push(
+            new Boundary(
+              j * this.level_size,
+              i * this.level_size,
+              this.level_size,
+              this.level_size
+            )
+          );
+        }
+      }
+    }
+  }
+
   static init() {
-    if(!GameLevel.context || !GameLevel.level_image) return;
-    GameLevel.level_image.src = "./nather-io-map.png"
-    GameLevel.level_image.onload = () => {
+    if (!this.context || !this.level_image) return;
+    this.level_image.src = "./nather-io-map.png";
+    this.level_image.onload = () => {
       GameLevel.image_loaded = true;
     };
+    this.createBoundaries();
   }
 
   static render() {
-    if(!GameLevel.image_loaded) return;
-    GameLevel.context!.drawImage(GameLevel.level_image, Camera.position.x, Camera.position.y, GameLevel.level_image.width*Camera.render_scale, GameLevel.level_image.height*Camera.render_scale);
+    if (!this.image_loaded) return;
+    this.context!.drawImage(
+      this.level_image,
+      -Camera.position.x,
+      -Camera.position.y,
+      this.level_image.width * Game.render_scale,
+      this.level_image.height * Game.render_scale
+    );
   }
 
-  static renderDebug() {
+  static renderBoundaries() {
+    for(const boundary of this.boundaries) {
+      boundary.renderDebug();
+    }
+  }
+
+  static renderGrid() {
     // if (!GameLevel.dev_mode) return;
     for (let i = 0; i < this.level_size; i++) {
       for (let j = 0; j < this.level_size; j++) {
-        if (GameLevel.context == null) return;
-        GameLevel.context.strokeRect(
-          j * Camera.grid_size * Camera.render_scale + Camera.position.x,
-          i * Camera.grid_size * Camera.render_scale + Camera.position.y,
-          Camera.grid_size * Camera.render_scale,
-          Camera.grid_size * Camera.render_scale
+        if (this.context == null) return;
+        this.context.strokeRect(
+          j * Game.grid_size * Game.render_scale - Camera.position.x,
+          i * Game.grid_size * Game.render_scale - Camera.position.y,
+          Game.grid_size * Game.render_scale,
+          Game.grid_size * Game.render_scale
         );
       }
     }
@@ -92,14 +234,8 @@ const Experience: Component = () => {
   const FPS = 60;
   const [mainContext, setMainContext] =
     createSignal<CanvasRenderingContext2D | null>(null);
-  const [backgroundContext, setBackgroundContext] = createSignal<CanvasRenderingContext2D | null>(null)
-
-  const [keymaps, setKeyMaps] = createStore<{ [key: string]: boolean }>({
-    w: false,
-    d: false,
-    s: false,
-    a: false,
-  });
+  const [backgroundContext, setBackgroundContext] =
+    createSignal<CanvasRenderingContext2D | null>(null);
 
   onMount(() => {
     Camera.width = window.innerWidth;
@@ -107,22 +243,24 @@ const Experience: Component = () => {
     window.addEventListener("resize", () => {
       Camera.width = window.innerWidth;
       Camera.height = window.innerHeight;
+      Player.position.x = window.innerWidth / 2;
+      Player.position.y = window.innerHeight / 2;
     });
   });
 
   createEffect(() => {
     if (main_canvas && background_canvas) {
-      console.log("ran")
+      console.log("ran");
       setMainContext(main_canvas.getContext("2d"));
       setBackgroundContext(background_canvas.getContext("2d"));
-      Entity.context = main_canvas.getContext("2d");
+      Game.context = main_canvas.getContext("2d");
       GameLevel.context = background_canvas.getContext("2d");
       main_canvas.width = window.innerWidth;
       main_canvas.height = window.innerHeight;
       background_canvas.width = window.innerWidth;
       background_canvas.height = window.innerHeight;
     }
-  })
+  });
 
   createEffect(() => {
     if (homePageState.scrollDown) {
@@ -135,26 +273,27 @@ const Experience: Component = () => {
     GameLevel.dev_mode = true;
     GameLevel.level_image = new Image();
     GameLevel.init();
+    Camera.init();
     setControls();
     setInterval(() => {
       draw();
       update();
-    }, 1000/FPS);
+    }, 1000 / FPS);
   };
 
   const setControls = () => {
     addEventListener("keydown", (e: KeyboardEvent) => {
-      setKeyMaps(e.key, true);
+      keys[e.key] = true;
     });
     addEventListener("keyup", (e: KeyboardEvent) => {
-      setKeyMaps(e.key, false);
+      keys[e.key] = false;
     });
 
     addEventListener("wheel", (e) => {
       if (e.deltaY < 0) {
-        Camera.render_scale += 0.01;
+        Game.render_scale += 0.01;
       } else if (e.deltaY > 0) {
-        Camera.render_scale -= 0.01;
+        Game.render_scale -= 0.01;
       }
     });
   };
@@ -164,15 +303,15 @@ const Experience: Component = () => {
     mainContext()?.clearRect(0, 0, Camera.width, Camera.height);
     backgroundContext()?.clearRect(0, 0, Camera.width, Camera.height);
     Entity.renderAll();
+    Player.render();
     GameLevel.render();
-    GameLevel.renderDebug();
+    GameLevel.renderBoundaries();
+    GameLevel.renderGrid();
   };
   const update = () => {
-    if (keymaps.w) Camera.position.y += 5;
-    if (keymaps.d) Camera.position.x -= 5;
-    if (keymaps.s) Camera.position.y -= 5;
-    if (keymaps.a) Camera.position.x += 5;
     Entity.updateAll();
+    Player.update();
+    Camera.update();
   };
   return (
     <div class="relative w-full">
