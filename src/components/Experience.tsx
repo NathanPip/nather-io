@@ -4,7 +4,49 @@ import { createStore } from "solid-js/store";
 import { useHomePageContext } from "~/routes";
 import { collisionMap } from "~/experience/nather-io-map-data";
 
-type Vector = { x: number; y: number };
+type Vector2d = {x: number, y: number}
+
+class Vector { 
+  x: number; 
+  y: number; 
+  max_vector: Vector2d = {x: Infinity, y: Infinity}
+  constructor(x: number, y: number, max_vector?: Vector2d) {
+    this.x = x;
+    this.y = y;
+    if(max_vector)
+      this.max_vector = max_vector;
+  }
+
+  add(other: Vector | Vector2d) {
+    this.x += other.x;
+    this.y += other.y;
+    this.checkMax();
+  }
+
+  tendToZero(amt: number) {
+    if(this.x > 0) {
+      if(this.x - amt < 0) {this.x = 0}
+      else {this.x -= amt}
+    }
+    if(this.x < 0) {
+      if(this.x + amt > 0) {this.x = 0}
+      else {this.x += amt}
+    }
+    if(this.y > 0) {
+      if(this.y - amt < 0) {this.y = 0}
+      else {this.y -= amt}
+    }
+    if(this.y < 0) {
+      if(this.y + amt > 0) {this.y = 0}
+      else {this.y += amt}
+    }
+  }
+
+  checkMax() {
+    if(Math.abs(this.x) > this.max_vector.x) this.x = this.max_vector.x * this.x/Math.abs(this.x);
+    if(Math.abs(this.y) > this.max_vector.y) this.y = this.max_vector.y * this.y/Math.abs(this.y);
+  }
+}
 
 type Rect = { x: number; y: number; width: number; height: number };
 
@@ -37,7 +79,7 @@ class Entity {
   static entities: Entity[] = [];
 
   constructor(x: number, y: number, width: number, height: number) {
-    this.position = { x, y };
+    this.position = new Vector(x, y);
     this.width = width;
     this.height = height;
     Entity.entities.push(this);
@@ -74,32 +116,31 @@ class Boundary extends Entity {
 }
 
 class Player {
-  static position: Vector = { x: 500, y: 700 };
+  static position: Vector = new Vector( 500, 700 );
   static width = 64;
   static height = 64;
-  static _speed = 5;
-
-  static get speed() {
-    return Player._speed;
-  }
+  static max_speed = 5;
+  static deceleration = 1;
+  static acceleration = 2;
+  static velocity: Vector = new Vector(0, 0, {x: this.max_speed, y: this.max_speed});
 
   static render() {
     if (!Game.context) return;
     Game.context.fillRect(
-      Player.position.x * Game.render_scale - Camera.position.x,
-      Player.position.y * Game.render_scale - Camera.position.y,
-      Player.width * Game.render_scale,
-      Player.height * Game.render_scale
+      this.position.x * Game.render_scale - Camera.position.x,
+      this.position.y * Game.render_scale - Camera.position.y,
+      this.width * Game.render_scale,
+      this.height * Game.render_scale
     );
   }
 
-  static checkBoundaryCollisions(offset_x: number, offset_y: number) {
+  static checkBoundaryCollisions() {
     for (const boundary of GameLevel.boundaries) {
       if (
         checkCollision(
           {
-            x: this.position.x + offset_x,
-            y: this.position.y + offset_y,
+            x: this.position.x + this.velocity.x,
+            y: this.position.y,
             width: this.width,
             height: this.height,
           },
@@ -110,36 +151,58 @@ class Player {
             height: boundary.height,
           }
         )
-      ) return true;
+      ){
+        this.velocity.x = 0;
+      }
+      if (
+        checkCollision(
+          {
+            x: this.position.x,
+            y: this.position.y + this.velocity.y,
+            width: this.width,
+            height: this.height,
+          },
+          {
+            x: boundary.position.x,
+            y: boundary.position.y,
+            width: boundary.width,
+            height: boundary.height,
+          }
+        )
+      ){
+        this.velocity.y = 0;
+      }
     }
-    return false;
+  }
+
+  static checkInput() {
+    if (keys.w) {
+      this.velocity.add({x: 0, y: -this.acceleration})
+    }
+    if (keys.d) {
+      this.velocity.add({x: this.acceleration, y: 0})
+    }
+    if (keys.s) {
+      this.velocity.add({x: 0, y: this.acceleration})
+    }
+    if (keys.a) {
+      this.velocity.add({x: -this.acceleration, y: 0})
+    }
   }
 
   static update() {
-    if (keys.w) {
-      if(this.checkBoundaryCollisions(0, -6)) return;
-      Player.position.y -= Player.speed;
-    }
-    if (keys.d) {
-      if(this.checkBoundaryCollisions(6, 0)) return;
-      Player.position.x += Player.speed;
-    }
-    if (keys.s) {
-      if(this.checkBoundaryCollisions(0, 6)) return;
-      Player.position.y += Player.speed;
-    }
-    if (keys.a) {
-      if(this.checkBoundaryCollisions(-6, 0)) return;
-      Player.position.x -= Player.speed
-    }
+    this.checkInput();
+    this.checkBoundaryCollisions();
+    this.position.add(this.velocity);
+    this.velocity.tendToZero(this.deceleration);
   }
 }
 
 class Camera {
-  static position: Vector = { x: 0, y: 0 };
+  static position: Vector = new Vector( 0, 0 );
   static width = 0;
   static height = 0;
-  static followingVector: Vector = { x: 0, y: 0 };
+  static followingVector: Vector = new Vector( 0, 0 );
 
   static returnToPlayer() {
     Camera.followingVector = Player.position;
@@ -160,7 +223,7 @@ class Camera {
 class GameLevel {
   static window_width: number;
   static window_height: number;
-  static camera_offset: Vector = { x: 0, y: 0 };
+  static camera_offset: Vector = new Vector( 0, 0 );
   static current_level = 0;
   static levels: { [key: number]: GameLevel } = {};
   static boundaries: Boundary[] = [];
@@ -304,7 +367,6 @@ const Experience: Component = () => {
 
   createEffect(() => {
     if (main_canvas && background_canvas) {
-      console.log("ran");
       setMainContext(main_canvas.getContext("2d"));
       setBackgroundContext(background_canvas.getContext("2d"));
       Game.context = main_canvas.getContext("2d");
@@ -318,7 +380,6 @@ const Experience: Component = () => {
 
   createEffect(() => {
     if (homePageState.scrollDown) {
-      console.log("scrolled");
       start();
     }
   });
@@ -330,8 +391,8 @@ const Experience: Component = () => {
     Camera.init();
     setControls();
     setInterval(() => {
-      draw();
       update();
+      draw();
     }, 1000 / FPS);
   };
 
