@@ -6,11 +6,7 @@ import { collisionMap } from "~/experience/nather-io-map-data";
 
 type Vector = { x: number; y: number };
 
-class Game {
-  static context: CanvasRenderingContext2D | null;
-  static render_scale = 2;
-  static grid_size = 64;
-}
+type Rect = { x: number; y: number; width: number; height: number };
 
 const keys: { [key: string]: boolean } = {
   w: false,
@@ -18,6 +14,21 @@ const keys: { [key: string]: boolean } = {
   s: false,
   a: false,
 };
+
+const checkCollision = (obj1: Rect, obj2: Rect) => {
+  return (
+    obj1.x < obj2.x + obj2.width &&
+    obj1.x + obj1.width > obj2.x &&
+    obj1.y < obj2.y + obj2.height &&
+    obj1.y + obj1.height > obj2.y
+  );
+};
+
+class Game {
+  static context: CanvasRenderingContext2D | null;
+  static render_scale = 2;
+  static grid_size = 64;
+}
 
 class Entity {
   position: Vector;
@@ -63,34 +74,64 @@ class Boundary extends Entity {
 }
 
 class Player {
-  static position: Vector = { x: 100, y: 100 };
+  static position: Vector = { x: 500, y: 700 };
   static width = 64;
   static height = 64;
   static _speed = 5;
 
   static get speed() {
-    return Player._speed * Game.render_scale;
+    return Player._speed;
   }
 
   static render() {
     if (!Game.context) return;
     Game.context.fillRect(
-      Player.position.x - Camera.position.x,
-      Player.position.y - Camera.position.y,
+      Player.position.x * Game.render_scale - Camera.position.x,
+      Player.position.y * Game.render_scale - Camera.position.y,
       Player.width * Game.render_scale,
       Player.height * Game.render_scale
     );
   }
+
+  static checkBoundaryCollisions(offset_x: number, offset_y: number) {
+    for (const boundary of GameLevel.boundaries) {
+      if (
+        checkCollision(
+          {
+            x: this.position.x + offset_x,
+            y: this.position.y + offset_y,
+            width: this.width,
+            height: this.height,
+          },
+          {
+            x: boundary.position.x,
+            y: boundary.position.y,
+            width: boundary.width,
+            height: boundary.height,
+          }
+        )
+      ) return true;
+    }
+    return false;
+  }
+
   static update() {
-    if (keys.w) Player.position.y -= Player.speed;
-    if (keys.d) Player.position.x += Player.speed;
-    if (keys.s) Player.position.y += Player.speed;
-    if (keys.a) Player.position.x -= Player.speed;
-    // if(keys.Shift) {
-    //   Player.speed = 10;
-    // } else {
-    //   Player.speed = 5;
-    // }
+    if (keys.w) {
+      if(this.checkBoundaryCollisions(0, -6)) return;
+      Player.position.y -= Player.speed;
+    }
+    if (keys.d) {
+      if(this.checkBoundaryCollisions(6, 0)) return;
+      Player.position.x += Player.speed;
+    }
+    if (keys.s) {
+      if(this.checkBoundaryCollisions(0, 6)) return;
+      Player.position.y += Player.speed;
+    }
+    if (keys.a) {
+      if(this.checkBoundaryCollisions(-6, 0)) return;
+      Player.position.x -= Player.speed
+    }
   }
 }
 
@@ -109,8 +150,10 @@ class Camera {
   }
 
   static update() {
-    Camera.position.x = Camera.followingVector.x - Camera.width / 2;
-    Camera.position.y = Camera.followingVector.y - Camera.height / 2;
+    Camera.position.x =
+      Camera.followingVector.x * Game.render_scale - Camera.width / 2;
+    Camera.position.y =
+      Camera.followingVector.y * Game.render_scale - Camera.height / 2;
   }
 }
 
@@ -154,23 +197,33 @@ class GameLevel {
           currentCell === 6 ||
           currentCell === 16
         ) {
-          // let addedTo = false;
-          // for (const boundary of GameLevel.boundaries) {
-          //   if (
-          //     boundary.position.x + boundary.width === j * this.level_size &&
-          //     boundary.position.y === i * this.level_size
-          //   ) {
-          //     boundary.width += this.level_size;
-          //     addedTo = true;
-          //   } else if (
-          //     boundary.position.y + boundary.height === i * this.level_size &&
-          //     boundary.position.x === j * this.level_size
-          //   ) {
-          //     boundary.height += this.level_size;
-          //     addedTo = true;
-          //   }
-          // }
-          // if(addedTo) continue;
+          let addedTo = false;
+          for (const boundary of GameLevel.boundaries) {
+            if (
+              boundary.position.x + boundary.width === j * this.level_size &&
+              boundary.position.y === i * this.level_size
+            ) {
+              if (j * this.level_size > boundary.position.x) {
+                boundary.width += this.level_size;
+              } else if (j * this.level_size < boundary.position.x) {
+                boundary.position.x -= this.level_size;
+                boundary.width += this.level_size;
+              }
+              addedTo = true;
+            } else if (
+              boundary.position.x + boundary.height === j * this.level_size &&
+              boundary.position.y === i * this.level_size
+            ) {
+              if (i * this.level_size > boundary.position.y) {
+                boundary.height += this.level_size;
+              } else if (i * this.level_size < boundary.position.y) {
+                boundary.position.y += this.level_size;
+                boundary.height += this.level_size;
+              }
+              addedTo = true;
+            }
+          }
+          if (addedTo) continue;
           this.boundaries.push(
             new Boundary(
               j * this.level_size,
@@ -182,6 +235,7 @@ class GameLevel {
         }
       }
     }
+    console.log(this.boundaries.length);
   }
 
   static init() {
@@ -205,7 +259,7 @@ class GameLevel {
   }
 
   static renderBoundaries() {
-    for(const boundary of this.boundaries) {
+    for (const boundary of this.boundaries) {
       boundary.renderDebug();
     }
   }
@@ -305,7 +359,7 @@ const Experience: Component = () => {
     Entity.renderAll();
     Player.render();
     GameLevel.render();
-    GameLevel.renderBoundaries();
+    // GameLevel.renderBoundaries();
     GameLevel.renderGrid();
   };
   const update = () => {
