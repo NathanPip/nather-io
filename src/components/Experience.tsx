@@ -4,17 +4,16 @@ import { createStore } from "solid-js/store";
 import { useHomePageContext } from "~/routes";
 import { collisionMap } from "~/experience/nather-io-map-data";
 
-type Vector2d = {x: number, y: number}
+type Vector2d = { x: number; y: number };
 
-class Vector { 
-  x: number; 
-  y: number; 
-  max_vector: Vector2d = {x: Infinity, y: Infinity}
+class Vector {
+  x: number;
+  y: number;
+  max_vector: Vector2d = { x: Infinity, y: Infinity };
   constructor(x: number, y: number, max_vector?: Vector2d) {
     this.x = x;
     this.y = y;
-    if(max_vector)
-      this.max_vector = max_vector;
+    if (max_vector) this.max_vector = max_vector;
   }
 
   add(other: Vector | Vector2d) {
@@ -24,27 +23,41 @@ class Vector {
   }
 
   tendToZero(amt: number) {
-    if(this.x > 0) {
-      if(this.x - amt < 0) {this.x = 0}
-      else {this.x -= amt}
+    if (this.x > 0) {
+      if (this.x - amt < 0) {
+        this.x = 0;
+      } else {
+        this.x -= amt;
+      }
     }
-    if(this.x < 0) {
-      if(this.x + amt > 0) {this.x = 0}
-      else {this.x += amt}
+    if (this.x < 0) {
+      if (this.x + amt > 0) {
+        this.x = 0;
+      } else {
+        this.x += amt;
+      }
     }
-    if(this.y > 0) {
-      if(this.y - amt < 0) {this.y = 0}
-      else {this.y -= amt}
+    if (this.y > 0) {
+      if (this.y - amt < 0) {
+        this.y = 0;
+      } else {
+        this.y -= amt;
+      }
     }
-    if(this.y < 0) {
-      if(this.y + amt > 0) {this.y = 0}
-      else {this.y += amt}
+    if (this.y < 0) {
+      if (this.y + amt > 0) {
+        this.y = 0;
+      } else {
+        this.y += amt;
+      }
     }
   }
 
   checkMax() {
-    if(Math.abs(this.x) > this.max_vector.x) this.x = this.max_vector.x * this.x/Math.abs(this.x);
-    if(Math.abs(this.y) > this.max_vector.y) this.y = this.max_vector.y * this.y/Math.abs(this.y);
+    if (Math.abs(this.x) > this.max_vector.x)
+      this.x = (this.max_vector.x * this.x) / Math.abs(this.x);
+    if (Math.abs(this.y) > this.max_vector.y)
+      this.y = (this.max_vector.y * this.y) / Math.abs(this.y);
   }
 }
 
@@ -68,8 +81,10 @@ const checkCollision = (obj1: Rect, obj2: Rect) => {
 
 class Game {
   static context: CanvasRenderingContext2D | null;
-  static render_scale = 2;
+  static render_scale = 1.5;
   static grid_size = 64;
+  static current_frame = 0;
+  static FPS = 60;
 }
 
 class Entity {
@@ -116,23 +131,21 @@ class Boundary extends Entity {
 }
 
 class Player {
-  static position: Vector = new Vector( 500, 700 );
+  static position: Vector = new Vector(500, 700);
   static width = 64;
   static height = 64;
   static max_speed = 5;
   static deceleration = 1;
   static acceleration = 2;
-  static velocity: Vector = new Vector(0, 0, {x: this.max_speed, y: this.max_speed});
-
-  static render() {
-    if (!Game.context) return;
-    Game.context.fillRect(
-      this.position.x * Game.render_scale - Camera.position.x,
-      this.position.y * Game.render_scale - Camera.position.y,
-      this.width * Game.render_scale,
-      this.height * Game.render_scale
-    );
-  }
+  static velocity: Vector = new Vector(0, 0, {
+    x: this.max_speed,
+    y: this.max_speed,
+  });
+  static previous_velocityX = 0;
+  static character_sprite_sheet: any;
+  static loading_complete = false;
+  static animation = 0;
+  static animation_frame = 0;
 
   static checkBoundaryCollisions() {
     for (const boundary of GameLevel.boundaries) {
@@ -151,7 +164,7 @@ class Player {
             height: boundary.height,
           }
         )
-      ){
+      ) {
         this.velocity.x = 0;
       }
       if (
@@ -169,7 +182,7 @@ class Player {
             height: boundary.height,
           }
         )
-      ){
+      ) {
         this.velocity.y = 0;
       }
     }
@@ -177,32 +190,78 @@ class Player {
 
   static checkInput() {
     if (keys.w) {
-      this.velocity.add({x: 0, y: -this.acceleration})
+      this.velocity.add({ x: 0, y: -this.acceleration });
     }
     if (keys.d) {
-      this.velocity.add({x: this.acceleration, y: 0})
+      this.velocity.add({ x: this.acceleration, y: 0 });
     }
     if (keys.s) {
-      this.velocity.add({x: 0, y: this.acceleration})
+      this.velocity.add({ x: 0, y: this.acceleration });
     }
     if (keys.a) {
-      this.velocity.add({x: -this.acceleration, y: 0})
+      this.velocity.add({ x: -this.acceleration, y: 0 });
     }
   }
 
+  static animate(animation: number, speed: number, limit: number) {
+    if (this.animation !== animation) {
+      this.animation_frame = 0;
+      this.animation = animation
+    }
+    if (Game.current_frame % Math.round(Game.FPS / speed) === 0) {
+      if (this.animation_frame < limit) {
+        this.animation_frame++;
+      } else {
+        this.animation_frame = 0;
+      }
+    }
+  }
+
+  static init() {
+    this.character_sprite_sheet = new Image();
+    this.character_sprite_sheet.src = "./nather-io-player-sheet.png";
+    this.character_sprite_sheet.onload = () => {
+      this.loading_complete = true;
+      console.log("loaded");
+    };
+  }
+
   static update() {
+    if(this.velocity.x !== 0) {
+      this.previous_velocityX = this.velocity.x;
+    }
     this.checkInput();
     this.checkBoundaryCollisions();
     this.position.add(this.velocity);
     this.velocity.tendToZero(this.deceleration);
+    if (this.velocity.x === 0 && this.velocity.y === 0) {
+      this.previous_velocityX > 0 ? this.animate(0, 1, 0) : this.animate(2, 1, 0);
+    } else {
+      this.previous_velocityX > 0 ? this.animate(1, 8, 3) : this.animate(3, 8, 3);
+    }
+  }
+
+  static render() {
+    if (!Game.context || !this.loading_complete) return;
+    Game.context.drawImage(
+      this.character_sprite_sheet,
+      this.animation_frame * this.width,
+      this.animation * this.height,
+      this.width,
+      this.height,
+      this.position.x * Game.render_scale - Camera.position.x,
+      this.position.y * Game.render_scale - Camera.position.y,
+      this.width * Game.render_scale,
+      this.height * Game.render_scale
+    );
   }
 }
 
 class Camera {
-  static position: Vector = new Vector( 0, 0 );
+  static position: Vector = new Vector(0, 0);
   static width = 0;
   static height = 0;
-  static followingVector: Vector = new Vector( 0, 0 );
+  static followingVector: Vector = new Vector(0, 0);
 
   static returnToPlayer() {
     Camera.followingVector = Player.position;
@@ -223,7 +282,7 @@ class Camera {
 class GameLevel {
   static window_width: number;
   static window_height: number;
-  static camera_offset: Vector = new Vector( 0, 0 );
+  static camera_offset: Vector = new Vector(0, 0);
   static current_level = 0;
   static levels: { [key: number]: GameLevel } = {};
   static boundaries: Boundary[] = [];
@@ -305,7 +364,7 @@ class GameLevel {
     if (!this.context || !this.level_image) return;
     this.level_image.src = "./nather-io-map.png";
     this.level_image.onload = () => {
-      GameLevel.image_loaded = true;
+      this.image_loaded = true;
     };
     this.createBoundaries();
   }
@@ -348,7 +407,6 @@ const Experience: Component = () => {
 
   let main_canvas: HTMLCanvasElement | undefined;
   let background_canvas: HTMLCanvasElement | undefined;
-  const FPS = 60;
   const [mainContext, setMainContext] =
     createSignal<CanvasRenderingContext2D | null>(null);
   const [backgroundContext, setBackgroundContext] =
@@ -389,11 +447,13 @@ const Experience: Component = () => {
     GameLevel.level_image = new Image();
     GameLevel.init();
     Camera.init();
+    Player.init();
     setControls();
     setInterval(() => {
       update();
       draw();
-    }, 1000 / FPS);
+      Game.current_frame++;
+    }, 1000 / Game.FPS);
   };
 
   const setControls = () => {
@@ -421,7 +481,7 @@ const Experience: Component = () => {
     Player.render();
     GameLevel.render();
     // GameLevel.renderBoundaries();
-    GameLevel.renderGrid();
+    // GameLevel.renderGrid();
   };
   const update = () => {
     Entity.updateAll();
