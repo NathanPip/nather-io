@@ -1,6 +1,4 @@
-"use client";
 import { createSignal, type Component, onMount, createEffect } from "solid-js";
-import { createStore } from "solid-js/store";
 import { useHomePageContext } from "~/routes";
 import { collisionMap } from "~/experience/nather-io-map-data";
 
@@ -19,7 +17,7 @@ class Vector {
   add(other: Vector | Vector2d) {
     this.x += other.x;
     this.y += other.y;
-    this.checkMax();
+    this.constrainToMax();
   }
 
   tendToZero(amt: number) {
@@ -53,11 +51,15 @@ class Vector {
     }
   }
 
-  checkMax() {
+  constrainToMax() {
     if (Math.abs(this.x) > this.max_vector.x)
       this.x = (this.max_vector.x * this.x) / Math.abs(this.x);
     if (Math.abs(this.y) > this.max_vector.y)
       this.y = (this.max_vector.y * this.y) / Math.abs(this.y);
+  }
+
+  distanceTo(vec: Vector | Vector2d){
+    return Math.sqrt(Math.pow(this.x-vec.x,2) + Math.pow(this.y-vec.y,2))
   }
 }
 
@@ -91,17 +93,56 @@ class Entity {
   position: Vector;
   width: number;
   height: number;
+  sprite_src: string | undefined;
+  sprite_img: any;
+  loading_complete: boolean;
+  animation: number;
+  animation_frame: number;
+  is_static: boolean;
+  is_interactable: boolean;
+  debug: boolean;
+  max_speed = 5;
+  deceleration = 1;
+  acceleration = 2;
+  velocity: Vector;
+  distance_to_player = 0;
   static entities: Entity[] = [];
 
-  constructor(x: number, y: number, width: number, height: number) {
+  constructor(x: number, y: number, width: number, height: number, sprite_src?: string) {
     this.position = new Vector(x, y);
     this.width = width;
     this.height = height;
+    this.sprite_src = sprite_src;
+    this.is_static = true;
+    this.loading_complete = false;
+    this.is_interactable = false;
+    this.debug = false;
+    this.animation = 0;
+    this.animation_frame = 0;
+    this.velocity = new Vector(0, 0, {
+      x: this.max_speed,
+      y: this.max_speed,
+    });
     Entity.entities.push(this);
+  }
+
+  animate(animation: number, speed: number, limit: number) {
+    if (this.animation !== animation) {
+      this.animation_frame = 0;
+      this.animation = animation
+    }
+    if (Game.current_frame % Math.round(Game.FPS / speed) === 0) {
+      if (this.animation_frame < limit) {
+        this.animation_frame++;
+      } else {
+        this.animation_frame = 0;
+      }
+    }
   }
 
   static updateAll() {
     for (const entity of Entity.entities) {
+      entity.physicsUpdate();
       entity.update();
     }
   }
@@ -109,11 +150,58 @@ class Entity {
   static renderAll() {
     for (const entity of Entity.entities) {
       entity.render();
+      if(entity.debug) entity.renderDebug();
     }
   }
 
+  static initAll() {
+    for (const entity of Entity.entities) {
+      entity._defaultInit();
+    }
+  }
+
+  _defaultInit() {
+    if(this.sprite_img === undefined) {
+      this.loading_complete = true;
+      return;
+    }
+    this.sprite_img = new Image();
+    this.sprite_img.src = this.sprite_src;
+    this.sprite_img.onload = () => {
+      this.loading_complete = true;
+    }
+  }
+
+  physicsUpdate() {
+    if(this.is_static) return;
+    this.position.add(this.velocity);
+    this.velocity.tendToZero(this.deceleration);
+  }
+  interactableUpdate() {
+    if(!this.is_interactable) return;
+    this.distance_to_player = this.position.distanceTo(Player.position);
+  }
+
   update() {}
-  render() {}
+
+  render() {
+    if(!Game.context || !this.loading_complete && !this.sprite_src) return;
+    Game.context.drawImage(
+      this.sprite_img,
+      this.animation_frame * this.width,
+      this.animation * this.height,
+      this.width,
+      this.height,
+      this.position.x * Game.render_scale - Camera.position.x,
+      this.position.y * Game.render_scale - Camera.position.y,
+      this.width * Game.render_scale,
+      this.height * Game.render_scale
+    );
+  }
+  renderDebug() {
+    if(!Game.context) return;
+    Game.context.strokeRect(this.position.x, this.position.y, this.width * Game.render_scale, this.height * Game.render_scale);
+  }
 }
 
 class Boundary extends Entity {
@@ -222,7 +310,6 @@ class Player {
     this.character_sprite_sheet.src = "./nather-io-player-sheet.png";
     this.character_sprite_sheet.onload = () => {
       this.loading_complete = true;
-      console.log("loaded");
     };
   }
 
@@ -357,7 +444,6 @@ class GameLevel {
         }
       }
     }
-    console.log(this.boundaries.length);
   }
 
   static init() {
@@ -387,7 +473,6 @@ class GameLevel {
   }
 
   static renderGrid() {
-    // if (!GameLevel.dev_mode) return;
     for (let i = 0; i < this.level_size; i++) {
       for (let j = 0; j < this.level_size; j++) {
         if (this.context == null) return;
@@ -481,7 +566,7 @@ const Experience: Component = () => {
     Player.render();
     GameLevel.render();
     // GameLevel.renderBoundaries();
-    // GameLevel.renderGrid();
+    GameLevel.renderGrid();
   };
   const update = () => {
     Entity.updateAll();
