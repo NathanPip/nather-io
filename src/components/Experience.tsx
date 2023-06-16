@@ -55,6 +55,13 @@ const Experience: Component = () => {
     GameLevel.init();
     Player.init();
     Camera.init();
+    //Camera movement test
+    // Camera.moveTo({x: 1500, y:900}, 1000, "ease-in-out");
+    // Camera.zoom(1.25, 10000);
+    // setTimeout(() => {
+    //   Camera.clearMove();
+    //   Camera.unzoom();
+    // }, 10000)
     setupEntities();
     setControls();
     setInterval(() => {
@@ -89,7 +96,7 @@ const Experience: Component = () => {
     Player.render();
     GameLevel.render();
     // GameLevel.renderBoundaries();
-    GameLevel.renderGrid();
+    // GameLevel.renderGrid();
   };
   const update = () => {
     Entity.updateAll();

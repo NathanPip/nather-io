@@ -1,7 +1,7 @@
 import { type Vector2d } from "./types";
 import { collisionMap } from "./nather-io-map-data";
 import { keys } from "./globals";
-import { checkCollision } from "./utils";
+import { checkCollision, easeInOut, lerp } from "./utils";
 
 export class Vector {
   x: number;
@@ -25,9 +25,18 @@ export class Vector {
     this.constrainToMax();
   }
 
+  lerp(other: Vector | Vector2d, progress: number) {
+    this.x += (other.x - this.x) * progress;
+    this.y += (other.y - this.y) * progress;
+  }
+
   tendToZero(amt: number) {
-    Math.abs(this.x) - amt < 0 ? this.x = 0 : this.x += -amt * Math.abs(this.x) / this.x;
-    Math.abs(this.y) - amt < 0 ? this.y = 0 : this.y += -amt * Math.abs(this.y) / this.y;
+    Math.abs(this.x) - amt < 0
+      ? (this.x = 0)
+      : (this.x += (-amt * Math.abs(this.x)) / this.x);
+    Math.abs(this.y) - amt < 0
+      ? (this.y = 0)
+      : (this.y += (-amt * Math.abs(this.y)) / this.y);
   }
 
   constrainToMax() {
@@ -43,15 +52,14 @@ export class Vector {
 }
 
 export class Input {
-  static keys: {[key: string]: boolean} = {};
+  static keys: { [key: string]: boolean } = {};
 
   static isHoldingKey(key: string) {
-    if(this.keys[key] === undefined) {
+    if (this.keys[key] === undefined) {
       this.keys[key] = false;
     }
     return this.keys[key];
   }
-
 }
 
 export class Camera {
@@ -59,7 +67,15 @@ export class Camera {
   static width = 0;
   static height = 0;
   static following_vector: Vector = new Vector(0, 0);
-  static zoom_vector: Vector | undefined;
+  static following_lag = 0.1;
+  static moveTo_vector: Vector | Vector2d | undefined;
+  static moveTo_frame = 1;
+  static moveTo_time = 15;
+  static zoomed = false;
+  static zoom_frame = 1; 
+  static zoom_time = 60;
+  static zoom_multiplier = 1.25;
+  static easing: "linear" | "ease-in-out" = "linear";
 
   static returnToPlayer() {
     Camera.following_vector = Player.position;
@@ -69,24 +85,92 @@ export class Camera {
     Camera.returnToPlayer();
   }
 
-  static zoom() {
-    return;
+  static moveTo(
+    vector: Vector | Vector2d,
+    time?: number,
+    easing?: "linear" | "ease-in-out"
+  ) {
+    this.moveTo_vector = vector;
+    this.moveTo_time = time || 60;
+    if (easing) this.easing = easing;
+  }
+
+  static zoom(amt?: number, time?: number) {
+    this.zoom_frame = 1;
+    amt ? this.zoom_multiplier = amt : this.zoom_multiplier = 1.25;
+    time ? this.zoom_time = time : this.zoom_time = 60;
+    this.zoomed = true;
+  }
+
+  static unzoom(amt?: number, time?: number) {
+    this.zoom_frame = 1;
+    amt ? this.zoom_multiplier = amt : this.zoom_multiplier = 1.25;
+    time ? this.zoom_time = time : this.zoom_time = 60;
+    this.zoomed = false;
+  }
+
+  static _zoom() {
+    const progress = this.zoom_frame / this.zoom_time;
+    Game.render_scale = lerp(Game.render_scale, Game.default_render_scale*this.zoom_multiplier, progress);
+    if(this.zoom_frame !== this.zoom_time) this.zoom_frame += 1;
+  }
+
+  static _unzoom() {
+    if(Game.render_scale = Game.default_render_scale) return;
+    const progress = this.zoom_frame / this.zoom_time;
+    Game.render_scale = lerp(Game.render_scale, Game.default_render_scale, progress);
+    if(this.zoom_frame !== this.zoom_time) this.zoom_frame += 1;
+  }
+
+  static move() {
+    if (this.moveTo_vector === undefined) return;
+    const timer_progress = this.moveTo_frame / this.moveTo_time;
+    const easeProgress =
+      this.easing === "linear"
+        ? timer_progress
+        : false || this.easing === "ease-in-out"
+        ? easeInOut(timer_progress)
+        : timer_progress;
+    this.position.lerp(
+      {
+        x: this.moveTo_vector.x * Game.render_scale - this.width / 2,
+        y: this.moveTo_vector.y * Game.render_scale - this.height / 2,
+      },
+      easeProgress
+    );
+    if (this.moveTo_frame !== this.moveTo_time) this.moveTo_frame += 1;
+  }
+
+  static clearMove() {
+    this.moveTo_vector = undefined;
+    this.moveTo_time = 60;
   }
 
   static update() {
-    if(this.zoom_vector !== undefined) {
-      this.zoom();
-      return;
+    if(this.zoomed) {
+      this._zoom();
+    } else {
+      this._unzoom();
     }
-    Camera.position.x =
-      Camera.following_vector.x * Game.render_scale - Camera.width / 2;
-    Camera.position.y =
-      Camera.following_vector.y * Game.render_scale - Camera.height / 2;
+    if (this.moveTo_vector !== undefined) {
+      this.move();
+      return;
+    } else {
+      this.moveTo_frame = 1;
+    }
+    this.position.lerp(
+      {
+        x: this.following_vector.x * Game.render_scale - this.width / 2,
+        y: this.following_vector.y * Game.render_scale - this.height / 2,
+      },
+      this.following_lag
+    );
   }
 }
 
 export class Game {
   static context: CanvasRenderingContext2D | null;
+  static default_render_scale = 1.5;
   static render_scale = 1.5;
   static grid_size = 64;
   static current_frame = 0;
@@ -109,23 +193,29 @@ export class Game {
     animation_frame = 0,
     scale = 1
   ) {
-    if(!this.context) return;
-      this.context.drawImage(
-        image,
-        width * (animation_frame),
-        height * (animation),
-        width,
-        height,
-        x * this.render_scale * scale - Camera.position.x,
-        y * this.render_scale * scale - Camera.position.y,
-        width * this.render_scale * scale,
-        height * this.render_scale * scale
-      );
+    if (!this.context) return;
+    this.context.drawImage(
+      image,
+      width * animation_frame,
+      height * animation,
+      width,
+      height,
+      x * this.render_scale * scale - Camera.position.x,
+      y * this.render_scale * scale - Camera.position.y,
+      width * this.render_scale * scale,
+      height * this.render_scale * scale
+    );
   }
 
-  static renderFillRect(x: number, y: number, width: number, height: number, color?: string) {
-    if(!this.context) return;
-    if(color !== undefined) this.context.fillStyle = color;
+  static renderFillRect(
+    x: number,
+    y: number,
+    width: number,
+    height: number,
+    color?: string
+  ) {
+    if (!this.context) return;
+    if (color !== undefined) this.context.fillStyle = color;
     this.context.fillRect(
       x * this.render_scale - Camera.position.x,
       y * this.render_scale - Camera.position.y,
@@ -135,9 +225,15 @@ export class Game {
     this.context.fillStyle = this.default_draw_color;
   }
 
-  static renderStrokeRect(x: number, y: number, width: number, height: number, color?: string) {
-    if(!this.context) return;
-    if(color !== undefined) this.context.fillStyle = color;
+  static renderStrokeRect(
+    x: number,
+    y: number,
+    width: number,
+    height: number,
+    color?: string
+  ) {
+    if (!this.context) return;
+    if (color !== undefined) this.context.fillStyle = color;
     this.context.strokeRect(
       x * this.render_scale - Camera.position.x,
       y * this.render_scale - Camera.position.y,
@@ -252,7 +348,10 @@ export class Entity {
       Player.interactable_entities_in_range.push(this);
       this.rendering_interactable = true;
     } else {
-      Player.interactable_entities_in_range.splice(Player.interactable_entities_in_range.indexOf(this), 1);
+      Player.interactable_entities_in_range.splice(
+        Player.interactable_entities_in_range.indexOf(this),
+        1
+      );
       this.rendering_interactable = false;
     }
   }
@@ -295,8 +394,8 @@ export class Entity {
     if (this.rendering_interactable) {
       Game.renderSprite(
         Game.interact_bubble,
-        (this.position.x + (this.width / 2 - 18)),
-        (this.position.y - 36),
+        this.position.x + (this.width / 2 - 18),
+        this.position.y - 36,
         32,
         32
       );
@@ -313,7 +412,7 @@ class Character extends Entity {
     height: number,
     sprite_src?: string
   ) {
-    super(x,y,width,height,sprite_src);
+    super(x, y, width, height, sprite_src);
   }
 }
 
@@ -392,8 +491,10 @@ export class Player {
   }
 
   static interact() {
-    console.log("interact called")
-    this.interactable_entities_in_range.sort((a, b) => a.distance_to_player - b.distance_to_player)[0].interact();
+    console.log("interact called");
+    this.interactable_entities_in_range
+      .sort((a, b) => a.distance_to_player - b.distance_to_player)[0]
+      .interact();
   }
 
   static checkInput() {
@@ -412,7 +513,7 @@ export class Player {
   }
 
   static checkInteract() {
-    if(keys.e && !this.interact_pressed) {
+    if (keys.e && !this.interact_pressed) {
       this.interact();
       this.interact_pressed = true;
     } else if (!keys.e) {
@@ -469,7 +570,7 @@ export class Player {
       this.position.x,
       this.position.y,
       this.width,
-      this.height, 
+      this.height,
       this.animation,
       this.animation_frame
     );

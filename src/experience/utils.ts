@@ -9,3 +9,10 @@ export const checkCollision = (obj1: Rect, obj2: Rect) => {
     );
   };
   
+export const lerp = (min: number, max: number, a: number) => {
+  return min + ((max-min)*a);
+}
+
+export const easeInOut = (x: number) => {
+  return -(Math.cos(Math.PI * x) - 1) / 2;
+}
