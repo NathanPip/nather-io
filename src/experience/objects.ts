@@ -1,4 +1,4 @@
-import { type Vector2d, type Rect } from "./types";
+import { type Vector2d } from "./types";
 import { collisionMap } from "./nather-io-map-data";
 import { keys } from "./globals";
 import { checkCollision } from "./utils";
@@ -26,34 +26,8 @@ export class Vector {
   }
 
   tendToZero(amt: number) {
-    if (this.x > 0) {
-      if (this.x - amt < 0) {
-        this.x = 0;
-      } else {
-        this.x -= amt;
-      }
-    }
-    if (this.x < 0) {
-      if (this.x + amt > 0) {
-        this.x = 0;
-      } else {
-        this.x += amt;
-      }
-    }
-    if (this.y > 0) {
-      if (this.y - amt < 0) {
-        this.y = 0;
-      } else {
-        this.y -= amt;
-      }
-    }
-    if (this.y < 0) {
-      if (this.y + amt > 0) {
-        this.y = 0;
-      } else {
-        this.y += amt;
-      }
-    }
+    Math.abs(this.x) - amt < 0 ? this.x = 0 : this.x += -amt * Math.abs(this.x) / this.x;
+    Math.abs(this.y) - amt < 0 ? this.y = 0 : this.y += -amt * Math.abs(this.y) / this.y;
   }
 
   constrainToMax() {
@@ -68,31 +42,46 @@ export class Vector {
   }
 }
 
+export class Input {
+  static keys: {[key: string]: boolean} = {};
+
+  static isHoldingKey(key: string) {
+    if(this.keys[key] === undefined) {
+      this.keys[key] = false;
+    }
+    return this.keys[key];
+  }
+
+}
+
 export class Camera {
   static position: Vector = new Vector(0, 0);
   static width = 0;
   static height = 0;
-  static followingVector: Vector = new Vector(0, 0);
+  static following_vector: Vector = new Vector(0, 0);
+  static zoom_vector: Vector | undefined;
 
   static returnToPlayer() {
-    console.log(Player.position)
-    Camera.followingVector = Player.position;
+    Camera.following_vector = Player.position;
   }
 
   static init() {
     Camera.returnToPlayer();
   }
 
+  static zoom() {
+    return;
+  }
+
   static update() {
-    // console.log("render_scale", Game.render_scale)
-    // console.log("following ", Camera.followingVector)
-    // console.log(Camera.width)
-    // console.log(Camera.height)
-    // console.log("position ", Camera.position)
+    if(this.zoom_vector !== undefined) {
+      this.zoom();
+      return;
+    }
     Camera.position.x =
-      Camera.followingVector.x * Game.render_scale - Camera.width / 2;
+      Camera.following_vector.x * Game.render_scale - Camera.width / 2;
     Camera.position.y =
-      Camera.followingVector.y * Game.render_scale - Camera.height / 2;
+      Camera.following_vector.y * Game.render_scale - Camera.height / 2;
   }
 }
 
@@ -220,6 +209,7 @@ export class Entity {
   static updateAll() {
     for (const entity of Entity.entities) {
       entity.physicsUpdate();
+      entity.interactableUpdate();
       entity.update();
     }
   }
@@ -259,15 +249,17 @@ export class Entity {
     if (!this.is_interactable) return;
     this.distance_to_player = this.position.distanceTo(Player.position);
     if (this.distance_to_player < 100) {
+      Player.interactable_entities_in_range.push(this);
       this.rendering_interactable = true;
     } else {
+      Player.interactable_entities_in_range.splice(Player.interactable_entities_in_range.indexOf(this), 1);
       this.rendering_interactable = false;
     }
   }
 
-  interact() {}
-
   update() {}
+
+  interact() {}
 
   renderInteractableBubble() {
     if (!Game.context || !this.rendering_interactable) return;
@@ -312,6 +304,19 @@ export class Entity {
   }
 }
 
+class Character extends Entity {
+  dialogue_lines: string[] = [];
+  constructor(
+    x: number,
+    y: number,
+    width: number,
+    height: number,
+    sprite_src?: string
+  ) {
+    super(x,y,width,height,sprite_src);
+  }
+}
+
 export class Boundary extends Entity {
   renderDebug() {
     if (!Game.context) return;
@@ -337,11 +342,13 @@ export class Player {
     y: this.max_speed,
   });
   static previous_velocityX = 0;
-  static character_sprite_sheet: any;
+  static character_sprite_sheet: HTMLImageElement;
   static loading_complete = false;
   static animation = 0;
   static animation_frame = 0;
   static render_collision_debug = true;
+  static interactable_entities_in_range: Entity[] = [];
+  static interact_pressed = false;
 
   static checkBoundaryCollisions() {
     for (const boundary of GameLevel.boundaries) {
@@ -384,6 +391,11 @@ export class Player {
     }
   }
 
+  static interact() {
+    console.log("interact called")
+    this.interactable_entities_in_range.sort((a, b) => a.distance_to_player - b.distance_to_player)[0].interact();
+  }
+
   static checkInput() {
     if (keys.w) {
       this.velocity.add({ x: 0, y: -this.acceleration });
@@ -396,6 +408,15 @@ export class Player {
     }
     if (keys.a) {
       this.velocity.add({ x: -this.acceleration, y: 0 });
+    }
+  }
+
+  static checkInteract() {
+    if(keys.e && !this.interact_pressed) {
+      this.interact();
+      this.interact_pressed = true;
+    } else if (!keys.e) {
+      this.interact_pressed = false;
     }
   }
 
@@ -426,8 +447,8 @@ export class Player {
       this.previous_velocityX = this.velocity.x;
     }
     this.checkInput();
+    this.checkInteract();
     this.checkBoundaryCollisions();
-    console.log("this position", this.velocity)
     this.position.add(this.velocity);
     this.velocity.tendToZero(this.deceleration);
     if (this.velocity.x === 0 && this.velocity.y === 0) {
@@ -474,7 +495,7 @@ export class GameLevel {
   static context: CanvasRenderingContext2D | null;
   static level_size = 64;
   static image_loaded = false;
-  static level_image: any;
+  static level_image: HTMLImageElement;
 
   static createBoundaries() {
     for (let i = 0; i < GameLevel.level_size; i++) {
@@ -554,7 +575,6 @@ export class GameLevel {
 
   static render() {
     if (!this.image_loaded || !this.context) return;
-    console.log(Camera.position)
     this.context.drawImage(
       this.level_image,
       -Camera.position.x,

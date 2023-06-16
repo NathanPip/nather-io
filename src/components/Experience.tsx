@@ -1,8 +1,8 @@
 import { createSignal, type Component, onMount, createEffect } from "solid-js";
 import { useHomePageContext } from "~/routes";
-import { collisionMap } from "~/experience/nather-io-map-data";
 import { Camera, Entity, Game, GameLevel, Player } from "~/experience/objects";
 import { keys } from "~/experience/globals";
+import { TestEntity } from "~/experience/entities";
 
 const Experience: Component = () => {
   const [homePageState] = useHomePageContext();
@@ -45,9 +45,7 @@ const Experience: Component = () => {
   });
 
   const setupEntities = () => {
-    const testEntity = new Entity(1000, 1000, 64, 64);
-    testEntity.debug = true;
-    testEntity.is_interactable = true;
+    const testEntity = new TestEntity(1000, 1000, 64, 64);
   };
 
   const start = () => {
@@ -91,7 +89,7 @@ const Experience: Component = () => {
     Player.render();
     GameLevel.render();
     // GameLevel.renderBoundaries();
-    // GameLevel.renderGrid();
+    GameLevel.renderGrid();
   };
   const update = () => {
     Entity.updateAll();
