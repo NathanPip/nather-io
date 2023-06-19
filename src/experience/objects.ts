@@ -13,17 +13,29 @@ export class Vector {
     if (max_vector) this.max_vector = max_vector;
   }
 
-  add(other: Vector | Vector2d) {
+  addTo(other: Vector | Vector2d) {
     this.x += other.x;
     this.y += other.y;
     this.constrainToMax();
   }
 
-  multiply(other: Vector | Vector2d) {
+  add(other: Vector | Vector2d) {
+    return new Vector(this.x + other.x, this.y + other.y);
+  }
+
+  multiplyTo(other: Vector | Vector2d) {
     this.x *= other.x;
     this.y *= other.y;
     this.constrainToMax();
   }
+
+  multiply(other: Vector | Vector2d) {
+    return new Vector(this.x * other.x, this.y * other.y);
+  }
+
+  // inBetween(other: Vector | Vector2d) {
+  //   return new Vector(this.x - other.x, this.y - other.y);
+  // }
 
   lerp(other: Vector | Vector2d, progress: number) {
     this.x += (other.x - this.x) * progress;
@@ -71,8 +83,9 @@ export class Camera {
   static moveTo_vector: Vector | Vector2d | undefined;
   static moveTo_frame = 1;
   static moveTo_time = 15;
+  static moveTo_finished = false;
   static zoomed = false;
-  static zoom_frame = 1; 
+  static zoom_frame = 1;
   static zoom_time = 60;
   static zoom_multiplier = 1.25;
   static easing: "linear" | "ease-in-out" = "linear";
@@ -97,29 +110,37 @@ export class Camera {
 
   static zoom(amt?: number, time?: number) {
     this.zoom_frame = 1;
-    amt ? this.zoom_multiplier = amt : this.zoom_multiplier = 1.25;
-    time ? this.zoom_time = time : this.zoom_time = 60;
+    amt ? (this.zoom_multiplier = amt) : (this.zoom_multiplier = 1.25);
+    time ? (this.zoom_time = time) : (this.zoom_time = 60);
     this.zoomed = true;
   }
 
   static unzoom(amt?: number, time?: number) {
     this.zoom_frame = 1;
-    amt ? this.zoom_multiplier = amt : this.zoom_multiplier = 1.25;
-    time ? this.zoom_time = time : this.zoom_time = 60;
+    amt ? (this.zoom_multiplier = amt) : (this.zoom_multiplier = 1.25);
+    time ? (this.zoom_time = time) : (this.zoom_time = 60);
     this.zoomed = false;
   }
 
   static _zoom() {
     const progress = this.zoom_frame / this.zoom_time;
-    Game.render_scale = lerp(Game.render_scale, Game.default_render_scale*this.zoom_multiplier, progress);
-    if(this.zoom_frame !== this.zoom_time) this.zoom_frame += 1;
+    Game.render_scale = lerp(
+      Game.render_scale,
+      Game.default_render_scale * this.zoom_multiplier,
+      progress
+    );
+    if (this.zoom_frame !== this.zoom_time) this.zoom_frame += 1;
   }
 
   static _unzoom() {
-    if(Game.render_scale = Game.default_render_scale) return;
+    if ((Game.render_scale = Game.default_render_scale)) return;
     const progress = this.zoom_frame / this.zoom_time;
-    Game.render_scale = lerp(Game.render_scale, Game.default_render_scale, progress);
-    if(this.zoom_frame !== this.zoom_time) this.zoom_frame += 1;
+    Game.render_scale = lerp(
+      Game.render_scale,
+      Game.default_render_scale,
+      progress
+    );
+    if (this.zoom_frame !== this.zoom_time) this.zoom_frame += 1;
   }
 
   static move() {
@@ -147,16 +168,21 @@ export class Camera {
   }
 
   static update() {
-    if(this.zoomed) {
+    if (this.zoomed) {
       this._zoom();
-    } else {
+    } else if (Game.render_scale !== Game.default_render_scale) {
       this._unzoom();
     }
     if (this.moveTo_vector !== undefined) {
-      this.move();
+      if (this.moveTo_frame !== this.moveTo_time) {
+        this.move();
+      } else {
+        this.moveTo_finished = true;
+      }
       return;
     } else {
       this.moveTo_frame = 1;
+      this.moveTo_finished = false;
     }
     this.position.lerp(
       {
@@ -170,8 +196,9 @@ export class Camera {
 
 export class Game {
   static context: CanvasRenderingContext2D | null;
-  static default_render_scale = 1.5;
-  static render_scale = 1.5;
+  static default_render_scale = 1.6;
+  static game_dom: HTMLDivElement | undefined;
+  static render_scale = 1.6;
   static grid_size = 64;
   static current_frame = 0;
   static FPS = 60;
@@ -255,6 +282,7 @@ export class Entity {
   animation_frame: number;
   is_static: boolean;
   is_interactable: boolean;
+  interacting = false;
   debug: boolean;
   max_speed = 5;
   deceleration = 1;
@@ -337,7 +365,7 @@ export class Entity {
 
   physicsUpdate() {
     if (this.is_static) return;
-    this.position.add(this.velocity);
+    this.position.addTo(this.velocity);
     this.velocity.tendToZero(this.deceleration);
   }
 
@@ -358,7 +386,15 @@ export class Entity {
 
   update() {}
 
+  defaultInteract() {
+    this.interacting = true;
+  }
+
   interact() {}
+
+  uninteract() {
+    this.interacting = false;
+  }
 
   renderInteractableBubble() {
     if (!Game.context || !this.rendering_interactable) return;
@@ -403,8 +439,9 @@ export class Entity {
   }
 }
 
-class Character extends Entity {
-  dialogue_lines: string[] = [];
+export class Character extends Entity {
+  name: string | undefined;
+  static characters: Character[] = [];
   constructor(
     x: number,
     y: number,
@@ -413,6 +450,13 @@ class Character extends Entity {
     sprite_src?: string
   ) {
     super(x, y, width, height, sprite_src);
+    Character.characters.push(this);
+  }
+
+  interact() {}
+
+  update() {
+    
   }
 }
 
@@ -424,7 +468,9 @@ export class Boundary extends Entity {
       this.position.y,
       this.width,
       this.height,
-      "red"
+      `rgba(${Math.random() * 255}, ${Math.random() * 255}, ${
+        Math.random() * 255
+      }, .5)`
     );
   }
 }
@@ -445,7 +491,7 @@ export class Player {
   static loading_complete = false;
   static animation = 0;
   static animation_frame = 0;
-  static render_collision_debug = true;
+  static render_collision_debug = false;
   static interactable_entities_in_range: Entity[] = [];
   static interact_pressed = false;
 
@@ -492,23 +538,24 @@ export class Player {
 
   static interact() {
     console.log("interact called");
-    this.interactable_entities_in_range
-      .sort((a, b) => a.distance_to_player - b.distance_to_player)[0]
-      .interact();
+    const entity = this.interactable_entities_in_range
+      .sort((a, b) => a.distance_to_player - b.distance_to_player)[0];
+    entity.defaultInteract();
+    entity.interact();
   }
 
   static checkInput() {
     if (keys.w) {
-      this.velocity.add({ x: 0, y: -this.acceleration });
+      this.velocity.addTo({ x: 0, y: -this.acceleration });
     }
     if (keys.d) {
-      this.velocity.add({ x: this.acceleration, y: 0 });
+      this.velocity.addTo({ x: this.acceleration, y: 0 });
     }
     if (keys.s) {
-      this.velocity.add({ x: 0, y: this.acceleration });
+      this.velocity.addTo({ x: 0, y: this.acceleration });
     }
     if (keys.a) {
-      this.velocity.add({ x: -this.acceleration, y: 0 });
+      this.velocity.addTo({ x: -this.acceleration, y: 0 });
     }
   }
 
@@ -550,7 +597,7 @@ export class Player {
     this.checkInput();
     this.checkInteract();
     this.checkBoundaryCollisions();
-    this.position.add(this.velocity);
+    this.position.addTo(this.velocity);
     this.velocity.tendToZero(this.deceleration);
     if (this.velocity.x === 0 && this.velocity.y === 0) {
       this.previous_velocityX > 0
@@ -639,8 +686,8 @@ export class GameLevel {
               }
               addedTo = true;
             } else if (
-              boundary.position.x + boundary.height === j * this.level_size &&
-              boundary.position.y === i * this.level_size
+              boundary.position.y + boundary.height === i * this.level_size &&
+              boundary.position.x === j * this.level_size
             ) {
               if (i * this.level_size > boundary.position.y) {
                 boundary.height += this.level_size;

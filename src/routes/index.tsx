@@ -12,7 +12,7 @@ import { Title } from "solid-start";
 import Contact from "~/components/Contact";
 import HomePage from "~/components/Homepage";
 import About from "~/components/About";
-import Experience from "~/components/Experience";
+import Experience from "~/experience/Experience";
 
 const defaultPageState = {
   scrollUp: false,

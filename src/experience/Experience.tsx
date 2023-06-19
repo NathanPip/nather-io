@@ -2,10 +2,12 @@ import { createSignal, type Component, onMount, createEffect } from "solid-js";
 import { useHomePageContext } from "~/routes";
 import { Camera, Entity, Game, GameLevel, Player } from "~/experience/objects";
 import { keys } from "~/experience/globals";
-import { TestEntity } from "~/experience/entities";
+import { TestEntity, TestEntity2 } from "~/experience/entities";
+import { DialogueInterface } from "./DialogueInterface";
 
 const Experience: Component = () => {
   const [homePageState] = useHomePageContext();
+
 
   let main_canvas: HTMLCanvasElement | undefined;
   let background_canvas: HTMLCanvasElement | undefined;
@@ -46,6 +48,7 @@ const Experience: Component = () => {
 
   const setupEntities = () => {
     const testEntity = new TestEntity(1000, 1000, 64, 64);
+    const testEntity2 = new TestEntity2(300, 1000, 64, 64, testEntity.position);
   };
 
   const start = () => {
@@ -104,9 +107,10 @@ const Experience: Component = () => {
     Camera.update();
   };
   return (
-    <div class="relative w-full">
+    <div class="relative w-full h-screen">
       <canvas class="absolute" ref={background_canvas} />
       <canvas class="absolute" ref={main_canvas} />
+      <DialogueInterface character={undefined}/>
     </div>
   );
 };
