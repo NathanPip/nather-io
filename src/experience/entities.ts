@@ -1,4 +1,21 @@
-import { Camera, Entity, Game, Player, Vector } from "./objects";
+import { Entity } from "./entity";
+import { Camera, Game } from "./globals";
+import { Vector } from "./objects";
+
+export class Boundary extends Entity {
+  renderDebug() {
+    if (!Game.context) return;
+    Game.renderFillRect(
+      this.position.x,
+      this.position.y,
+      this.width,
+      this.height,
+      `rgba(${Math.random() * 255}, ${Math.random() * 255}, ${
+        Math.random() * 255
+      }, .5)`
+    );
+  }
+}
 
 export class TestEntity extends Entity {
   constructor(

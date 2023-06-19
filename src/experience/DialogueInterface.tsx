@@ -11,7 +11,7 @@ export const DialogueInterface: Component<{
   // })
 
   return (
-    <Show when={props.character?.start_dialogue}>
+    <Show when={props.character}>
       <div class="absolute w-2/3 -translate-x-1/2 left-1/2 top-3/4 bg-opacity-90 bg-stone-300 border-4 border-black flex rounded-lg p-4 ">
         <img id="dialogue_img" class="mr-10 w-1/4 border-2 p-1 border-black" src="nather-io-player-sheet.png" />
         <p class="text-5xl leading-[4rem] font-game">

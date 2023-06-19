@@ -1,9 +1,10 @@
 import { createSignal, type Component, onMount, createEffect } from "solid-js";
 import { useHomePageContext } from "~/routes";
-import { Camera, Entity, Game, GameLevel, Player } from "~/experience/objects";
-import { keys } from "~/experience/globals";
+import { Camera, Game, GameLevel, keys } from "~/experience/globals";
 import { TestEntity, TestEntity2 } from "~/experience/entities";
 import { DialogueInterface } from "./DialogueInterface";
+import { Entity } from "./entity";
+import { Player } from "./player";
 
 const Experience: Component = () => {
   const [homePageState] = useHomePageContext();
