@@ -17,6 +17,10 @@ export const loadDialogues = () => {
       {
         character: Character.characters["test"],
         line: "you're just clicking and I'm talking",
+        choices: {
+          "continue this convo": () => {dialogues["test-first"].nextLine()},
+          "continute to next convo": () => {dialogues["test-second"].startDialogue()}
+        }
       },
       {
         character: Character.characters["test"],

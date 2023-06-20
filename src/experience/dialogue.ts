@@ -42,6 +42,7 @@ export class Dialogue {
         } else if(this.returning_line) {
             setCurrentDialogueLine(() => this.returning_line);
         } else {
+            if(this.lines[this.index].choices) setCanSkipDialogue(() => false);
             setCurrentDialogueLine(() => this.lines[this.index]);
         }
     }
@@ -51,6 +52,7 @@ export class Dialogue {
     }
 
     nextLine() {
+        setCanSkipDialogue(() => true);
         if(this.index + 1 >= this.lines.length) {
             Dialogue.endDialogue();
             this.index++;
