@@ -1,5 +1,6 @@
-import { Boundary } from "./entities";
-import { collisionMap } from "./nather-io-map-data";
+import { createSignal } from "solid-js";
+import { Boundary } from "./game/entities";
+import { collisionMap } from "./game/nather-io-map-data";
 import { Vector } from "./objects";
 import { Player } from "./player";
 import { type Vector2d } from "./types";
@@ -10,7 +11,7 @@ export const keys: { [key: string]: boolean } = {
     d: false,
     s: false,
     a: false,
-  };
+};
 
   export class Camera {
     static position: Vector = new Vector(0, 0);

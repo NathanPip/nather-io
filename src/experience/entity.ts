@@ -114,6 +114,8 @@ export class Entity {
         this.rendering_interactable = false;
       }
     }
+
+    init() {}
   
     update() {}
   
@@ -122,9 +124,9 @@ export class Entity {
     }
   
     interact() {}
-  
+
     uninteract() {
-      this.interacting = false;
+        this.interacting = false;
     }
   
     renderInteractableBubble() {

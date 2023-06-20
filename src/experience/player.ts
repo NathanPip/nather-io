@@ -22,6 +22,7 @@ export class Player {
     static render_collision_debug = false;
     static interactable_entities_in_range: Entity[] = [];
     static interact_pressed = false;
+    static interacting_entity: Entity | undefined;
   
     static checkBoundaryCollisions() {
       for (const boundary of GameLevel.boundaries) {
@@ -70,6 +71,13 @@ export class Player {
         .sort((a, b) => a.distance_to_player - b.distance_to_player)[0];
       entity.defaultInteract();
       entity.interact();
+      this.interacting_entity = entity;
+    }
+
+    static uninteract() {
+        if (!this.interacting_entity) return;
+        this.interacting_entity.uninteract();
+        this.interacting_entity = undefined;
     }
   
     static checkInput() {

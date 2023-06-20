@@ -1,6 +1,7 @@
-import { Entity } from "./entity";
-import { Camera, Game } from "./globals";
-import { Vector } from "./objects";
+import { Character } from "../character";
+import { Entity } from "../entity";
+import { Camera, Game } from "../globals";
+import { Vector } from "../objects";
 
 export class Boundary extends Entity {
   renderDebug() {
@@ -58,5 +59,21 @@ export class TestEntity2 extends TestEntity {
     setTimeout(() => {
       Camera.clearMove();
     }, 4000);
+  }
+}
+
+export class TestCharacter extends Character {
+  constructor(
+    name: string,
+    x: number,
+    y: number,
+    width: number,
+    height: number,
+    sprite_src?: string
+  ) {
+    super(name, x, y, width, height, sprite_src);
+    this.is_interactable = true;
+    this.debug = true;
+    this.dialogues = ["test-first", "test-second"];
   }
 }
