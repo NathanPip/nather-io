@@ -24,7 +24,7 @@ export class Character extends Entity {
         if (c === name) throw new Error("Character with name " + name + " already exists");
       }
       Character.characters[name] = (this);
-      this.current_dialogue = `${this.name}-default`;
+      this.current_dialogue = `${name}-default`;
     }
 
     init() {
@@ -34,8 +34,8 @@ export class Character extends Entity {
         this.checkDialogues();
     }
 
-    checkDialogues() {
-        if(!this.dialogues) return;
+    defaultCheckDialogues() {
+      if(!this.dialogues) return;
         for(const dialogue of this.dialogues) {
             if(dialogues[dialogue] === undefined) throw new Error("Dialogue with name " + dialogue + " does not exist");
             if(dialogues[dialogue].index < dialogues[dialogue].lines.length) {
@@ -46,21 +46,27 @@ export class Character extends Entity {
         this.current_dialogue = `${this.name}-default`;
     }
 
+    checkDialogues() {
+        this.defaultCheckDialogues();
+    }
+
     uninteract() {
         this.interacting = false;
+        this.can_interact = true;
+        // this.rendering_interactable = true;
         Camera.clearMove();
     }
   
     interact() {
         if(!this.can_interact) return;
-        this.interacting = true;
+        // this.rendering_interactable = false;
+        this.can_interact = false;
         Camera.moveTo(this.position);
         this.checkDialogues();
         dialogues[this.current_dialogue].startDialogue();
     }
   
     update() {
-        if(this.interacting) {
-        }
+
     }
   }

@@ -66,12 +66,12 @@ const Experience: Component = () => {
     loadDialogues();
     Entity.entities.forEach(e => {e.init()})
     //Camera movement test
-    Camera.moveTo({x: 1500, y:900}, 1000, "ease-in-out");
-    Camera.zoom(1.25, 10000);
-    setTimeout(() => {
-      Camera.clearMove();
-      Camera.unzoom();
-    }, 10000)
+    // Camera.moveTo({x: 1500, y:900}, 1000, "ease-in-out");
+    // Camera.zoom(1.25, 10000);
+    // setTimeout(() => {
+    //   Camera.clearMove();
+    //   Camera.unzoom();
+    // }, 10000)
     setControls();
     setInterval(() => {
       update();

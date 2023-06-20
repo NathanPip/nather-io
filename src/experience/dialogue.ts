@@ -39,8 +39,10 @@ export class Dialogue {
         setCurrentDialogue(() => this);
         if(this.index == 0){
             setCurrentDialogueLine(() => this.lines[this.index]);
-        } else {
+        } else if(this.returning_line) {
             setCurrentDialogueLine(() => this.returning_line);
+        } else {
+            setCurrentDialogueLine(() => this.lines[this.index]);
         }
     }
 
@@ -60,6 +62,7 @@ export class Dialogue {
         if(currentDialogueLine() !== this.returning_line) {
             this.index++;
         }
+        if(this.lines[this.index].choices) setCanSkipDialogue(() => false);
         setCurrentDialogueLine(this.lines[this.index]);
     }
 }

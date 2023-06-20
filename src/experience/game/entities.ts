@@ -2,6 +2,7 @@ import { Character } from "../character";
 import { Entity } from "../entity";
 import { Camera, Game } from "../globals";
 import { Vector } from "../objects";
+import { dialogues } from "./dialogues";
 
 export class Boundary extends Entity {
   renderDebug() {
