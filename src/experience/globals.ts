@@ -104,6 +104,8 @@ export const keys: { [key: string]: boolean } = {
     static clearMove() {
       this.moveTo_vector = undefined;
       this.moveTo_time = 60;
+      this.moveTo_frame = 1;
+      this.moveTo_finished = false;
     }
   
     static update() {

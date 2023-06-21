@@ -20,6 +20,7 @@ export class Character extends Entity {
     ) {
       super(x, y, width, height, sprite_src);
       this.name = name;
+      this.is_interactable = true;
       for(const c in Character.characters) {
         if (c === name) throw new Error("Character with name " + name + " already exists");
       }
