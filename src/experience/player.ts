@@ -69,6 +69,7 @@ export class Player {
       console.log("interact called");
       const entity = this.interactable_entities_in_range
         .sort((a, b) => a.distance_to_player - b.distance_to_player)[0];
+      if(!entity) return;
       entity.defaultInteract();
       entity.interact();
       this.interacting_entity = entity;
