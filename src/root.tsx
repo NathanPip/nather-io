@@ -7,6 +7,7 @@ import {
   FileRoutes,
   Head,
   Html,
+  Link,
   Meta,
   Routes,
   Scripts,
@@ -29,6 +30,9 @@ export default function Root() {
           content="The Nather Hub of all things Nather, but mostly just software"
         />
         <Meta name="viewport" content="width=device-width, initial-scale=1" />
+        <Link rel="preconnect" href="https://fonts.googleapis.com" />
+        <Link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
+        <Link href="https://fonts.googleapis.com/css2?family=Space+Grotesk&display=swap" rel="stylesheet" />
       </Head>
       <Body>
         <Suspense>

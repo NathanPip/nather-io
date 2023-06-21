@@ -1,11 +1,16 @@
-import { createSignal, type Component, onMount, createEffect } from "solid-js";
+import { createSignal, type Component, onMount, createEffect, Show } from "solid-js";
 import { useHomePageContext } from "~/routes";
-import { Camera, Entity, Game, GameLevel, Player } from "~/experience/objects";
-import { keys } from "~/experience/globals";
-import { TestEntity } from "~/experience/entities";
+import { Camera, Game, GameLevel, keys } from "~/experience/globals";
+import { TestCharacter, TestEntity, TestEntity2 } from "~/experience/game/entities";
+import { DialogueInterface } from "./DialogueInterface";
+import { Entity } from "../entity";
+import { Player } from "../player";
+import { currentDialogue } from "../dialogue";
+import { loadDialogues } from "../game/dialogues";
 
 const Experience: Component = () => {
   const [homePageState] = useHomePageContext();
+
 
   let main_canvas: HTMLCanvasElement | undefined;
   let background_canvas: HTMLCanvasElement | undefined;
@@ -46,6 +51,8 @@ const Experience: Component = () => {
 
   const setupEntities = () => {
     const testEntity = new TestEntity(1000, 1000, 64, 64);
+    // const testEntity2 = new TestEntity2(300, 1000, 64, 64, testEntity.position);
+    const character = new TestCharacter("test", 300, 1000, 64, 64);
   };
 
   const start = () => {
@@ -55,6 +62,9 @@ const Experience: Component = () => {
     GameLevel.init();
     Player.init();
     Camera.init();
+    setupEntities();
+    loadDialogues();
+    Entity.entities.forEach(e => {e.init()})
     //Camera movement test
     // Camera.moveTo({x: 1500, y:900}, 1000, "ease-in-out");
     // Camera.zoom(1.25, 10000);
@@ -62,7 +72,6 @@ const Experience: Component = () => {
     //   Camera.clearMove();
     //   Camera.unzoom();
     // }, 10000)
-    setupEntities();
     setControls();
     setInterval(() => {
       update();
@@ -104,9 +113,12 @@ const Experience: Component = () => {
     Camera.update();
   };
   return (
-    <div class="relative w-full">
+    <div class="relative w-full h-screen">
       <canvas class="absolute" ref={background_canvas} />
       <canvas class="absolute" ref={main_canvas} />
+      <Show when={currentDialogue() !== undefined}>
+        <DialogueInterface dialogue={currentDialogue()}/>
+      </Show>
     </div>
   );
 };
