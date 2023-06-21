@@ -1,4 +1,4 @@
-import { type Entity } from "./entity";
+import { Entity } from "./entity";
 import { Game, GameLevel, keys } from "./globals";
 import { Vector } from "./objects";
 import { checkCollision } from "./utils";
@@ -24,8 +24,9 @@ export class Player {
     static interact_pressed = false;
     static interacting_entity: Entity | undefined;
   
-    static checkBoundaryCollisions() {
-      for (const boundary of GameLevel.boundaries) {
+    static checkCollisions() {
+      for (const entity of Entity.entities) {
+        if(!entity.collision_physics) continue;
         if (
           checkCollision(
             {
@@ -35,14 +36,14 @@ export class Player {
               height: this.height,
             },
             {
-              x: boundary.position.x,
-              y: boundary.position.y,
-              width: boundary.width,
-              height: boundary.height,
+              x: entity.position.x + entity.bounding_box.x_offset,
+              y: entity.position.y + entity.bounding_box.y_offset,
+              width: entity.bounding_box.width,
+              height: entity.bounding_box.height,
             }
           )
         ) {
-          this.velocity.x = 0;
+            this.velocity.x = 0;
         }
         if (
           checkCollision(
@@ -53,14 +54,14 @@ export class Player {
               height: this.height,
             },
             {
-              x: boundary.position.x,
-              y: boundary.position.y,
-              width: boundary.width,
-              height: boundary.height,
+              x: entity.position.x + entity.bounding_box.x_offset,
+              y: entity.position.y + entity.bounding_box.y_offset,
+              width: entity.bounding_box.width,
+              height: entity.bounding_box.height,
             }
           )
         ) {
-          this.velocity.y = 0;
+            this.velocity.y = 0;
         }
       }
     }
@@ -71,9 +72,9 @@ export class Player {
     }
   
     static interact() {
-      console.log("interact called");
       const entity = this.interactable_entities_in_range
         .sort((a, b) => a.distance_to_player - b.distance_to_player)[0];
+      console.log(entity)
       if(!entity) return;
       entity.defaultInteract();
       entity.interact();
@@ -138,7 +139,7 @@ export class Player {
       }
       this.checkInput();
       this.checkInteract();
-      this.checkBoundaryCollisions();
+      this.checkCollisions();
       this.position.addTo(this.velocity);
       this.velocity.tendToZero(this.deceleration);
       if (this.velocity.x === 0 && this.velocity.y === 0) {
