@@ -89,6 +89,7 @@ export class Door extends Entity {
   opening: boolean;
   closing: boolean;
   is_open: boolean;
+  speed = 30;
   open_amt = 0;
   constructor(
     x: number,
@@ -137,12 +138,12 @@ export class Door extends Entity {
       this.is_open = false;
       console.log("close");
     }
-    if (this.opening && this.open_amt <= 60) {
+    if (this.opening && this.open_amt <= this.speed) {
       this.open_amt += 1;
     } else if (this.closing && this.open_amt >= 0) {
       this.open_amt -= 1;
     }
-    let progress = this.open_amt / 60;
+    let progress = this.open_amt / this.speed;
     progress = easeInOut(progress);
     if (progress === 0 || progress === 1) {
       this.opening = false;
