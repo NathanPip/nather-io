@@ -167,3 +167,27 @@ export class TopDoor extends Door {
     this.setBoundingBox(this.width, this.height / 8, 0, this.height / 6);
   }
 }
+export class BottomDoor extends Door {
+  constructor(x: number, y: number, width: number, height: number) {
+    super(x, y, width, height, "./sprites/Top_Door.png");
+    this.x_translation = -1;
+    this.y_translation = 0;
+    this.setBoundingBox(this.width, this.height / 8, 0, this.height - this.height / 6);
+  }
+}
+export class LeftDoor extends Door {
+  constructor(x: number, y: number, width: number, height: number) {
+    super(x, y, width, height, "./sprites/Top_Door.png");
+    this.x_translation = 0;
+    this.y_translation = 1;
+    this.setBoundingBox(this.width / 8, this.height, this.width/6, this.height);
+  }
+}
+export class RightDoor extends Door {
+  constructor(x: number, y: number, width: number, height: number) {
+    super(x, y, width, height, "./sprites/Top_Door.png");
+    this.x_translation = 1;
+    this.y_translation = 0;
+    this.setBoundingBox(this.width / 8, this.height, this.width - this.width/6, this.height);
+  }
+}
