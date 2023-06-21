@@ -129,11 +129,11 @@ export class Door extends Entity {
   }
 
   update() {
-    if (this.distance_to_player < 100 && !this.is_open) {
+    if (this.distance_to_player < 2 && !this.is_open) {
       this.open();
       this.is_open = true;
       console.log("open");
-    } else if (this.distance_to_player > 200 && this.is_open) {
+    } else if (this.distance_to_player > 3 && this.is_open) {
       this.close();
       this.is_open = false;
       console.log("close");

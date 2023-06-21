@@ -4,12 +4,12 @@ import { Vector } from "./objects";
 import { checkCollision } from "./utils";
 
 export class Player {
-    static position: Vector = new Vector(500, 700);
-    static width = 64;
-    static height = 64;
-    static max_speed = 5;
-    static deceleration = 0.5;
-    static acceleration = 2;
+    static position: Vector = new Vector(29, 59);
+    static width = 1;
+    static height = 1;
+    static max_speed = .1;
+    static deceleration = 0.01;
+    static acceleration = .03;
     static velocity: Vector = new Vector(0, 0, {
       x: this.max_speed,
       y: this.max_speed,
@@ -19,7 +19,7 @@ export class Player {
     static loading_complete = false;
     static animation = 0;
     static animation_frame = 0;
-    static render_collision_debug = false;
+    static render_collision_debug = true;
     static interactable_entities_in_range: Entity[] = [];
     static interact_pressed = false;
     static interacting_entity: Entity | undefined;
@@ -64,11 +64,6 @@ export class Player {
             this.velocity.y = 0;
         }
       }
-    }
-
-    static setUnitPosition(x: number, y: number) {
-      this.position.x = x * Game.grid_size;
-      this.position.y = y * Game.grid_size;
     }
   
     static interact() {
@@ -134,6 +129,7 @@ export class Player {
     }
   
     static update() {
+      console.log(this.width * Game.tile_size * this.animation_frame)
       if (this.velocity.x !== 0) {
         this.previous_velocityX = this.velocity.x;
       }

@@ -108,11 +108,6 @@ export class Entity {
     this.custom_bounding_box = true;
   }
 
-  setUnitPosition(x: number, y: number) {
-    this.position.x = x * Game.grid_size;
-    this.position.y = y * Game.grid_size;
-  }
-
   _defaultInit() {
     if (this.sprite_src === undefined) {
       this.loading_complete = true;
@@ -186,11 +181,11 @@ export class Entity {
   interactableUpdate() {
     if (!this.is_interactable) return;
     this.distance_to_player = this.position.distanceTo(Player.position);
-    if (this.distance_to_player < 100 && !this.rendering_interactable) {
+    if (this.distance_to_player < 1 && !this.rendering_interactable) {
       Player.interactable_entities_in_range.push(this);
       console.log("in range")
       this.rendering_interactable = true;
-    } else if (this.distance_to_player > 100 && this.rendering_interactable) {
+    } else if (this.distance_to_player > 1 && this.rendering_interactable) {
       Player.interactable_entities_in_range.splice(
         Player.interactable_entities_in_range.indexOf(this),
         1
@@ -219,8 +214,8 @@ export class Entity {
       Game.interact_bubble,
       this.position.x,
       this.position.y,
-      32,
-      32
+      .5,
+      .5
     );
   }
 
@@ -238,10 +233,10 @@ export class Entity {
     if (this.rendering_interactable) {
       Game.renderSprite(
         Game.interact_bubble,
-        this.position.x + (this.width / 2 - 18),
-        this.position.y - 36,
-        32,
-        32
+        this.position.x + (this.width / 2 - 0.28125),
+        this.position.y - .5625,
+        .5,
+        .5
       );
     }
   }
@@ -256,10 +251,10 @@ export class Entity {
     if (this.rendering_interactable && !this.sprite_img) {
       Game.renderSprite(
         Game.interact_bubble,
-        this.position.x + (this.width / 2 - 18),
-        this.position.y - 36,
-        32,
-        32
+        this.position.x + (this.width / 2 - 0.28125),
+        this.position.y - .5625,
+        .5,
+        .5
       );
     }
   }

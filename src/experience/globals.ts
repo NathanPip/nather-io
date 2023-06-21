@@ -93,8 +93,8 @@ export const keys: { [key: string]: boolean } = {
           : timer_progress;
       this.position.lerp(
         {
-          x: this.moveTo_vector.x * Game.render_scale - this.width / 2,
-          y: this.moveTo_vector.y * Game.render_scale - this.height / 2,
+          x: this.moveTo_vector.x * Game.tile_size * Game.render_scale - this.width / 2,
+          y: this.moveTo_vector.y * Game.tile_size * Game.render_scale - this.height / 2,
         },
         easeProgress
       );
@@ -127,8 +127,8 @@ export const keys: { [key: string]: boolean } = {
       }
       this.position.lerp(
         {
-          x: this.following_vector.x * Game.render_scale - this.width / 2,
-          y: this.following_vector.y * Game.render_scale - this.height / 2,
+          x: this.following_vector.x * Game.tile_size * Game.render_scale - this.width / 2,
+          y: this.following_vector.y * Game.tile_size * Game.render_scale - this.height / 2,
         },
         this.following_lag
       );
@@ -140,7 +140,7 @@ export const keys: { [key: string]: boolean } = {
     static default_render_scale = 1.6;
     static game_dom: HTMLDivElement | undefined;
     static render_scale = 1.6;
-    static grid_size = 64;
+    static tile_size = 64;
     static current_frame = 0;
     static FPS = 60;
     static interact_bubble: HTMLImageElement;
@@ -164,14 +164,14 @@ export const keys: { [key: string]: boolean } = {
       if (!this.context) return;
       this.context.drawImage(
         image,
-        width * animation_frame,
-        height * animation,
-        width,
-        height,
-        x * this.render_scale * scale - Camera.position.x,
-        y * this.render_scale * scale - Camera.position.y,
-        width * this.render_scale * scale,
-        height * this.render_scale * scale
+        width * this.tile_size * animation_frame,
+        height * this.tile_size * animation,
+        width * this.tile_size,
+        height * this.tile_size,
+        x * this.tile_size * this.render_scale * scale - Camera.position.x,
+        y * this.tile_size * this.render_scale * scale - Camera.position.y,
+        width * this.tile_size * this.render_scale * scale,
+        height * this.tile_size * this.render_scale * scale
       );
     }
   
@@ -185,10 +185,10 @@ export const keys: { [key: string]: boolean } = {
       if (!this.context) return;
       if (color !== undefined) this.context.fillStyle = color;
       this.context.fillRect(
-        x * this.render_scale - Camera.position.x,
-        y * this.render_scale - Camera.position.y,
-        width * this.render_scale,
-        height * this.render_scale
+        x * this.tile_size * this.render_scale - Camera.position.x,
+        y * this.tile_size * this.render_scale - Camera.position.y,
+        width * this.tile_size * this.render_scale,
+        height * this.tile_size * this.render_scale
       );
       this.context.fillStyle = this.default_draw_color;
     }
@@ -203,10 +203,10 @@ export const keys: { [key: string]: boolean } = {
       if (!this.context) return;
       if (color !== undefined) this.context.fillStyle = color;
       this.context.strokeRect(
-        x * this.render_scale - Camera.position.x,
-        y * this.render_scale - Camera.position.y,
-        width * this.render_scale,
-        height * this.render_scale
+        x * this.tile_size * this.render_scale - Camera.position.x,
+        y * this.tile_size * this.render_scale - Camera.position.y,
+        width * this.tile_size * this.render_scale,
+        height * this.tile_size * this.render_scale
       );
       this.context.fillStyle = this.default_draw_color;
     }
@@ -256,25 +256,25 @@ export const keys: { [key: string]: boolean } = {
             let addedTo = false;
             for (const boundary of GameLevel.boundaries) {
               if (
-                boundary.position.x + boundary.width === j * this.level_size &&
-                boundary.position.y === i * this.level_size
+                boundary.position.x + boundary.width === j &&
+                boundary.position.y === i
               ) {
-                if (j * this.level_size > boundary.position.x) {
-                  boundary.width += this.level_size;
-                } else if (j * this.level_size < boundary.position.x) {
-                  boundary.position.x -= this.level_size;
-                  boundary.width += this.level_size;
+                if (j > boundary.position.x) {
+                  boundary.width += 1;
+                } else if (j < boundary.position.x) {
+                  boundary.position.x -= 1;
+                  boundary.width += 1;
                 }
                 addedTo = true;
               } else if (
-                boundary.position.y + boundary.height === i * this.level_size &&
-                boundary.position.x === j * this.level_size
+                boundary.position.y + boundary.height === i &&
+                boundary.position.x === j
               ) {
-                if (i * this.level_size > boundary.position.y) {
-                  boundary.height += this.level_size;
-                } else if (i * this.level_size < boundary.position.y) {
-                  boundary.position.y += this.level_size;
-                  boundary.height += this.level_size;
+                if (i > boundary.position.y) {
+                  boundary.height += 1;
+                } else if (i < boundary.position.y) {
+                  boundary.position.y += 1;
+                  boundary.height += 1;
                 }
                 addedTo = true;
               }
@@ -282,10 +282,10 @@ export const keys: { [key: string]: boolean } = {
             if (addedTo) continue;
             this.boundaries.push(
               new Boundary(
-                j * this.level_size,
-                i * this.level_size,
-                this.level_size,
-                this.level_size
+                j,
+                i,
+                1,
+                1
               )
             );
           }
@@ -324,10 +324,10 @@ export const keys: { [key: string]: boolean } = {
         for (let j = 0; j < this.level_size; j++) {
           if (this.context == null) return;
           Game.renderStrokeRect(
-            j * Game.grid_size,
-            i * Game.grid_size,
-            Game.grid_size,
-            Game.grid_size
+            j,
+            i,
+            1,
+            1
           );
         }
       }
