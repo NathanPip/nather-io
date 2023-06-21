@@ -53,6 +53,8 @@ const Experience: Component = () => {
     const testEntity = new TestEntity(1000, 1000, 64, 64);
     // const testEntity2 = new TestEntity2(300, 1000, 64, 64, testEntity.position);
     const character = new TestCharacter("test", 300, 1000, 64, 64);
+    character.setUnitPosition(27, 56);
+    Player.setUnitPosition(29, 59);
   };
 
   const start = () => {

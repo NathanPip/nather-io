@@ -234,6 +234,7 @@ export const keys: { [key: string]: boolean } = {
             currentCell === 31 ||
             currentCell === 13 ||
             currentCell === 18 ||
+            currentCell === 19 ||
             currentCell === 1 ||
             currentCell === 2 ||
             currentCell === 3 ||

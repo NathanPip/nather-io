@@ -81,6 +81,11 @@ export class Entity {
         entity._defaultInit();
       }
     }
+
+    setUnitPosition(x: number, y: number) {
+      this.position.x = x * Game.grid_size;
+      this.position.y = y * Game.grid_size;
+    }
   
     _defaultInit() {
       if (this.sprite_src === undefined) {

@@ -1,4 +1,4 @@
-import { Entity } from "./entity";
+import { type Entity } from "./entity";
 import { Game, GameLevel, keys } from "./globals";
 import { Vector } from "./objects";
 import { checkCollision } from "./utils";
@@ -63,6 +63,11 @@ export class Player {
           this.velocity.y = 0;
         }
       }
+    }
+
+    static setUnitPosition(x: number, y: number) {
+      this.position.x = x * Game.grid_size;
+      this.position.y = y * Game.grid_size;
     }
   
     static interact() {
