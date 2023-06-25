@@ -37,15 +37,10 @@ const Home: VoidComponent = () => {
 
   onMount(() => {
     addEventListener("wheel", (e) => {
-      console.log(e.deltaY)
       if(e.deltaY > 0) {
         setHomePageState("scrollDown", true);
       }
     })
-  })
-
-  createEffect(() => {
-    console.log(homePageState.scrollDown);
   })
 
   return (

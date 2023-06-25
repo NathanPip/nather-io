@@ -69,7 +69,6 @@ export class Player {
     static interact() {
       const entity = this.interactable_entities_in_range
         .sort((a, b) => a.distance_to_player - b.distance_to_player)[0];
-      console.log(entity)
       if(!entity) return;
       entity.defaultInteract();
       entity.interact();
@@ -129,7 +128,6 @@ export class Player {
     }
   
     static update() {
-      console.log(this.width * Game.tile_size * this.animation_frame)
       if (this.velocity.x !== 0) {
         this.previous_velocityX = this.velocity.x;
       }
@@ -158,7 +156,7 @@ export class Player {
         this.width,
         this.height,
         this.animation,
-        this.animation_frame
+        this.animation_frame,
       );
       if (this.render_collision_debug) {
         Game.renderStrokeRect(
