@@ -11,8 +11,8 @@ export class Boundary extends Entity {
   _renderDebug() {
     if (!Game.context) return;
     Game.renderFillRect(
-      this.position.x,
-      this.position.y,
+      this.world_position.x,
+      this.world_position.y,
       this.width,
       this.height,
       `rgba(${Math.random() * 255}, ${Math.random() * 255}, ${
@@ -37,7 +37,7 @@ export class TestEntity extends Entity {
 
   interact() {
     console.log("interacted_with");
-    Camera.moveTo(this.position, 200, "ease-in-out");
+    Camera.moveTo(this.world_position, 200, "ease-in-out");
     // Camera.zoom(1.1, 300);
   }
 }
@@ -107,8 +107,8 @@ export class Door extends Entity {
     this.closing = false;
     this.is_static = false;
     this.original_position = {
-      x: this.position.x,
-      y: this.position.y,
+      x: this.world_position.x,
+      y: this.world_position.y,
     };
   }
 
@@ -123,8 +123,8 @@ export class Door extends Entity {
 
   updateOriginalPosition() {
     this.original_position = {
-      x: this.position.x,
-      y: this.position.y,
+      x: this.world_position.x,
+      y: this.world_position.y,
     };
   }
 
@@ -149,7 +149,7 @@ export class Door extends Entity {
       this.opening = false;
       this.closing = false;
     }
-    this.position.lerpFrom(
+    this.world_position.lerpFrom(
       this.original_position,
       {
         x: this.original_position.x + this.x_translation * this.width,
@@ -165,7 +165,19 @@ export class TopDoor extends Door {
     super(x, y, width, height, "./sprites/Top_Door.png");
     this.x_translation = 1;
     this.y_translation = 0;
+    setTimeout(() => {
+      this.velocity = new Vector(0, -.3);
+    }, 1000)
+    const child = new Entity(this.world_position.x, this.world_position.y, 2, 1, "./sprites/Top_Door.png");
+    child.debug = true;
+    child.is_static = false;
+    this.addChild(child);
+    child.setLocalPosition({x: 1, y: 2});
     this.setBoundingBox(this.width, this.height / 8, 0, this.height / 6);
+  }
+
+  update() {
+    console.log(this.children)
   }
 }
 export class BottomDoor extends Door {

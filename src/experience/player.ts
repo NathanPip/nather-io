@@ -36,8 +36,8 @@ export class Player {
               height: this.height,
             },
             {
-              x: entity.position.x + entity.bounding_box.x_offset,
-              y: entity.position.y + entity.bounding_box.y_offset,
+              x: entity.world_position.x + entity.bounding_box.x_offset,
+              y: entity.world_position.y + entity.bounding_box.y_offset,
               width: entity.bounding_box.width,
               height: entity.bounding_box.height,
             }
@@ -54,8 +54,8 @@ export class Player {
               height: this.height,
             },
             {
-              x: entity.position.x + entity.bounding_box.x_offset,
-              y: entity.position.y + entity.bounding_box.y_offset,
+              x: entity.world_position.x + entity.bounding_box.x_offset,
+              y: entity.world_position.y + entity.bounding_box.y_offset,
               width: entity.bounding_box.width,
               height: entity.bounding_box.height,
             }

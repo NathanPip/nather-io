@@ -5,14 +5,17 @@ import { BoundingBox, Vector2d } from "./types";
 import { easeInOut } from "./utils";
 
 export class Entity {
-  _position: Vector;
+  _world_position: Vector;
+  _local_position: Vector | undefined;
   width: number;
   height: number;
+  parent: Entity | undefined;
+  children: Entity[] = [];
   bounding_box: BoundingBox;
   custom_bounding_box = false;
   sprite_src: string | undefined;
   sprite_img: HTMLImageElement | undefined;
-  loading_complete: boolean;
+  sprite_loading_complete: boolean;
   animation: number;
   _animation_frame: number;
   is_static: boolean;
@@ -21,9 +24,9 @@ export class Entity {
   collision_physics = false;
   interacting = false;
   debug: boolean;
-  max_speed = 5;
-  deceleration = 1;
-  acceleration = 2;
+  max_speed = .1;
+  deceleration = .01;
+  acceleration = .02;
   distance_to_player = 0;
   velocity: Vector;
   rendering_interactable = false;
@@ -63,12 +66,12 @@ export class Entity {
     height: number,
     sprite_src?: string
   ) {
-    this._position = new Vector(x, y);
+    this._world_position = new Vector(x, y);
     this.width = width;
     this.height = height;
     this.sprite_src = sprite_src;
     this.is_static = true;
-    this.loading_complete = false;
+    this.sprite_loading_complete = false;
     this.is_interactable = false;
     this.debug = false;
     this.animation = 0;
@@ -86,13 +89,43 @@ export class Entity {
     Entity.entities.push(this);
   }
 
-  get position() {
-    return this._position;
+  get world_position() {
+    return this._world_position;
   }
 
-  setPosition(position: Vector | Vector2d) {
-    this._position.x = position.x;
-    this._position.y = position.y;
+  get local_position() {
+    if(this._local_position === undefined) {
+      return this._world_position;
+    } else {
+      return this._local_position;
+    }
+  }
+
+  setWorldPosition(position: Vector | Vector2d) {
+    this._world_position.x = position.x;
+    this._world_position.y = position.y;
+    if(this._local_position !== undefined && this.parent !== undefined){
+      this._local_position.x = this.world_position.x - this.parent.world_position.x;
+      this._local_position.y = this.world_position.y - this.parent.world_position.y;
+    }
+  }
+
+  setLocalPosition(position: Vector | Vector2d) {
+    if(!this.parent)
+    {
+      this.setWorldPosition({
+        x: position.x + this.world_position.x,
+        y: position.y + this.world_position.y,
+      })
+      return;
+    }
+    if(this._local_position === undefined) return;
+    this._local_position.x = position.x;
+    this._local_position.y = position.y;
+    this.setWorldPosition({
+      x: position.x + this.parent.world_position.x,
+      y: position.y + this.parent.world_position.y,
+    })
   }
 
   animate(animation: number, speed: number, limit: number) {
@@ -131,15 +164,49 @@ export class Entity {
     this.custom_bounding_box = true;
   }
 
+  setParent(parent: Entity, _bubbled = false) {
+    this.parent = parent;
+    this._local_position = new Vector(this.world_position.x - parent.world_position.x, this.world_position.y - parent.world_position.y);
+    if(!_bubbled)
+      parent.addChild(this, true);
+  }
+
+  removeChild(child: Entity, _bubbled = false) {
+    const index = this.children.indexOf(child);
+    if(index === -1) {
+      console.log(this, "has no child", child);
+      return;
+    }
+    if(!_bubbled)
+      this.children[index].unlink(true);
+    this.children.splice(index, 1);
+  }
+
+  addChild(child: Entity, _bubbled = false) {
+    this.children.push(child);
+    if(!_bubbled)
+      child.setParent(this, true);
+  }
+
+  unlink(_bubbled = false) {
+    if(!this.parent) {
+      console.log(this, "has no parent"); 
+      return
+    }
+    if(!_bubbled) this.parent.removeChild(this, true);
+    this._local_position = undefined;
+    this.parent = undefined;
+  }
+
   _defaultInit() {
     if (this.sprite_src === undefined) {
-      this.loading_complete = true;
+      this.sprite_loading_complete = true;
       return;
     }
     this.sprite_img = new Image();
     this.sprite_img.src = this.sprite_src;
     this.sprite_img.onload = () => {
-      this.loading_complete = true;
+      this.sprite_loading_complete = true;
     };
   }
 
@@ -164,7 +231,7 @@ export class Entity {
         : false || this.easing === "ease-in-out"
         ? easeInOut(timer_progress)
         : timer_progress;
-    this.position.lerp(
+    this.world_position.lerp(
       {
         x: this.moveTo_vector.x,
         y: this.moveTo_vector.y,
@@ -183,6 +250,12 @@ export class Entity {
 
   physicsUpdate() {
     if (this.is_static) return;
+    if(this.parent && this._local_position !== undefined) {
+      this.setWorldPosition({
+        x: this._local_position.x + this.parent.world_position.x,
+        y: this._local_position.y + this.parent.world_position.y,
+      })
+    }
     if (this.moveTo_vector !== undefined) {
       if (this._moveTo_frame !== this.moveTo_time) {
         this.move();
@@ -193,13 +266,13 @@ export class Entity {
     } else {
       this._moveTo_frame = 1;
     }
-    this.setPosition(this.position.add(this.velocity));
+    this.setWorldPosition(this.world_position.add(this.velocity));
     this.velocity.tendToZero(this.deceleration);
   }
 
   interactableUpdate() {
     if (!this.is_interactable) return;
-    this.distance_to_player = this.position.distanceTo(Player.position);
+    this.distance_to_player = this.world_position.distanceTo(Player.position);
     if (this.distance_to_player < 1 && !this.rendering_interactable) {
       Player.interactable_entities_in_range.push(this);
       this.rendering_interactable = true;
@@ -227,39 +300,22 @@ export class Entity {
   }
 
   _renderSprite() {
-    if (!this.loading_complete || !this.sprite_img) return;
-    Game.renderSprite(
-      this.sprite_img,
-      this.position.x,
-      this.position.y,
-      this.width,
-      this.height,
-      this.animation,
-      this._animation_frame
-    );
+    if (!this.sprite_loading_complete) return;
+    Game.renderEntity(this);
     if (this.rendering_interactable) {
       Game.renderInteractableBubble({
-        x: this.position.x + (this.width / 2 - 0.28125),
-        y: this.position.y - 0.5625,
+        x: this.world_position.x + (this.width / 2 - 0.28125),
+        y: this.world_position.y - 0.5625,
       });
     }
   }
   _renderDebug() {
     if (!Game.context) return;
     Game.renderStrokeRect(
-      this.position.x + this.bounding_box.x_offset,
-      this.position.y + this.bounding_box.y_offset,
+      this.world_position.x + this.bounding_box.x_offset,
+      this.world_position.y + this.bounding_box.y_offset,
       this.bounding_box.width,
       this.bounding_box.height
     );
-    if (this.rendering_interactable && !this.sprite_img) {
-      Game.renderSprite(
-        Game.interact_bubble,
-        this.position.x + (this.width / 2 - 0.28125),
-        this.position.y - 0.5625,
-        0.5,
-        0.5
-      );
-    }
   }
 }

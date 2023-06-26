@@ -5,6 +5,7 @@ import { Vector } from "./objects";
 import { Player } from "./player";
 import { type Vector2d } from "./types";
 import { easeInOut, lerp } from "./utils";
+import { Entity } from "./entity";
 
 export const keys: { [key: string]: boolean } = {
   w: false,
@@ -161,13 +162,36 @@ export class Game {
 
   static renderInteractableBubble(position: Vector | Vector2d) {
     if (!this.context) return;
-    Game.renderSprite(
-      Game.interact_bubble,
-      position.x,
-      position.y,
-      .5,
-      .5
-    );
+    Game.renderSprite(Game.interact_bubble, position.x, position.y, 0.5, 0.5);
+  }
+
+  static renderEntity(entity: Entity) {
+    if (!this.context) return;
+    this.context.save();
+      this.context.translate(
+        entity.world_position.x * this.tile_size * this.render_scale -
+          Camera.position.x +
+          (entity.width * this.tile_size * this.render_scale) / 2,
+        entity.world_position.y * this.tile_size * this.render_scale -
+          Camera.position.y +
+          (entity.height * this.tile_size * this.render_scale) / 2
+      );
+    // Deal with when I deal with rotations
+    // this.context.rotate((2 * angle * Math.PI) / 360);
+    this.context.scale(this.render_scale, this.render_scale);
+    if (entity.sprite_img)
+      this.context.drawImage(
+        entity.sprite_img,
+        entity.width * this.tile_size * entity._animation_frame,
+        entity.height * this.tile_size * entity.animation,
+        entity.width * this.tile_size,
+        entity.height * this.tile_size,
+        (-entity.width * this.tile_size) / 2,
+        (-entity.height * this.tile_size) / 2,
+        entity.width * this.tile_size,
+        entity.height * this.tile_size
+      );
+    this.context.restore();
   }
 
   static renderSprite(
@@ -185,9 +209,11 @@ export class Game {
     this.context.save();
     this.context.translate(
       x * this.tile_size * this.render_scale * scale -
-        Camera.position.x + width * this.tile_size * this.render_scale / 2,
+        Camera.position.x +
+        (width * this.tile_size * this.render_scale) / 2,
       y * this.tile_size * this.render_scale * scale -
-        Camera.position.y + height * this.tile_size * this.render_scale / 2
+        Camera.position.y +
+        (height * this.tile_size * this.render_scale) / 2
     );
     this.context.rotate((2 * angle * Math.PI) / 360);
     this.context.scale(this.render_scale, this.render_scale);
@@ -286,25 +312,25 @@ export class GameLevel {
           let addedTo = false;
           for (const boundary of GameLevel.boundaries) {
             if (
-              boundary.position.x + boundary.width === j &&
-              boundary.position.y === i
+              boundary.world_position.x + boundary.width === j &&
+              boundary.world_position.y === i
             ) {
-              if (j > boundary.position.x) {
-                boundary.setSize(boundary.width+1, boundary.height);
-              } else if (j < boundary.position.x) {
-                boundary.position.x -= 1;
-                boundary.setSize(boundary.width+1, boundary.height);
+              if (j > boundary.world_position.x) {
+                boundary.setSize(boundary.width + 1, boundary.height);
+              } else if (j < boundary.world_position.x) {
+                boundary.world_position.x -= 1;
+                boundary.setSize(boundary.width + 1, boundary.height);
               }
               addedTo = true;
             } else if (
-              boundary.position.y + boundary.height === i &&
-              boundary.position.x === j
+              boundary.world_position.y + boundary.height === i &&
+              boundary.world_position.x === j
             ) {
-              if (i > boundary.position.y) {
-                boundary.setSize(boundary.width, boundary.height+1);
-              } else if (i < boundary.position.y) {
-                boundary.position.y += 1;
-                boundary.setSize(boundary.width, boundary.height+1);
+              if (i > boundary.world_position.y) {
+                boundary.setSize(boundary.width, boundary.height + 1);
+              } else if (i < boundary.world_position.y) {
+                boundary.world_position.y += 1;
+                boundary.setSize(boundary.width, boundary.height + 1);
               }
               addedTo = true;
             }
