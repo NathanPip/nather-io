@@ -159,6 +159,17 @@ export class Game {
     this.interact_bubble.src = "./nather-io-interact-bubble.png";
   }
 
+  static renderInteractableBubble(position: Vector | Vector2d) {
+    if (!this.context) return;
+    Game.renderSprite(
+      Game.interact_bubble,
+      position.x,
+      position.y,
+      .5,
+      .5
+    );
+  }
+
   static renderSprite(
     image: HTMLImageElement,
     x: number,
@@ -178,7 +189,7 @@ export class Game {
       y * this.tile_size * this.render_scale * scale -
         Camera.position.y + height * this.tile_size * this.render_scale / 2
     );
-    this.context.rotate((angle * Math.PI) / 360);
+    this.context.rotate((2 * angle * Math.PI) / 360);
     this.context.scale(this.render_scale, this.render_scale);
     this.context.drawImage(
       image,
@@ -279,10 +290,10 @@ export class GameLevel {
               boundary.position.y === i
             ) {
               if (j > boundary.position.x) {
-                boundary.width += 1;
+                boundary.setSize(boundary.width+1, boundary.height);
               } else if (j < boundary.position.x) {
                 boundary.position.x -= 1;
-                boundary.width += 1;
+                boundary.setSize(boundary.width+1, boundary.height);
               }
               addedTo = true;
             } else if (
@@ -290,10 +301,10 @@ export class GameLevel {
               boundary.position.x === j
             ) {
               if (i > boundary.position.y) {
-                boundary.height += 1;
+                boundary.setSize(boundary.width, boundary.height+1);
               } else if (i < boundary.position.y) {
                 boundary.position.y += 1;
-                boundary.height += 1;
+                boundary.setSize(boundary.width, boundary.height+1);
               }
               addedTo = true;
             }
@@ -327,7 +338,7 @@ export class GameLevel {
 
   static renderBoundaries() {
     for (const boundary of this.boundaries) {
-      boundary.renderDebug();
+      boundary._renderDebug();
     }
   }
 

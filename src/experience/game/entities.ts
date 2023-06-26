@@ -8,7 +8,7 @@ import { dialogues } from "./dialogues";
 
 export class Boundary extends Entity {
   collision_physics = true;
-  renderDebug() {
+  _renderDebug() {
     if (!Game.context) return;
     Game.renderFillRect(
       this.position.x,
