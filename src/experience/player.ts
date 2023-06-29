@@ -4,167 +4,184 @@ import { Vector } from "./objects";
 import { checkCollision } from "./utils";
 
 export class Player {
-    static position: Vector = new Vector(29, 59);
-    static width = 1;
-    static height = 1;
-    static max_speed = .1;
-    static deceleration = 0.01;
-    static acceleration = .03;
-    static velocity: Vector = new Vector(0, 0, {
-      x: this.max_speed,
-      y: this.max_speed,
-    });
-    static previous_velocityX = 0;
-    static character_sprite_sheet: HTMLImageElement;
-    static loading_complete = false;
-    static animation = 0;
-    static animation_frame = 0;
-    static render_collision_debug = true;
-    static interactable_entities_in_range: Entity[] = [];
-    static interact_pressed = false;
-    static interacting_entity: Entity | undefined;
-  
-    static checkCollisions() {
-      for (const entity of Entity.entities) {
-        if(!entity.collision_physics) continue;
-        if (
-          checkCollision(
-            {
-              x: this.position.x + this.velocity.x,
-              y: this.position.y,
-              width: this.width,
-              height: this.height,
-            },
-            {
-              x: entity.world_position.x + entity.bounding_box.x_offset,
-              y: entity.world_position.y + entity.bounding_box.y_offset,
-              width: entity.bounding_box.width,
-              height: entity.bounding_box.height,
-            }
-          )
-        ) {
-            this.velocity.x = 0;
-        }
-        if (
-          checkCollision(
-            {
-              x: this.position.x,
-              y: this.position.y + this.velocity.y,
-              width: this.width,
-              height: this.height,
-            },
-            {
-              x: entity.world_position.x + entity.bounding_box.x_offset,
-              y: entity.world_position.y + entity.bounding_box.y_offset,
-              width: entity.bounding_box.width,
-              height: entity.bounding_box.height,
-            }
-          )
-        ) {
-            this.velocity.y = 0;
-        }
-      }
-    }
-  
-    static interact() {
-      const entity = this.interactable_entities_in_range
-        .sort((a, b) => a.distance_to_player - b.distance_to_player)[0];
-      if(!entity) return;
-      entity.defaultInteract();
-      entity.interact();
-      this.interacting_entity = entity;
-    }
+  static position: Vector = new Vector(29, 59);
+  static width = 1;
+  static height = 1;
+  static max_speed = 0.1;
+  static deceleration = 0.01;
+  static acceleration = 0.03;
+  static velocity: Vector = new Vector(0, 0, {
+    x: this.max_speed,
+    y: this.max_speed,
+  });
+  static previous_velocityX = 0;
+  static previous_velocityY = 0;
+  static character_sprite_sheet: HTMLImageElement;
+  static loading_complete = false;
+  static animation = 0;
+  static animation_frame = 0;
+  static render_collision_debug = true;
+  static interactable_entities_in_range: Entity[] = [];
+  static interact_pressed = false;
+  static interacting_entity: Entity | undefined;
 
-    static uninteract() {
-        if (!this.interacting_entity) return;
-        this.interacting_entity.uninteract();
-        this.interacting_entity = undefined;
-    }
-  
-    static checkInput() {
-      if (keys.w) {
-        this.velocity.addTo({ x: 0, y: -this.acceleration });
-      }
-      if (keys.d) {
-        this.velocity.addTo({ x: this.acceleration, y: 0 });
-      }
-      if (keys.s) {
-        this.velocity.addTo({ x: 0, y: this.acceleration });
-      }
-      if (keys.a) {
-        this.velocity.addTo({ x: -this.acceleration, y: 0 });
-      }
-    }
-  
-    static checkInteract() {
-      if (keys.e && !this.interact_pressed) {
-        this.interact();
-        this.interact_pressed = true;
-      } else if (!keys.e) {
-        this.interact_pressed = false;
-      }
-    }
-  
-    static animate(animation: number, speed: number, limit: number) {
-      if (this.animation !== animation) {
-        this.animation_frame = 0;
-        this.animation = animation;
-      }
-      if (Game.current_frame % Math.round(Game.FPS / speed) === 0) {
-        if (this.animation_frame < limit) {
-          this.animation_frame++;
-        } else {
-          this.animation_frame = 0;
+  static checkCollisions() {
+    for (const entity of Entity.entities) {
+      if (!entity.collision_physics) continue;
+      if (
+        checkCollision(
+          {
+            x: this.position.x + this.velocity.x,
+            y: this.position.y,
+            width: this.width,
+            height: this.height,
+          },
+          {
+            x: entity.world_position.x + entity.bounding_box.x_offset,
+            y: entity.world_position.y + entity.bounding_box.y_offset,
+            width: entity.bounding_box.width,
+            height: entity.bounding_box.height,
+          }
+        )
+      ) {
+        if (this.velocity.x === 0) {
+          this.previous_velocityX > 0
+            ? (this.velocity.x = -0.01)
+            : (this.velocity.x = 0.01);
+          return;
         }
+        this.velocity.x = 0;
       }
-    }
-  
-    static init() {
-      this.character_sprite_sheet = new Image();
-      this.character_sprite_sheet.src = "./nather-io-player-sheet.png";
-      this.character_sprite_sheet.onload = () => {
-        this.loading_complete = true;
-      };
-    }
-  
-    static update() {
-      if (this.velocity.x !== 0) {
-        this.previous_velocityX = this.velocity.x;
-      }
-      this.checkInput();
-      this.checkInteract();
-      this.checkCollisions();
-      this.position.addTo(this.velocity);
-      this.velocity.tendToZero(this.deceleration);
-      if (this.velocity.x === 0 && this.velocity.y === 0) {
-        this.previous_velocityX > 0
-          ? this.animate(0, 1, 0)
-          : this.animate(2, 1, 0);
-      } else {
-        this.previous_velocityX > 0
-          ? this.animate(1, 8, 3)
-          : this.animate(3, 8, 3);
-      }
-    }
-  
-    static render() {
-      if (!Game.context || !this.loading_complete) return;
-      Game.renderSprite(
-        this.character_sprite_sheet,
-        this.position.x,
-        this.position.y,
-        this.width,
-        this.height,
-        this.animation,
-        this.animation_frame,
-      );
-      if (this.render_collision_debug) {
-        Game.renderStrokeRect(
-          this.position.x,
-          this.position.y,
-          this.width,
-          this.height
-        );
+      if (
+        checkCollision(
+          {
+            x: this.position.x,
+            y: this.position.y + this.velocity.y,
+            width: this.width,
+            height: this.height,
+          },
+          {
+            x: entity.world_position.x + entity.bounding_box.x_offset,
+            y: entity.world_position.y + entity.bounding_box.y_offset,
+            width: entity.bounding_box.width,
+            height: entity.bounding_box.height,
+          }
+        )
+      ) {
+        if (this.velocity.y === 0) {
+          this.previous_velocityY > 0
+            ? (this.velocity.y = -0.001)
+            : (this.velocity.y = 0.001);
+          return;
+        }
+        this.velocity.y = 0;
       }
     }
   }
+
+  static interact() {
+    const entity = this.interactable_entities_in_range.sort(
+      (a, b) => a.distance_to_player - b.distance_to_player
+    )[0];
+    if (!entity) return;
+    entity.defaultInteract();
+    entity.interact();
+    this.interacting_entity = entity;
+  }
+
+  static uninteract() {
+    if (!this.interacting_entity) return;
+    this.interacting_entity.uninteract();
+    this.interacting_entity = undefined;
+  }
+
+  static checkInput() {
+    if (keys.w) {
+      this.velocity.addTo({ x: 0, y: -this.acceleration });
+    }
+    if (keys.d) {
+      this.velocity.addTo({ x: this.acceleration, y: 0 });
+    }
+    if (keys.s) {
+      this.velocity.addTo({ x: 0, y: this.acceleration });
+    }
+    if (keys.a) {
+      this.velocity.addTo({ x: -this.acceleration, y: 0 });
+    }
+  }
+
+  static checkInteract() {
+    if (keys.e && !this.interact_pressed) {
+      this.interact();
+      this.interact_pressed = true;
+    } else if (!keys.e) {
+      this.interact_pressed = false;
+    }
+  }
+
+  static animate(animation: number, speed: number, limit: number) {
+    if (this.animation !== animation) {
+      this.animation_frame = 0;
+      this.animation = animation;
+    }
+    if (Game.current_frame % Math.round(Game.FPS / speed) === 0) {
+      if (this.animation_frame < limit) {
+        this.animation_frame++;
+      } else {
+        this.animation_frame = 0;
+      }
+    }
+  }
+
+  static init() {
+    this.character_sprite_sheet = new Image();
+    this.character_sprite_sheet.src = "./nather-io-player-sheet.png";
+    this.character_sprite_sheet.onload = () => {
+      this.loading_complete = true;
+    };
+  }
+
+  static update() {
+    if (this.velocity.x !== 0) {
+      this.previous_velocityX = this.velocity.x;
+    }
+    if (this.velocity.y !== 0) {
+      this.previous_velocityY = this.velocity.y;
+    }
+    this.checkInput();
+    this.checkInteract();
+    this.checkCollisions();
+    this.position.addTo(this.velocity);
+    this.velocity.tendToZero(this.deceleration);
+    if (this.velocity.x === 0 && this.velocity.y === 0) {
+      this.previous_velocityX > 0
+        ? this.animate(0, 1, 0)
+        : this.animate(2, 1, 0);
+    } else {
+      this.previous_velocityX > 0
+        ? this.animate(1, 8, 3)
+        : this.animate(3, 8, 3);
+    }
+  }
+
+  static render() {
+    if (!Game.context || !this.loading_complete) return;
+    Game.renderSprite(
+      this.character_sprite_sheet,
+      this.position.x,
+      this.position.y,
+      this.width,
+      this.height,
+      this.animation,
+      this.animation_frame
+    );
+    if (this.render_collision_debug) {
+      Game.renderStrokeRect(
+        this.position.x,
+        this.position.y,
+        this.width,
+        this.height
+      );
+    }
+  }
+}

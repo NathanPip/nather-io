@@ -1,7 +1,7 @@
 import { createSignal, type Component, onMount, createEffect, Show } from "solid-js";
 import { useHomePageContext } from "~/routes";
 import { Camera, Game, GameLevel, keys } from "~/experience/globals";
-import { Door, TestCharacter, TopDoor } from "~/experience/game/entities";
+import { Door, TestCharacter } from "~/experience/game/entities";
 import { DialogueInterface } from "./DialogueInterface";
 import { Entity } from "../entity";
 import { Player } from "../player";

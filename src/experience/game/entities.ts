@@ -110,7 +110,7 @@ export class Door extends Entity {
     // this.door.setLocalPosition({x: 5, y: 2});
     this.opening = false;
     this.closing = false;
-    this.setRotation(0);
+    this.setRotation(90);
   }
 
   open() {
@@ -153,54 +153,5 @@ export class Door extends Entity {
       },
       progress
     ));
-  }
-}
-
-export class TopDoor extends Door {
-  constructor(x: number, y: number, width: number, height: number) {
-    super(x, y, width, height, "./sprites/Top_Door.png");
-    this.x_translation = 1;
-    this.y_translation = 0;
-    // setTimeout(() => {
-    //   this.velocity = new Vector(0, -.3);
-    // }, 1000)
-    const child = new Entity(this.world_position.x, this.world_position.y, 2, 1, "./sprites/Top_Door.png");
-    child.debug = true;
-    child.is_static = false;
-    this.addChild(child);
-    child.setLocalPosition({x: 2, y: 2});
-    this.setRotation(180);
-    this.setBoundingBox(this.width, this.height / 8, 0, this.height / 6);
-  }
-
-  update() {
-    // this.setRotation(this.world_rotation + 1);
-    // this.children[0].setRotation(this.children[0].local_rotation + 1);
-    // this.children[0].setLocalPosition({x: this.children[0].local_position.x+.002, y: this.children[0].local_position.y+.002});
-  }
-
-}
-export class BottomDoor extends Door {
-  constructor(x: number, y: number, width: number, height: number) {
-    super(x, y, width, height, "./sprites/Top_Door.png");
-    this.x_translation = -1;
-    this.y_translation = 0;
-    this.setBoundingBox(this.width, this.height / 8, 0, this.height - this.height / 6);
-  }
-}
-export class LeftDoor extends Door {
-  constructor(x: number, y: number, width: number, height: number) {
-    super(x, y, width, height, "./sprites/Top_Door.png");
-    this.x_translation = 0;
-    this.y_translation = 1;
-    this.setBoundingBox(this.width / 8, this.height, this.width/6, this.height);
-  }
-}
-export class RightDoor extends Door {
-  constructor(x: number, y: number, width: number, height: number) {
-    super(x, y, width, height, "./sprites/Top_Door.png");
-    this.x_translation = 1;
-    this.y_translation = 0;
-    this.setBoundingBox(this.width / 8, this.height, this.width - this.width/6, this.height);
   }
 }
