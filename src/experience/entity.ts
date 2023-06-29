@@ -5,6 +5,7 @@ import { BoundingBox, Vector2d } from "./types";
 import { easeInOut } from "./utils";
 
 export class Entity {
+  _id: string;
   _world_position: Vector;
   _local_position: Vector;
   _rotation = 0;
@@ -63,13 +64,28 @@ export class Entity {
     }
   }
 
+  static getEntity(id: string) {
+    for (const entity of Entity.entities) {
+      if (entity._id === id) return entity;
+    }
+    return undefined;
+  }
+
   constructor(
+    id: string,
     x: number,
     y: number,
     width: number,
     height: number,
     sprite_src?: string
   ) {
+    let count = 0;
+    for(const e of Entity.entities) {
+      if(typeof e._id !== "string") continue;
+      if(e._id.startsWith(id)) count += 1;
+    }
+    if(count > 0) id = `${id}_${count}`;
+    this._id = id;
     this._world_position = new Vector(x, y);
     this._local_position = new Vector(0, 0);
     this.width = width;
@@ -155,7 +171,6 @@ export class Entity {
         this._local_position.x * aSin +
         this.parent.world_position.y,
     });
-    console.log("called")
   }
 
   setLocalPosition(position: Vector | Vector2d) {
@@ -169,7 +184,6 @@ export class Entity {
     this._local_position.x = position.x;
     this._local_position.y = position.y;
     this._setRelativeWorldPosition();
-    console.log("calling 3")
   }
 
   animate(animation: number, speed: number, limit: number) {

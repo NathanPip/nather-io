@@ -22,50 +22,6 @@ export class Boundary extends Entity {
   }
 }
 
-export class TestEntity extends Entity {
-  constructor(
-    x: number,
-    y: number,
-    width: number,
-    height: number,
-    sprite_src?: string
-  ) {
-    super(x, y, width, height, sprite_src);
-    this.is_interactable = true;
-    this.debug = true;
-  }
-
-  interact() {
-    console.log("interacted_with");
-    Camera.moveTo(this.world_position, 200, "ease-in-out");
-    // Camera.zoom(1.1, 300);
-  }
-}
-
-export class TestEntity2 extends TestEntity {
-  location: Vector | undefined;
-  constructor(
-    x: number,
-    y: number,
-    width: number,
-    height: number,
-    location: Vector,
-    sprite_src?: string
-  ) {
-    super(x, y, width, height, sprite_src);
-    this.is_interactable = true;
-    this.debug = true;
-    this.location = location;
-  }
-  interact() {
-    if (!this.location) return;
-    Camera.moveTo(this.location, 200, "ease-in-out");
-    setTimeout(() => {
-      Camera.clearMove();
-    }, 4000);
-  }
-}
-
 export class TestCharacter extends Character {
   constructor(
     name: string,
@@ -85,6 +41,8 @@ export class TestCharacter extends Character {
 export class Door extends Entity {
   x_translation = 0;
   y_translation = 0;
+  locked: boolean;
+  auto_door = false;
   opening: boolean;
   closing: boolean;
   is_open: boolean;
@@ -92,25 +50,33 @@ export class Door extends Entity {
   speed = 30;
   open_amt = 0;
   constructor(
+    id: string,
     x: number,
     y: number,
-    width: number,
-    height: number,
+    locked?: boolean,
+    auto?: boolean
   ) {
-    super(x, y, width, height);
+    super(id, x, y, 2, 1);
     this.is_open = false;
-    this.door = new Entity(this.world_position.x, this.world_position.y, 2, 1, "./sprites/Top_Door.png");
+    this.locked = locked || false;
+    this.door = new Entity(`${id}-door`, this.world_position.x, this.world_position.y, 2, 1, "./sprites/Top_Door.png");
     this.door.is_static = false;
     this.door.collision_physics = true;
     this.is_interactable = true;
     this.door.setBoundingBox(this.width, this.height / 8, 0, this.height / 4 );
     this.door.debug = true;
-    // this.door.setOriginPoint(this.door.width/2, this.door.height/2);
     this.addChild(this.door);
-    // this.door.setLocalPosition({x: 5, y: 2});
     this.opening = false;
     this.closing = false;
-    this.setRotation(90);
+    if(auto) this.auto_door = auto;
+  }
+
+  unlock() {
+    this.locked = false;
+  }
+
+  lock() {
+    this.locked = true;
   }
 
   open() {
@@ -123,12 +89,12 @@ export class Door extends Entity {
   }
 
   update() {
-    // this.setRotation(this.world_rotation + 1);
-    if (this.distance_to_player < 2 && !this.is_open) {
+    if (this.locked) return;
+    if (this.distance_to_player < 2 && !this.is_open && this.auto_door) {
       this.open();
       this.is_open = true;
       console.log("open");
-    } else if (this.distance_to_player > 3 && this.is_open) {
+    } else if (this.distance_to_player > 3 && this.is_open && this.auto_door) {
       this.close();
       this.is_open = false;
       console.log("close");

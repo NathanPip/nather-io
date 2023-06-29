@@ -53,7 +53,8 @@ const Experience: Component = () => {
     // const testEntity = new TestEntity(1000, 1000, 64, 64);
     // const testEntity2 = new TestEntity2(300, 1000, 64, 64, testEntity.position);
     const character = new TestCharacter("test", 27, 56, 1, 1);
-    const door1 = new Door(33, 59, 2, 1);
+    const door1 = new Door("left_door", 27, 54, true);
+    const door2 = new Door("right_door", 33, 54, true);
   };
 
   const start = () => {
@@ -106,7 +107,7 @@ const Experience: Component = () => {
     Player.render();
     GameLevel.render();
     // GameLevel.renderBoundaries();
-    GameLevel.renderGrid();
+    // GameLevel.renderGrid();
   };
   const update = () => {
     Entity.updateAll();

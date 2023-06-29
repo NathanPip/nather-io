@@ -335,7 +335,7 @@ export class GameLevel {
             }
           }
           if (addedTo) continue;
-          this.boundaries.push(new Boundary(j, i, 1, 1));
+          this.boundaries.push(new Boundary("wall", j, i, 1, 1));
         }
       }
     }

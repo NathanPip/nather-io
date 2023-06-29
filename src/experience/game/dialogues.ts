@@ -1,5 +1,9 @@
 import { Character } from "../character";
 import { Dialogue } from "../dialogue";
+import { Entity } from "../entity";
+import { Camera } from "../globals";
+import { type Door } from "./entities";
+import { openDoor } from "./functions";
 
 export let dialogues: { [key: string]: Dialogue } = {
   //Test Character
@@ -8,27 +12,28 @@ export let dialogues: { [key: string]: Dialogue } = {
 export const loadDialogues = () => {
   dialogues = {
     "test-first": new Dialogue([
-      { character: Character.characters["test"], line: "testing 1,2,3" },
+      { character: Character.characters["test"], line: "Hello chosen one" },
       {
         character: Character.characters["test"],
-        line: "oh wow wtf it's working",
+        line: "Welcome to the world without will",
       },
-      { character: Character.characters["test"], line: "no fucking way dude" },
       {
         character: Character.characters["test"],
-        line: "you're just clicking and I'm talking",
+        line: "well except for yours",
+      },
+      {
+        character: Character.characters["test"],
+        line: "and now go on and use it, make a choice... Right or Left?",
         choices: {
-          "continue this convo": () => {dialogues["test-first"].nextLine()},
-          "continute to next convo": () => {dialogues["test-second"].startDialogue()}
-        }
-      },
-      {
-        character: Character.characters["test"],
-        line: "shit's kinda cool ngl",
-      },
-      {
-        character: Character.characters["test"],
-        line: "anyway, dueces my dude",
+          "open left door": () => {
+            dialogues["test-first"].nextLine();
+            openDoor("left_door");
+          },
+          "open right door": () => {
+            dialogues["test-first"].nextLine();
+            openDoor("right_door");
+          },
+        },
       },
     ]),
     "test-second": new Dialogue([

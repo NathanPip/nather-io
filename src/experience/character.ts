@@ -18,7 +18,7 @@ export class Character extends Entity {
       height: number,
       sprite_src?: string
     ) {
-      super(x, y, width, height, sprite_src);
+      super(name, x, y, width, height, sprite_src);
       this.name = name;
       this.is_interactable = true;
       for(const c in Character.characters) {
