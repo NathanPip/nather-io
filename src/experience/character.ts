@@ -62,7 +62,7 @@ export class Character extends Entity {
         if(!this.can_interact) return;
         // this.rendering_interactable = false;
         this.can_interact = false;
-        Camera.moveTo(this.position);
+        Camera.moveTo(this.world_position);
         this.checkDialogues();
         dialogues[this.current_dialogue].startDialogue();
     }

@@ -12,7 +12,7 @@ import { Title } from "solid-start";
 import Contact from "~/components/Contact";
 import HomePage from "~/components/Homepage";
 import About from "~/components/About";
-import Experience from "~/experience/components/Experience";
+import Experience from "~/experience/dom/Experience";
 
 const defaultPageState = {
   scrollUp: false,
@@ -37,15 +37,10 @@ const Home: VoidComponent = () => {
 
   onMount(() => {
     addEventListener("wheel", (e) => {
-      console.log(e.deltaY)
       if(e.deltaY > 0) {
         setHomePageState("scrollDown", true);
       }
     })
-  })
-
-  createEffect(() => {
-    console.log(homePageState.scrollDown);
   })
 
   return (
