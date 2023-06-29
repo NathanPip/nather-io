@@ -6,12 +6,16 @@ import { easeInOut } from "./utils";
 
 export class Entity {
   _world_position: Vector;
-  _local_position: Vector | undefined;
+  _local_position: Vector;
+  _rotation = 0;
+  _inherited_rotation = 0;
   width: number;
   height: number;
   parent: Entity | undefined;
+  _prev_parent_pos: Vector2d = { x: 0, y: 0 };
   children: Entity[] = [];
-  bounding_box: BoundingBox;
+  _bounding_box: BoundingBox;
+  _set_bounding_box: BoundingBox;
   custom_bounding_box = false;
   sprite_src: string | undefined;
   sprite_img: HTMLImageElement | undefined;
@@ -24,9 +28,9 @@ export class Entity {
   collision_physics = false;
   interacting = false;
   debug: boolean;
-  max_speed = .1;
-  deceleration = .01;
-  acceleration = .02;
+  max_speed = 0.1;
+  deceleration = 0.01;
+  acceleration = 0.02;
   distance_to_player = 0;
   velocity: Vector;
   rendering_interactable = false;
@@ -67,6 +71,7 @@ export class Entity {
     sprite_src?: string
   ) {
     this._world_position = new Vector(x, y);
+    this._local_position = new Vector(0, 0);
     this.width = width;
     this.height = height;
     this.sprite_src = sprite_src;
@@ -80,12 +85,13 @@ export class Entity {
       x: this.max_speed,
       y: this.max_speed,
     });
-    this.bounding_box = {
+    this._bounding_box = {
       width: width,
       height: height,
       x_offset: 0,
       y_offset: 0,
     };
+    this._set_bounding_box = this._bounding_box;
     Entity.entities.push(this);
   }
 
@@ -94,38 +100,76 @@ export class Entity {
   }
 
   get local_position() {
-    if(this._local_position === undefined) {
+    if (!this.parent) {
       return this._world_position;
     } else {
       return this._local_position;
     }
   }
 
+  get world_rotation() {
+    return this._rotation + this._inherited_rotation;
+  }
+
+  get local_rotation() {
+    return this._rotation;
+  }
+
+  get bounding_box() {
+    return this._bounding_box;
+  }
+
+  setRotation(rotation: number) {
+    this._rotation = rotation;
+    this._setRelativeBoundingBox();
+  }
+
+  setWorldRotation(rotation: number) {
+    this.setRotation(
+      this._inherited_rotation + (rotation - this._inherited_rotation)
+    );
+  }
+
   setWorldPosition(position: Vector | Vector2d) {
     this._world_position.x = position.x;
     this._world_position.y = position.y;
-    if(this._local_position !== undefined && this.parent !== undefined){
-      this._local_position.x = this.world_position.x - this.parent.world_position.x;
-      this._local_position.y = this.world_position.y - this.parent.world_position.y;
-    }
+    // if (this.parent !== undefined) {
+    //   this._local_position.x =
+    //     this.world_position.x - this.parent.world_position.x;
+    //   this._local_position.y =
+    //     this.world_position.y - this.parent.world_position.y;
+    // }
+  }
+
+  _setRelativeWorldPosition() {
+    if (!this.parent) return;
+    const aCos = Math.cos(this._inherited_rotation * (Math.PI / 180));
+    const aSin = Math.sin(this._inherited_rotation * (Math.PI / 180));
+    this.setWorldPosition({
+      x:
+        this._local_position.x * aCos -
+        this._local_position.y * aSin +
+        this.parent.world_position.x,
+      y:
+        this._local_position.y * aCos -
+        this._local_position.x * aSin +
+        this.parent.world_position.y,
+    });
+    console.log("called")
   }
 
   setLocalPosition(position: Vector | Vector2d) {
-    if(!this.parent)
-    {
+    if (!this.parent) {
       this.setWorldPosition({
         x: position.x + this.world_position.x,
         y: position.y + this.world_position.y,
-      })
+      });
       return;
     }
-    if(this._local_position === undefined) return;
     this._local_position.x = position.x;
     this._local_position.y = position.y;
-    this.setWorldPosition({
-      x: position.x + this.parent.world_position.x,
-      y: position.y + this.parent.world_position.y,
-    })
+    this._setRelativeWorldPosition();
+    console.log("calling 3")
   }
 
   animate(animation: number, speed: number, limit: number) {
@@ -146,9 +190,34 @@ export class Entity {
     this.width = width;
     this.height = height;
     if (!this.custom_bounding_box) {
-      this.bounding_box.width = width;
-      this.bounding_box.height = height;
+      this._bounding_box = {
+        width: width,
+        height: height,
+        x_offset: 0,
+        y_offset: 0,
+      };
     }
+  }
+
+  _setRelativeBoundingBox() {
+    const aCos = Math.cos(this.world_rotation * (Math.PI / 180));
+    const aSin = Math.sin(this.world_rotation * (Math.PI / 180));
+    this._bounding_box.width = Math.abs(
+      this._set_bounding_box.width * aCos - this._set_bounding_box.height * aSin
+    );
+    this._bounding_box.height = Math.abs(
+      this._set_bounding_box.height * aCos - this._set_bounding_box.width * aSin
+    );
+    this._bounding_box.x_offset =
+      this.width / 2 -
+      this._bounding_box.width / 2 -
+      (this._set_bounding_box.x_offset * aCos -
+        this._set_bounding_box.y_offset * aSin);
+    this._bounding_box.y_offset =
+      this.height / 2 -
+      this._bounding_box.height / 2 -
+      (this._set_bounding_box.y_offset * aCos -
+        this._set_bounding_box.x_offset * aSin);
   }
 
   setBoundingBox(
@@ -157,44 +226,52 @@ export class Entity {
     x_offset: number,
     y_offset: number
   ) {
-    this.bounding_box.width = width;
-    this.bounding_box.height = height;
-    this.bounding_box.x_offset = x_offset;
-    this.bounding_box.y_offset = y_offset;
+    this._set_bounding_box = {
+      width: width,
+      height: height,
+      x_offset: x_offset,
+      y_offset: y_offset,
+    };
     this.custom_bounding_box = true;
+    this._setRelativeBoundingBox();
   }
 
   setParent(parent: Entity, _bubbled = false) {
     this.parent = parent;
-    this._local_position = new Vector(this.world_position.x - parent.world_position.x, this.world_position.y - parent.world_position.y);
-    if(!_bubbled)
-      parent.addChild(this, true);
+    this._local_position.x = this.world_position.x - parent.world_position.x;
+    this._local_position.y = this.world_position.y - parent.world_position.y;
+    this._inherited_rotation = parent.world_rotation;
+    this._rotation = this._rotation - this._inherited_rotation;
+    this._prev_parent_pos.x = parent.world_position.x;
+    this._prev_parent_pos.y = parent.world_position.y;
+    if (!_bubbled) parent.addChild(this, true);
   }
 
   removeChild(child: Entity, _bubbled = false) {
     const index = this.children.indexOf(child);
-    if(index === -1) {
+    if (index === -1) {
       console.log(this, "has no child", child);
       return;
     }
-    if(!_bubbled)
-      this.children[index].unlink(true);
+    if (!_bubbled) this.children[index].unlink(true);
     this.children.splice(index, 1);
   }
 
   addChild(child: Entity, _bubbled = false) {
     this.children.push(child);
-    if(!_bubbled)
-      child.setParent(this, true);
+    if (!_bubbled) child.setParent(this, true);
   }
 
   unlink(_bubbled = false) {
-    if(!this.parent) {
-      console.log(this, "has no parent"); 
-      return
+    if (!this.parent) {
+      console.log(this, "has no parent");
+      return;
     }
-    if(!_bubbled) this.parent.removeChild(this, true);
-    this._local_position = undefined;
+    if (!_bubbled) this.parent.removeChild(this, true);
+    this._local_position.x = 0;
+    this._local_position.y = 0;
+    this._rotation = this._rotation + this._inherited_rotation;
+    this._inherited_rotation = 0;
     this.parent = undefined;
   }
 
@@ -250,11 +327,21 @@ export class Entity {
 
   physicsUpdate() {
     if (this.is_static) return;
-    if(this.parent && this._local_position !== undefined) {
-      this.setWorldPosition({
-        x: this._local_position.x + this.parent.world_position.x,
-        y: this._local_position.y + this.parent.world_position.y,
-      })
+    if (this.parent) {
+      if (
+        this._prev_parent_pos.x !== this.parent.world_position.x ||
+        this._prev_parent_pos.y !== this.parent.world_position.y
+      ) {
+        this._prev_parent_pos = this.parent.world_position;
+        this._setRelativeWorldPosition();
+        console.log("calling 1")
+      }
+      if (this._inherited_rotation !== this.parent.world_rotation) {
+        this._inherited_rotation = this.parent.world_rotation;
+        this._setRelativeWorldPosition();
+        this._setRelativeBoundingBox();
+        console.log("calling 2")
+      }
     }
     if (this.moveTo_vector !== undefined) {
       if (this._moveTo_frame !== this.moveTo_time) {

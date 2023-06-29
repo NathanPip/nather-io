@@ -83,12 +83,12 @@ export class TestCharacter extends Character {
 }
 
 export class Door extends Entity {
-  original_position: Vector2d;
   x_translation = 0;
   y_translation = 0;
   opening: boolean;
   closing: boolean;
   is_open: boolean;
+  door: Entity;
   speed = 30;
   open_amt = 0;
   constructor(
@@ -96,20 +96,21 @@ export class Door extends Entity {
     y: number,
     width: number,
     height: number,
-    sprite_src: string
   ) {
-    super(x, y, width, height, sprite_src);
-    this.is_interactable = true;
-    this.collision_physics = true;
-    this.debug = true;
+    super(x, y, width, height);
     this.is_open = false;
+    this.door = new Entity(this.world_position.x, this.world_position.y, 2, 1, "./sprites/Top_Door.png");
+    this.door.is_static = false;
+    this.door.collision_physics = true;
+    this.is_interactable = true;
+    this.door.setBoundingBox(this.width, this.height / 8, 0, this.height / 4 );
+    this.door.debug = true;
+    // this.door.setOriginPoint(this.door.width/2, this.door.height/2);
+    this.addChild(this.door);
+    // this.door.setLocalPosition({x: 5, y: 2});
     this.opening = false;
     this.closing = false;
-    this.is_static = false;
-    this.original_position = {
-      x: this.world_position.x,
-      y: this.world_position.y,
-    };
+    this.setRotation(0);
   }
 
   open() {
@@ -121,14 +122,8 @@ export class Door extends Entity {
     this.closing = true;
   }
 
-  updateOriginalPosition() {
-    this.original_position = {
-      x: this.world_position.x,
-      y: this.world_position.y,
-    };
-  }
-
   update() {
+    // this.setRotation(this.world_rotation + 1);
     if (this.distance_to_player < 2 && !this.is_open) {
       this.open();
       this.is_open = true;
@@ -148,15 +143,16 @@ export class Door extends Entity {
     if (progress === 0 || progress === 1) {
       this.opening = false;
       this.closing = false;
+      return
     }
-    this.world_position.lerpFrom(
-      this.original_position,
+    this.door.setLocalPosition(this.door.local_position.lerpFrom(
+      {x: 0, y: 0},
       {
-        x: this.original_position.x + this.x_translation * this.width,
-        y: this.original_position.y + this.y_translation * this.height,
+        x: 2,
+        y: 0,
       },
       progress
-    );
+    ));
   }
 }
 
@@ -165,20 +161,24 @@ export class TopDoor extends Door {
     super(x, y, width, height, "./sprites/Top_Door.png");
     this.x_translation = 1;
     this.y_translation = 0;
-    setTimeout(() => {
-      this.velocity = new Vector(0, -.3);
-    }, 1000)
+    // setTimeout(() => {
+    //   this.velocity = new Vector(0, -.3);
+    // }, 1000)
     const child = new Entity(this.world_position.x, this.world_position.y, 2, 1, "./sprites/Top_Door.png");
     child.debug = true;
     child.is_static = false;
     this.addChild(child);
-    child.setLocalPosition({x: 1, y: 2});
+    child.setLocalPosition({x: 2, y: 2});
+    this.setRotation(180);
     this.setBoundingBox(this.width, this.height / 8, 0, this.height / 6);
   }
 
   update() {
-    console.log(this.children)
+    // this.setRotation(this.world_rotation + 1);
+    // this.children[0].setRotation(this.children[0].local_rotation + 1);
+    // this.children[0].setLocalPosition({x: this.children[0].local_position.x+.002, y: this.children[0].local_position.y+.002});
   }
+
 }
 export class BottomDoor extends Door {
   constructor(x: number, y: number, width: number, height: number) {

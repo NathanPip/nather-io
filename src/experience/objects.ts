@@ -37,11 +37,13 @@ export class Vector {
   lerp(other: Vector | Vector2d, progress: number) {
     this.x += (other.x - this.x) * progress;
     this.y += (other.y - this.y) * progress;
+    return this;
   }
 
   lerpFrom(from: Vector | Vector2d, other: Vector | Vector2d, progress: number) {
     this.x = from.x + ((other.x - from.x) * progress);
     this.y = from.y + ((other.y - from.y) * progress);
+    return this;
   }
 
   tendToZero(amt: number) {

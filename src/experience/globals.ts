@@ -168,16 +168,15 @@ export class Game {
   static renderEntity(entity: Entity) {
     if (!this.context) return;
     this.context.save();
-      this.context.translate(
-        entity.world_position.x * this.tile_size * this.render_scale -
-          Camera.position.x +
-          (entity.width * this.tile_size * this.render_scale) / 2,
-        entity.world_position.y * this.tile_size * this.render_scale -
-          Camera.position.y +
-          (entity.height * this.tile_size * this.render_scale) / 2
-      );
-    // Deal with when I deal with rotations
-    // this.context.rotate((2 * angle * Math.PI) / 360);
+    this.context.translate(
+      entity.world_position.x * this.tile_size * this.render_scale -
+        Camera.position.x +
+        (entity.width * this.tile_size * this.render_scale) / 2,
+      entity.world_position.y * this.tile_size * this.render_scale -
+        Camera.position.y +
+        (entity.height * this.tile_size * this.render_scale) / 2
+    );
+    this.context.rotate((entity.world_rotation * Math.PI) / 180);
     this.context.scale(this.render_scale, this.render_scale);
     if (entity.sprite_img)
       this.context.drawImage(
@@ -186,8 +185,8 @@ export class Game {
         entity.height * this.tile_size * entity.animation,
         entity.width * this.tile_size,
         entity.height * this.tile_size,
-        (-entity.width * this.tile_size) / 2,
-        (-entity.height * this.tile_size) / 2,
+        -entity.width * this.tile_size / 2,
+        -entity.height * this.tile_size / 2,
         entity.width * this.tile_size,
         entity.height * this.tile_size
       );

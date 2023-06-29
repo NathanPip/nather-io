@@ -1,7 +1,7 @@
 import { createSignal, type Component, onMount, createEffect, Show } from "solid-js";
 import { useHomePageContext } from "~/routes";
 import { Camera, Game, GameLevel, keys } from "~/experience/globals";
-import { TestCharacter, TopDoor } from "~/experience/game/entities";
+import { Door, TestCharacter, TopDoor } from "~/experience/game/entities";
 import { DialogueInterface } from "./DialogueInterface";
 import { Entity } from "../entity";
 import { Player } from "../player";
@@ -53,8 +53,7 @@ const Experience: Component = () => {
     // const testEntity = new TestEntity(1000, 1000, 64, 64);
     // const testEntity2 = new TestEntity2(300, 1000, 64, 64, testEntity.position);
     const character = new TestCharacter("test", 27, 56, 1, 1);
-    const door1 = new TopDoor(33, 54, 2, 1);
-    door1.updateOriginalPosition();
+    const door1 = new Door(33, 59, 2, 1);
   };
 
   const start = () => {
@@ -107,7 +106,7 @@ const Experience: Component = () => {
     Player.render();
     GameLevel.render();
     // GameLevel.renderBoundaries();
-    // GameLevel.renderGrid();
+    GameLevel.renderGrid();
   };
   const update = () => {
     Entity.updateAll();
