@@ -26,7 +26,8 @@ export class Vector {
     this.constrainToMax();
   }
 
-  multiply(other: Vector | Vector2d) {
+  multiply(other: Vector | Vector2d | number) {
+    if(typeof other === "number") return new Vector(this.x * other, this.y * other);
     return new Vector(this.x * other.x, this.y * other.y);
   }
 

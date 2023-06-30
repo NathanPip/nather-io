@@ -11,6 +11,7 @@ import { loadDialogues } from "../game/dialogues";
 const Experience: Component = () => {
   const [homePageState] = useHomePageContext();
 
+  const [prevFrame, setPrevFrame] = createSignal(0);
 
   let main_canvas: HTMLCanvasElement | undefined;
   let background_canvas: HTMLCanvasElement | undefined;
@@ -75,11 +76,27 @@ const Experience: Component = () => {
     //   Camera.unzoom();
     // }, 10000)
     setControls();
-    setInterval(() => {
-      update();
+    setPrevFrame(0);
+    const loop = (timestep: number) => {
+      const delta_time = (timestep - prevFrame()) / 1000;
+      console.log(delta_time)
+      if(delta_time === 0) {
+        return;
+      }
+      if(prevFrame() === 0){
+        setPrevFrame(timestep);
+        requestAnimationFrame(loop);
+        return;
+      }
+      setPrevFrame(timestep);
+      Game.elapsed_time += delta_time;
+      Game.delta_time = delta_time;
+      update(delta_time);
       draw();
       Game.current_frame++;
-    }, 1000 / Game.FPS);
+      requestAnimationFrame(loop);
+    };
+    requestAnimationFrame(loop);
   };
 
   const setControls = () => {
@@ -109,10 +126,10 @@ const Experience: Component = () => {
     // GameLevel.renderBoundaries();
     // GameLevel.renderGrid();
   };
-  const update = () => {
-    Entity.updateAll();
-    Player.update();
-    Camera.update();
+  const update = (delta_time: number) => {
+    Entity.updateAll(delta_time);
+    Player.update(delta_time);
+    Camera.update(delta_time);
   };
   return (
     <div class="relative w-full h-screen">

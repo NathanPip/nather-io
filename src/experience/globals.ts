@@ -19,9 +19,9 @@ export class Camera {
   static width = 0;
   static height = 0;
   static following_vector: Vector = new Vector(0, 0);
-  static following_lag = 0.1;
+  static following_lag = 5;
   static moveTo_vector: Vector | Vector2d | undefined;
-  static moveTo_frame = 1;
+  static moveTo_progress = 0;
   static moveTo_time = 15;
   static moveTo_finished = false;
   static zoomed = false;
@@ -62,17 +62,17 @@ export class Camera {
     this.zoomed = false;
   }
 
-  static _zoom() {
+  static _zoom(delta_time: number) {
     const progress = this.zoom_frame / this.zoom_time;
     Game.render_scale = lerp(
       Game.render_scale,
       Game.default_render_scale * this.zoom_multiplier,
       progress
     );
-    if (this.zoom_frame !== this.zoom_time) this.zoom_frame += 1;
+    if (this.zoom_frame < this.zoom_time) this.zoom_frame += delta_time;
   }
 
-  static _unzoom() {
+  static _unzoom(delta_time: number) {
     if ((Game.render_scale = Game.default_render_scale)) return;
     const progress = this.zoom_frame / this.zoom_time;
     Game.render_scale = lerp(
@@ -80,12 +80,12 @@ export class Camera {
       Game.default_render_scale,
       progress
     );
-    if (this.zoom_frame !== this.zoom_time) this.zoom_frame += 1;
+    if (this.zoom_frame < this.zoom_time) this.zoom_frame += delta_time;
   }
 
-  static move() {
+  static move(delta_time: number) {
     if (this.moveTo_vector === undefined) return;
-    const timer_progress = this.moveTo_frame / this.moveTo_time;
+    const timer_progress = this.moveTo_progress / this.moveTo_time;
     const easeProgress =
       this.easing === "linear"
         ? timer_progress
@@ -103,31 +103,32 @@ export class Camera {
       },
       easeProgress
     );
-    if (this.moveTo_frame !== this.moveTo_time) this.moveTo_frame += 1;
+    if (this.moveTo_progress < this.moveTo_time) this.moveTo_progress += delta_time;
   }
 
   static clearMove() {
     this.moveTo_vector = undefined;
-    this.moveTo_time = 60;
-    this.moveTo_frame = 1;
+    this.moveTo_time = 2;
+    this.moveTo_progress = 0;
     this.moveTo_finished = false;
   }
 
-  static update() {
+  static update(delta_time: number) {
+    // console.log(this.position);
     if (this.zoomed) {
-      this._zoom();
+      this._zoom(delta_time);
     } else if (Game.render_scale !== Game.default_render_scale) {
-      this._unzoom();
+      this._unzoom(delta_time);
     }
     if (this.moveTo_vector !== undefined) {
-      if (this.moveTo_frame !== this.moveTo_time) {
-        this.move();
+      if (this.moveTo_progress !== this.moveTo_time) {
+        this.move(delta_time);
       } else {
         this.moveTo_finished = true;
       }
       return;
     } else {
-      this.moveTo_frame = 1;
+      this.moveTo_progress = 0;
       this.moveTo_finished = false;
     }
     this.position.lerp(
@@ -139,13 +140,15 @@ export class Camera {
           this.following_vector.y * Game.tile_size * Game.render_scale -
           this.height / 2,
       },
-      this.following_lag
+      this.following_lag * delta_time
     );
   }
 }
 
 export class Game {
   static context: CanvasRenderingContext2D | null;
+  static delta_time = 0;
+  static elapsed_time = 0;
   static default_render_scale = 1.6;
   static game_dom: HTMLDivElement | undefined;
   static render_scale = 1.6;

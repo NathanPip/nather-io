@@ -67,7 +67,7 @@ export class Character extends Entity {
         dialogues[this.current_dialogue].startDialogue();
     }
   
-    update() {
+    update(delta_time: number) {
 
     }
   }

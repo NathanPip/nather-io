@@ -37,16 +37,16 @@ export class Entity {
   rendering_interactable = false;
   moveTo_vector: Vector | Vector2d | undefined;
   moveTo_time = 60;
-  _moveTo_frame = 1;
+  _moveTo_progress = 1;
   moveTo_finished = false;
   easing: "linear" | "ease-in-out" | undefined;
   static entities: Entity[] = [];
 
-  static updateAll() {
+  static updateAll(delta_time: number) {
     for (const entity of Entity.entities) {
-      entity.physicsUpdate();
-      entity.interactableUpdate();
-      entity.update();
+      entity.physicsUpdate(delta_time);
+      entity.interactableUpdate(delta_time);
+      entity.update(delta_time);
     }
   }
 
@@ -312,10 +312,10 @@ export class Entity {
     if (easing) this.easing = easing;
   }
 
-  move() {
+  move(delta_time: number) {
     if (this.moveTo_vector === undefined) return;
     console.log("moving");
-    const timer_progress = this._moveTo_frame / this.moveTo_time;
+    const timer_progress = this._moveTo_progress / this.moveTo_time;
     const easeProgress =
       this.easing === "linear"
         ? timer_progress
@@ -329,17 +329,17 @@ export class Entity {
       },
       easeProgress
     );
-    if (this._moveTo_frame !== this.moveTo_time) this._moveTo_frame += 1;
+    if (this._moveTo_progress < this.moveTo_time) this._moveTo_progress += delta_time;
   }
 
   clearMove() {
     this.moveTo_vector = undefined;
     this.moveTo_time = 60;
-    this._moveTo_frame = 1;
+    this._moveTo_progress = 1;
     this.moveTo_finished = true;
   }
 
-  physicsUpdate() {
+  physicsUpdate(delta_time: number) {
     if (this.is_static) return;
     if (this.parent) {
       if (
@@ -358,20 +358,20 @@ export class Entity {
       }
     }
     if (this.moveTo_vector !== undefined) {
-      if (this._moveTo_frame !== this.moveTo_time) {
-        this.move();
+      if (this._moveTo_progress !== this.moveTo_time) {
+        this.move(delta_time);
       } else {
         this.moveTo_finished = true;
       }
       return;
     } else {
-      this._moveTo_frame = 1;
+      this._moveTo_progress = 1;
     }
-    this.setWorldPosition(this.world_position.add(this.velocity));
-    this.velocity.tendToZero(this.deceleration);
+    this.setWorldPosition(this.world_position.add(this.velocity.multiply(delta_time)));
+    this.velocity.tendToZero(this.deceleration * delta_time);
   }
 
-  interactableUpdate() {
+  interactableUpdate(delta_time: number) {
     if (!this.is_interactable) return;
     this.distance_to_player = this.world_position.distanceTo(Player.position);
     if (this.distance_to_player < 1 && !this.rendering_interactable) {
@@ -388,7 +388,7 @@ export class Entity {
 
   init() {}
 
-  update() {}
+  update(delta_time: number) {}
 
   defaultInteract() {
     this.interacting = true;

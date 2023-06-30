@@ -47,7 +47,7 @@ export class Door extends Entity {
   closing: boolean;
   is_open: boolean;
   door: Entity;
-  speed = 30;
+  speed = 1;
   open_amt = 0;
   constructor(
     id: string,
@@ -88,7 +88,7 @@ export class Door extends Entity {
     this.closing = true;
   }
 
-  update() {
+  update(delta_time: number) {
     if (this.locked) return;
     if (this.distance_to_player < 2 && !this.is_open && this.auto_door) {
       this.open();
@@ -100,13 +100,13 @@ export class Door extends Entity {
       console.log("close");
     }
     if (this.opening && this.open_amt <= this.speed) {
-      this.open_amt += 1;
+      this.open_amt += delta_time;
     } else if (this.closing && this.open_amt >= 0) {
-      this.open_amt -= 1;
+      this.open_amt -= delta_time;
     }
     let progress = this.open_amt / this.speed;
     progress = easeInOut(progress);
-    if (progress === 0 || progress === 1) {
+    if (progress <= 0 || progress >= 1) {
       this.opening = false;
       this.closing = false;
       return
