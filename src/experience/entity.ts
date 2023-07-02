@@ -34,6 +34,7 @@ export class Entity {
   acceleration = 0.02;
   distance_to_player = 0;
   velocity: Vector;
+  render_interactable_bubble = false;
   rendering_interactable = false;
   moveTo_vector: Vector | Vector2d | undefined;
   moveTo_time = 60;
@@ -374,7 +375,7 @@ export class Entity {
   interactableUpdate(delta_time: number) {
     if (!this.is_interactable) return;
     this.distance_to_player = this.world_position.distanceTo(Player.position);
-    if (this.distance_to_player < 1 && !this.rendering_interactable) {
+    if (this.distance_to_player <  1 && !this.rendering_interactable) {
       Player.interactable_entities_in_range.push(this);
       this.rendering_interactable = true;
     } else if (this.distance_to_player > 1 && this.rendering_interactable) {
@@ -403,7 +404,7 @@ export class Entity {
   _renderSprite() {
     if (!this.sprite_loading_complete) return;
     Game.renderEntity(this);
-    if (this.rendering_interactable) {
+    if (this.rendering_interactable && this.render_interactable_bubble) {
       Game.renderInteractableBubble({
         x: this.world_position.x + (this.width / 2 - 0.28125),
         y: this.world_position.y - 0.5625,

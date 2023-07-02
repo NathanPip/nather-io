@@ -44,7 +44,7 @@ export class Camera {
     easing?: "linear" | "ease-in-out"
   ) {
     this.moveTo_vector = vector;
-    this.moveTo_time = time || 60;
+    this.moveTo_time = time || 15;
     if (easing) this.easing = easing;
   }
 
@@ -149,9 +149,9 @@ export class Game {
   static context: CanvasRenderingContext2D | null;
   static delta_time = 0;
   static elapsed_time = 0;
-  static default_render_scale = 1.6;
+  static default_render_scale = 2;
   static game_dom: HTMLDivElement | undefined;
-  static render_scale = 1.6;
+  static render_scale = 2;
   static tile_size = 64;
   static current_frame = 0;
   static FPS = 60;

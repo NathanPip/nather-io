@@ -15,8 +15,8 @@ export class Player {
   static width = 1;
   static height = 1;
   static max_speed = 4;
-  static deceleration = 12;
-  static acceleration = 30;
+  static deceleration = 20;
+  static acceleration = 40;
   static velocity: Vector = new Vector(0, 0, {
     x: this.max_speed,
     y: this.max_speed,
@@ -34,7 +34,7 @@ export class Player {
     "idle-right": { column: 0, limit: 1, speed: 0 },
     "idle-left": { column: 2, limit: 1, speed: 0 },
   };
-  static render_collision_debug = true;
+  static render_collision_debug = false;
   static interactable_entities_in_range: Entity[] = [];
   static interact_pressed = false;
   static interacting_entity: Entity | undefined;

@@ -21,6 +21,7 @@ export class Character extends Entity {
       super(name, x, y, width, height, sprite_src);
       this.name = name;
       this.is_interactable = true;
+      this.render_interactable_bubble = true;
       for(const c in Character.characters) {
         if (c === name) throw new Error("Character with name " + name + " already exists");
       }

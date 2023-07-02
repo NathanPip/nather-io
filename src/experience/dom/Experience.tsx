@@ -79,10 +79,7 @@ const Experience: Component = () => {
     setPrevFrame(0);
     const loop = (timestep: number) => {
       const delta_time = (timestep - prevFrame()) / 1000;
-      console.log(delta_time)
-      if(delta_time === 0) {
-        return;
-      }
+      if(delta_time === 0) return;
       if(prevFrame() === 0){
         setPrevFrame(timestep);
         requestAnimationFrame(loop);
