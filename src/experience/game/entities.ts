@@ -1,16 +1,18 @@
 import { Character } from "../character";
 import { Entity } from "../entity";
-import { Camera, Game } from "../globals";
-import { Vector } from "../objects";
+import { Camera, Renderer } from "../globals";
+import { Vector } from "../vector";
+import { Player } from "../player";
 import { Vector2d } from "../types";
 import { easeInOut } from "../utils";
 import { dialogues } from "./dialogues";
+import { game_state } from "./state";
 
 export class Boundary extends Entity {
   collision_physics = true;
   _renderDebug() {
-    if (!Game.context) return;
-    Game.renderFillRect(
+    if (!Renderer.context) return;
+    Renderer.renderFillRect(
       this.world_position.x,
       this.world_position.y,
       this.width,
@@ -59,16 +61,23 @@ export class Door extends Entity {
     super(id, x, y, 2, 1);
     this.is_open = false;
     this.locked = locked || false;
-    this.door = new Entity(`${id}-door`, this.world_position.x, this.world_position.y, 2, 1, "./sprites/Top_Door.png");
+    this.door = new Entity(
+      `${id}-door`,
+      this.world_position.x,
+      this.world_position.y,
+      2,
+      1,
+      "./sprites/Top_Door.png"
+    );
     this.door.is_static = false;
     this.door.collision_physics = true;
     this.is_interactable = true;
-    this.door.setBoundingBox(this.width, this.height / 8, 0, this.height / 4 );
+    this.door.setBoundingBox(this.width, this.height / 8, 0, this.height / 4);
     this.door.debug = true;
     this.addChild(this.door);
     this.opening = false;
     this.closing = false;
-    if(auto) this.auto_door = auto;
+    if (auto) this.auto_door = auto;
   }
 
   unlock() {
@@ -109,15 +118,66 @@ export class Door extends Entity {
     if (progress <= 0 || progress >= 1) {
       this.opening = false;
       this.closing = false;
-      return
+      return;
     }
-    this.door.setLocalPosition(this.door.local_position.lerpFrom(
-      {x: 0, y: 0},
-      {
-        x: 2,
-        y: 0,
-      },
-      progress
-    ));
+    this.door.setLocalPosition(
+      this.door.local_position.lerpFrom(
+        { x: 0, y: 0 },
+        {
+          x: 2,
+          y: 0,
+        },
+        progress
+      )
+    );
+  }
+}
+
+export class Portal extends Entity {
+  _dest_portal_name?: string;
+  portal_exit: Entity;
+  dest_vec?: Vector2d | Vector;
+  constructor(
+    id: string,
+    x: number,
+    y: number,
+    dest_portal?: string | Vector | Vector2d
+  ) {
+    super(id, x, y, 1, 1);
+    this.is_interactable = true;
+    if (typeof dest_portal === "string") {
+      this._dest_portal_name = dest_portal;
+    } else if (dest_portal !== undefined) {
+      this.dest_vec = dest_portal;
+    }
+    this.is_interactable = true;
+    this.debug = true;
+    this.render_interactable_bubble = true;
+    this.portal_exit = new Entity(
+      "portal-exit",
+      this.world_position.x,
+      this.world_position.y,
+      1,
+      1
+    );
+    this.portal_exit.is_static = false;
+    this.portal_exit.setParent(this);
+    this.portal_exit.setLocalPosition({ x: 0, y: 1 });
+    this.portal_exit.debug = true;
+  }
+
+  init() {
+    if (this._dest_portal_name) {
+      this.dest_vec = (
+        Entity.getEntity(this._dest_portal_name) as Portal
+      ).portal_exit.world_position;
+    }
+  }
+
+  interact() {
+    if (this.dest_vec) {
+      Player.position.x = this.dest_vec.x;
+      Player.position.y = this.dest_vec.y;
+    }
   }
 }

@@ -3,15 +3,18 @@ import {
   Dialogue,
   canSkipDialogue,
   currentDialogueLine,
+  endDialogue,
+  nextLine,
   setCurrentDialogueLine,
 } from "../dialogue";
+import { Player } from "../player";
 
 export const DialogueInterface: Component<{
   dialogue: Dialogue;
 }> = (props) => {
   const clickHandler = () => {
     if (!canSkipDialogue()) return;
-    props.dialogue.nextLine();
+    nextLine(props.dialogue);
   };
 
   return (
@@ -25,7 +28,7 @@ export const DialogueInterface: Component<{
         src="nather-io-player-sheet.png"
       />
       <div class="flex w-full flex-col justify-between">
-        <p class="pointer-events-none font-game text-5xl leading-[4rem]">
+        <p class="pointer-events-none font-game text-4xl leading-[4rem]">
           {currentDialogueLine()?.line}
         </p>
         <Show when={currentDialogueLine()?.choices}>
@@ -45,7 +48,8 @@ export const DialogueInterface: Component<{
         <button
           class="ml-auto rounded-lg border-2 border-black p-1 px-3 py-1 font-game text-3xl transition-all duration-300 ease-in-out hover:-translate-y-1"
           onClick={() => {
-            Dialogue.endDialogue();
+            endDialogue(props.dialogue);
+            Player.uninteract();
           }}
         >
           Leave

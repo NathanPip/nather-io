@@ -1,7 +1,7 @@
 import { createSignal } from "solid-js";
 import { Boundary } from "./game/entities";
 import { collisionMap } from "./game/nather-io-map-data";
-import { Vector } from "./objects";
+import { Vector } from "./vector";
 import { Player } from "./player";
 import { type Vector2d } from "./types";
 import { easeInOut, lerp } from "./utils";
@@ -15,7 +15,7 @@ export const keys: { [key: string]: boolean } = {
 };
 
 export class Camera {
-  static position: Vector = new Vector(0, 0);
+  static position: Vector = new Vector(320, 5952);
   static width = 0;
   static height = 0;
   static following_vector: Vector = new Vector(0, 0);
@@ -64,20 +64,20 @@ export class Camera {
 
   static _zoom(delta_time: number) {
     const progress = this.zoom_frame / this.zoom_time;
-    Game.render_scale = lerp(
-      Game.render_scale,
-      Game.default_render_scale * this.zoom_multiplier,
+    Renderer.render_scale = lerp(
+      Renderer.render_scale,
+      Renderer.default_render_scale * this.zoom_multiplier,
       progress
     );
     if (this.zoom_frame < this.zoom_time) this.zoom_frame += delta_time;
   }
 
   static _unzoom(delta_time: number) {
-    if ((Game.render_scale = Game.default_render_scale)) return;
+    if ((Renderer.render_scale = Renderer.default_render_scale)) return;
     const progress = this.zoom_frame / this.zoom_time;
-    Game.render_scale = lerp(
-      Game.render_scale,
-      Game.default_render_scale,
+    Renderer.render_scale = lerp(
+      Renderer.render_scale,
+      Renderer.default_render_scale,
       progress
     );
     if (this.zoom_frame < this.zoom_time) this.zoom_frame += delta_time;
@@ -95,10 +95,10 @@ export class Camera {
     this.position.lerp(
       {
         x:
-          this.moveTo_vector.x * Game.tile_size * Game.render_scale -
+          this.moveTo_vector.x * Renderer.tile_size * Renderer.render_scale -
           this.width / 2,
         y:
-          this.moveTo_vector.y * Game.tile_size * Game.render_scale -
+          this.moveTo_vector.y * Renderer.tile_size * Renderer.render_scale -
           this.height / 2,
       },
       easeProgress
@@ -117,7 +117,7 @@ export class Camera {
     // console.log(this.position);
     if (this.zoomed) {
       this._zoom(delta_time);
-    } else if (Game.render_scale !== Game.default_render_scale) {
+    } else if (Renderer.render_scale !== Renderer.default_render_scale) {
       this._unzoom(delta_time);
     }
     if (this.moveTo_vector !== undefined) {
@@ -134,10 +134,10 @@ export class Camera {
     this.position.lerp(
       {
         x:
-          this.following_vector.x * Game.tile_size * Game.render_scale -
+          this.following_vector.x * Renderer.tile_size * Renderer.render_scale -
           this.width / 2,
         y:
-          this.following_vector.y * Game.tile_size * Game.render_scale -
+          this.following_vector.y * Renderer.tile_size * Renderer.render_scale -
           this.height / 2,
       },
       this.following_lag * delta_time
@@ -145,7 +145,7 @@ export class Camera {
   }
 }
 
-export class Game {
+export class Renderer {
   static context: CanvasRenderingContext2D | null;
   static delta_time = 0;
   static elapsed_time = 0;
@@ -154,7 +154,6 @@ export class Game {
   static render_scale = 2;
   static tile_size = 64;
   static current_frame = 0;
-  static FPS = 60;
   static interact_bubble: HTMLImageElement;
   static default_draw_color = "black";
 
@@ -165,7 +164,7 @@ export class Game {
 
   static renderInteractableBubble(position: Vector | Vector2d) {
     if (!this.context) return;
-    Game.renderSprite(Game.interact_bubble, position.x, position.y, 0.5, 0.5);
+    Renderer.renderSprite(Renderer.interact_bubble, position.x, position.y, 0.5, 0.5);
   }
 
   static renderEntity(entity: Entity) {
@@ -184,10 +183,10 @@ export class Game {
     if (entity.sprite_img)
       this.context.drawImage(
         entity.sprite_img,
-        entity.width * this.tile_size * entity._animation_frame,
-        entity.height * this.tile_size * entity.animation,
-        entity.width * this.tile_size,
-        entity.height * this.tile_size,
+        entity.width * this.tile_size * entity._animation_frame + 1,
+        entity.height * this.tile_size * entity.animation + 1,
+        entity.width * this.tile_size - 1,
+        entity.height * this.tile_size - 1,
         -entity.width * this.tile_size / 2,
         -entity.height * this.tile_size / 2,
         entity.width * this.tile_size,
@@ -221,10 +220,10 @@ export class Game {
     this.context.scale(this.render_scale, this.render_scale);
     this.context.drawImage(
       image,
-      width * this.tile_size * animation_frame,
-      height * this.tile_size * animation,
-      width * this.tile_size,
-      height * this.tile_size,
+      width * this.tile_size * animation_frame + 1,
+      height * this.tile_size * animation + 1,
+      width * this.tile_size - 1,
+      height * this.tile_size - 1,
       (-width * this.tile_size) / 2,
       (-height * this.tile_size) / 2,
       width * this.tile_size * scale,
@@ -279,7 +278,7 @@ export class GameLevel {
   static boundaries: Boundary[] = [];
   static dev_mode = false;
   static context: CanvasRenderingContext2D | null;
-  static level_size = 64;
+  static level_size = 96;
   static image_loaded = false;
   static level_image: HTMLImageElement;
 
@@ -288,28 +287,26 @@ export class GameLevel {
       for (let j = 0; j < GameLevel.level_size; j++) {
         const currentCell = collisionMap[i * GameLevel.level_size + j];
         if (
-          currentCell === 34 ||
-          currentCell === 32 ||
-          currentCell === 33 ||
-          currentCell === 31 ||
-          currentCell === 13 ||
-          currentCell === 18 ||
-          currentCell === 19 ||
-          currentCell === 1 ||
           currentCell === 2 ||
           currentCell === 3 ||
           currentCell === 4 ||
-          currentCell === 22 ||
-          currentCell === 21 ||
-          currentCell === 23 ||
-          currentCell === 24 ||
-          currentCell === 15 ||
-          currentCell === 17 ||
-          currentCell === 11 ||
+          currentCell === 5 ||
+          currentCell === 7 ||
           currentCell === 12 ||
+          currentCell === 13 ||
+          currentCell === 15 ||
+          currentCell === 16 ||
           currentCell === 18 ||
-          currentCell === 6 ||
-          currentCell === 16
+          currentCell === 19 ||
+          currentCell === 21 ||
+          currentCell === 22 ||
+          currentCell === 24 ||
+          currentCell === 25 ||
+          currentCell === 30 ||
+          currentCell === 32 ||
+          currentCell === 33 ||
+          currentCell === 34 ||
+          currentCell === 35 
         ) {
           let addedTo = false;
           for (const boundary of GameLevel.boundaries) {
@@ -359,8 +356,8 @@ export class GameLevel {
       this.level_image,
       -Camera.position.x,
       -Camera.position.y,
-      this.level_image.width * Game.render_scale,
-      this.level_image.height * Game.render_scale
+      this.level_image.width * Renderer.render_scale,
+      this.level_image.height * Renderer.render_scale
     );
   }
 
@@ -374,7 +371,7 @@ export class GameLevel {
     for (let i = 0; i < this.level_size; i++) {
       for (let j = 0; j < this.level_size; j++) {
         if (this.context == null) return;
-        Game.renderStrokeRect(j, i, 1, 1);
+        Renderer.renderStrokeRect(j, i, 1, 1);
       }
     }
   }

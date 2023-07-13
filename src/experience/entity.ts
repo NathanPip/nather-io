@@ -1,5 +1,5 @@
-import { Camera, Game } from "./globals";
-import { Vector } from "./objects";
+import { Camera, Renderer } from "./globals";
+import { Vector } from "./vector";
 import { Player } from "./player";
 import { BoundingBox, Vector2d } from "./types";
 import { easeInOut } from "./utils";
@@ -192,7 +192,7 @@ export class Entity {
       this._animation_frame = 0;
       this.animation = animation;
     }
-    if (Game.current_frame % Math.round(Game.FPS / speed) === 0) {
+    if (Renderer.current_frame % Math.round(Renderer.FPS / speed) === 0) {
       if (this._animation_frame < limit) {
         this._animation_frame++;
       } else {
@@ -397,23 +397,25 @@ export class Entity {
 
   interact() {}
 
+  async asyncInteract() {}
+
   uninteract() {
     this.interacting = false;
   }
 
   _renderSprite() {
     if (!this.sprite_loading_complete) return;
-    Game.renderEntity(this);
+    Renderer.renderEntity(this);
     if (this.rendering_interactable && this.render_interactable_bubble) {
-      Game.renderInteractableBubble({
+      Renderer.renderInteractableBubble({
         x: this.world_position.x + (this.width / 2 - 0.28125),
         y: this.world_position.y - 0.5625,
       });
     }
   }
   _renderDebug() {
-    if (!Game.context) return;
-    Game.renderStrokeRect(
+    if (!Renderer.context) return;
+    Renderer.renderStrokeRect(
       this.world_position.x + this.bounding_box.x_offset,
       this.world_position.y + this.bounding_box.y_offset,
       this.bounding_box.width,

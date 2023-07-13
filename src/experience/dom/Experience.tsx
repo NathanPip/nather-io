@@ -1,12 +1,13 @@
 import { createSignal, type Component, onMount, createEffect, Show } from "solid-js";
 import { useHomePageContext } from "~/routes";
-import { Camera, Game, GameLevel, keys } from "~/experience/globals";
-import { Door, TestCharacter } from "~/experience/game/entities";
+import { Camera, Renderer, GameLevel, keys } from "~/experience/globals";
+import { Door, Portal, TestCharacter } from "~/experience/game/entities";
 import { DialogueInterface } from "./DialogueInterface";
 import { Entity } from "../entity";
 import { Player } from "../player";
-import { currentDialogue } from "../dialogue";
+import { Dialogue, currentDialogue } from "../dialogue";
 import { loadDialogues } from "../game/dialogues";
+import { Ugrad } from "../characters/Ugrad";
 
 const Experience: Component = () => {
   const [homePageState] = useHomePageContext();
@@ -35,7 +36,7 @@ const Experience: Component = () => {
     if (main_canvas && background_canvas) {
       setMainContext(main_canvas.getContext("2d"));
       setBackgroundContext(background_canvas.getContext("2d"));
-      Game.context = main_canvas.getContext("2d");
+      Renderer.context = main_canvas.getContext("2d");
       GameLevel.context = background_canvas.getContext("2d");
       main_canvas.width = window.innerWidth;
       main_canvas.height = window.innerHeight;
@@ -54,12 +55,16 @@ const Experience: Component = () => {
     // const testEntity = new TestEntity(1000, 1000, 64, 64);
     // const testEntity2 = new TestEntity2(300, 1000, 64, 64, testEntity.position);
     const character = new TestCharacter("test", 27, 56, 1, 1);
+    const ugrad = new Ugrad();
+    const game_start_portal = new Portal("game_start_portal", 11, 90, "entrance_portal");
+    const entrance_portal = new Portal("entrance_portal", 46, 80);
+    entrance_portal.setRotation(180);
     const door1 = new Door("left_door", 27, 54, true);
     const door2 = new Door("right_door", 33, 54, true);
   };
 
   const start = () => {
-    Game.init();
+    Renderer.init();
     GameLevel.dev_mode = true;
     GameLevel.level_image = new Image();
     GameLevel.init();
@@ -86,11 +91,11 @@ const Experience: Component = () => {
         return;
       }
       setPrevFrame(timestep);
-      Game.elapsed_time += delta_time;
-      Game.delta_time = delta_time;
+      Renderer.elapsed_time += delta_time;
+      Renderer.delta_time = delta_time;
       update(delta_time);
       draw();
-      Game.current_frame++;
+      Renderer.current_frame++;
       requestAnimationFrame(loop);
     };
     requestAnimationFrame(loop);
@@ -106,9 +111,9 @@ const Experience: Component = () => {
 
     addEventListener("wheel", (e) => {
       if (e.deltaY < 0) {
-        Game.render_scale += 0.01;
+        Renderer.render_scale += 0.01;
       } else if (e.deltaY > 0) {
-        Game.render_scale -= 0.01;
+        Renderer.render_scale -= 0.01;
       }
     });
   };
@@ -133,8 +138,9 @@ const Experience: Component = () => {
       <canvas class="absolute" ref={background_canvas} />
       <canvas class="absolute" ref={main_canvas} />
       <Show when={currentDialogue() !== undefined}>
-        <DialogueInterface dialogue={currentDialogue()}/>
+        <DialogueInterface dialogue={(currentDialogue() as Dialogue)}/>
       </Show>
+      <div class="w-full h-full absolute pointer-events-none" />
     </div>
   );
 };

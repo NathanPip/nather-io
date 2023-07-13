@@ -14,3 +14,7 @@ export const openDoor = (door_id: string) => {
       Camera.clearMove();
     }, 3000);
 }
+
+export function endGame() {
+  
+}

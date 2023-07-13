@@ -1,6 +1,6 @@
 import { Entity } from "./entity";
-import { Game, GameLevel, keys } from "./globals";
-import { Vector } from "./objects";
+import { Renderer, GameLevel, keys } from "./globals";
+import { Vector } from "./vector";
 import { checkCollision } from "./utils";
 
 type Animation = {
@@ -11,9 +11,10 @@ type Animation = {
 };
 
 export class Player {
-  static position: Vector = new Vector(29, 59);
+  static position: Vector = new Vector(5, 93);
   static width = 1;
   static height = 1;
+  static input_enabled = true;
   static max_speed = 4;
   static deceleration = 20;
   static acceleration = 40;
@@ -180,8 +181,10 @@ export class Player {
     if (this.velocity.y !== 0) {
       this.previous_velocityY = this.velocity.y;
     }
-    this.checkInput(delta_time);
-    this.checkInteract();
+    if(this.input_enabled) {
+      this.checkInput(delta_time);
+      this.checkInteract();
+    }
     this.checkCollisions(delta_time);
     this.position.addTo(this.velocity.multiply(delta_time));
     this.velocity.tendToZero(this.deceleration * delta_time);
@@ -197,8 +200,8 @@ export class Player {
   }
 
   static render() {
-    if (!Game.context || !this.loading_complete) return;
-    Game.renderSprite(
+    if (!Renderer.context || !this.loading_complete) return;
+    Renderer.renderSprite(
       this.character_sprite_sheet,
       this.position.x,
       this.position.y,
@@ -210,7 +213,7 @@ export class Player {
       this.animation_frame
     );
     if (this.render_collision_debug) {
-      Game.renderStrokeRect(
+      Renderer.renderStrokeRect(
         this.position.x,
         this.position.y,
         this.width,

@@ -2,6 +2,7 @@ import { createSignal } from "solid-js";
 import { Entity } from "./entity";
 import { Camera } from "./globals";
 import { dialogues } from "./game/dialogues";
+import { startDialogue } from "./dialogue";
 
 export class Character extends Entity {
     name: string;
@@ -65,7 +66,7 @@ export class Character extends Entity {
         this.can_interact = false;
         Camera.moveTo(this.world_position);
         this.checkDialogues();
-        dialogues[this.current_dialogue].startDialogue();
+        startDialogue(dialogues[this.current_dialogue]);
     }
   
     update(delta_time: number) {
