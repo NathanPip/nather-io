@@ -8,6 +8,7 @@ import { Player } from "../player";
 import { Dialogue, currentDialogue } from "../dialogue";
 import { loadDialogues } from "../game/dialogues";
 import { Ugrad } from "../characters/Ugrad";
+import GuidanceMenu from "./GuidanceMenu";
 
 const Experience: Component = () => {
   const [homePageState] = useHomePageContext();
@@ -137,6 +138,7 @@ const Experience: Component = () => {
     <div class="relative w-full h-screen">
       <canvas class="absolute" ref={background_canvas} />
       <canvas class="absolute" ref={main_canvas} />
+      <GuidanceMenu />
       <Show when={currentDialogue() !== undefined}>
         <DialogueInterface dialogue={(currentDialogue() as Dialogue)}/>
       </Show>

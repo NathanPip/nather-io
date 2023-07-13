@@ -10,6 +10,7 @@ export class Entity {
   _local_position: Vector;
   _rotation = 0;
   _inherited_rotation = 0;
+  interactable_distance = 1;
   width: number;
   height: number;
   parent: Entity | undefined;
@@ -375,10 +376,10 @@ export class Entity {
   interactableUpdate(delta_time: number) {
     if (!this.is_interactable) return;
     this.distance_to_player = this.world_position.distanceTo(Player.position);
-    if (this.distance_to_player <  1 && !this.rendering_interactable) {
+    if (this.distance_to_player < this.interactable_distance && !this.rendering_interactable) {
       Player.interactable_entities_in_range.push(this);
       this.rendering_interactable = true;
-    } else if (this.distance_to_player > 1 && this.rendering_interactable) {
+    } else if (this.distance_to_player >= this.interactable_distance && this.rendering_interactable) {
       Player.interactable_entities_in_range.splice(
         Player.interactable_entities_in_range.indexOf(this),
         1

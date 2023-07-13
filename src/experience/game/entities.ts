@@ -6,7 +6,7 @@ import { Player } from "../player";
 import { Vector2d } from "../types";
 import { easeInOut } from "../utils";
 import { dialogues } from "./dialogues";
-import { game_state } from "./state";
+import { gameState } from "./state";
 
 export class Boundary extends Entity {
   collision_physics = true;
@@ -152,6 +152,8 @@ export class Portal extends Entity {
     }
     this.is_interactable = true;
     this.debug = true;
+    this.collision_physics = true;
+    this.interactable_distance = 2;
     this.render_interactable_bubble = true;
     this.portal_exit = new Entity(
       "portal-exit",
