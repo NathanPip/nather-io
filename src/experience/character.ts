@@ -60,7 +60,7 @@ export class Character extends Entity {
         Camera.clearMove();
     }
   
-    interact() {
+    customInteract() {
         if(!this.can_interact) return;
         // this.rendering_interactable = false;
         this.can_interact = false;

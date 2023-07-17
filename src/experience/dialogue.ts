@@ -30,7 +30,6 @@ export class Dialogue {
   lines: DialogueLine[];
   finish?: () => void;
   restart = false;
-  is_end = false;
   constructor(
     properties: DialogueProps,
   ) {
@@ -38,7 +37,6 @@ export class Dialogue {
     this.restart = properties.restart || false;
     this.returning_line = properties.returning_line;
     this.finish = properties.finish;
-    this.is_end = properties.is_ending || false;
   }
 }
 
@@ -97,5 +95,4 @@ export function endDialogue(dialogue: Dialogue) {
     setCanSkipDialogue(() => false);
     setCurrentDialogue(() => undefined);
     setCurrentDialogueLine(() => undefined);
-    if(dialogue.is_end) Player.uninteract();
 }

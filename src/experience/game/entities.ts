@@ -6,7 +6,7 @@ import { Player } from "../player";
 import { Vector2d } from "../types";
 import { easeInOut } from "../utils";
 import { dialogues } from "./dialogues";
-import { gameState } from "./state";
+import { game_state } from "./state";
 
 export class Boundary extends Entity {
   collision_physics = true;
@@ -176,7 +176,7 @@ export class Portal extends Entity {
     }
   }
 
-  interact() {
+  customInteract() {
     if (this.dest_vec) {
       Player.position.x = this.dest_vec.x;
       Player.position.y = this.dest_vec.y;

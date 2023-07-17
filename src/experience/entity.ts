@@ -113,6 +113,10 @@ export class Entity {
     Entity.entities.push(this);
   }
 
+  get id() {
+    return this._id;
+  }
+
   get world_position() {
     return this._world_position;
   }
@@ -188,19 +192,19 @@ export class Entity {
     this._setRelativeWorldPosition();
   }
 
-  animate(animation: number, speed: number, limit: number) {
-    if (this.animation !== animation) {
-      this._animation_frame = 0;
-      this.animation = animation;
-    }
-    if (Renderer.current_frame % Math.round(Renderer.FPS / speed) === 0) {
-      if (this._animation_frame < limit) {
-        this._animation_frame++;
-      } else {
-        this._animation_frame = 0;
-      }
-    }
-  }
+  // animate(animation: number, speed: number, limit: number) {
+  //   if (this.animation !== animation) {
+  //     this._animation_frame = 0;
+  //     this.animation = animation;
+  //   }
+  //   if (Renderer.current_frame % Math.round(Renderer.FPS / speed) === 0) {
+  //     if (this._animation_frame < limit) {
+  //       this._animation_frame++;
+  //     } else {
+  //       this._animation_frame = 0;
+  //     }
+  //   }
+  // }
 
   setSize(width: number, height: number) {
     this.width = width;
@@ -396,7 +400,12 @@ export class Entity {
     this.interacting = true;
   }
 
-  interact() {}
+  customInteract() {}
+
+  interact() {
+    this.defaultInteract();
+    this.customInteract();
+  }
 
   async asyncInteract() {}
 

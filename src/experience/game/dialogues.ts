@@ -9,8 +9,10 @@ import {
 } from "../dialogue";
 import { Entity } from "../entity";
 import { Camera } from "../globals";
+import { Player } from "../player";
 import { type Door } from "./entities";
 import { endGame, openDoor } from "./functions";
+import { game_state, setUIState } from "./state";
 
 export let dialogues: { [key: string]: Dialogue } = {
   //Test Character
@@ -251,6 +253,7 @@ export const loadDialogues = () => {
       lines: [{ line: "good, then let us begin." }],
       finish: () => {
         startDialogue(dialogues["movement-tutorial"]);
+        game_state.intro_complete = true;
       },
     }),
     "i-decline": new Dialogue({
@@ -279,7 +282,19 @@ export const loadDialogues = () => {
           line: "Use the WASD keys to move your Ugra around. Go ahead and give it a try",
         }
       ],
-      is_ending: true
+      restart: true,
+      finish: () => {
+        setUIState("show_movement_tutorial", true);
+        Player.uninteract();
+      }
+    }),
+    "interact-tutorial": new Dialogue({
+      lines: [
+        {
+          character: Character.characters["Ugrad"],
+          line: "nice job"
+        }
+      ],
     })
   };
 };

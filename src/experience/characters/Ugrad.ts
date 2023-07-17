@@ -1,6 +1,6 @@
 import { Character } from "../character";
 import { Dialogue } from "../dialogue";
-import { gameState } from "../game/state";
+import { game_state } from "../game/state";
 
 export const ugrad_dialogues = {
 
@@ -19,9 +19,15 @@ export class Ugrad extends Character {
     }
   
     checkDialogues() {
-      if(gameState.intro_complete && !gameState.movement_tutorial_complete) {
-        this.current_dialogue = "movement-tutorial";
-        return;
+      if(game_state.intro_complete) {
+        if (!game_state.movement_tutorial_complete){
+          this.current_dialogue = "movement-tutorial";
+          return;
+        }
+        if(!game_state.interact_tutorial_complete) {
+          this.current_dialogue = "interact-tutorial";
+          return;
+        }
       }
     }
   }

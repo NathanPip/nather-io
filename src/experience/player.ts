@@ -94,12 +94,26 @@ export class Player {
     }
   }
 
-  static interact() {
+  static interact(ent?: string | Entity) {
+    if(ent)  {
+      if(typeof ent === "string") {
+        for (const e of Entity.entities) {
+          if (e.id === ent) {
+            e.interact();
+            this.interacting_entity = e;
+            return;
+          }
+        }
+        console.error("no entity with name " + ent + " found");
+        return;
+      }
+      ent.interact();
+      this.interacting_entity = ent;
+    }
     const entity = this.interactable_entities_in_range.sort(
       (a, b) => a.distance_to_player - b.distance_to_player
     )[0];
     if (!entity) return;
-    entity.defaultInteract();
     entity.interact();
     this.interacting_entity = entity;
   }
