@@ -1,4 +1,10 @@
-import { createSignal, type Component, onMount, createEffect, Show } from "solid-js";
+import {
+  createSignal,
+  type Component,
+  onMount,
+  createEffect,
+  Show,
+} from "solid-js";
 import { useHomePageContext } from "~/routes";
 import { Camera, Renderer, GameLevel, keys } from "~/experience/globals";
 import { Door, Portal, TestCharacter } from "~/experience/game/entities";
@@ -13,7 +19,7 @@ import { uiState } from "../game/state";
 
 const Experience: Component = () => {
   const [homePageState] = useHomePageContext();
-
+  const [loading, setLoading] = createSignal(true);
   const [prevFrame, setPrevFrame] = createSignal(0);
 
   let main_canvas: HTMLCanvasElement | undefined;
@@ -29,8 +35,6 @@ const Experience: Component = () => {
     window.addEventListener("resize", () => {
       Camera.width = window.innerWidth;
       Camera.height = window.innerHeight;
-      Player.position.x = window.innerWidth / 2;
-      Player.position.y = window.innerHeight / 2;
     });
   });
 
@@ -58,7 +62,12 @@ const Experience: Component = () => {
     // const testEntity2 = new TestEntity2(300, 1000, 64, 64, testEntity.position);
     const character = new TestCharacter("test", 27, 56, 1, 1);
     const ugrad = new Ugrad();
-    const game_start_portal = new Portal("game_start_portal", 11, 90, "entrance_portal");
+    const game_start_portal = new Portal(
+      "game_start_portal",
+      11,
+      90,
+      "entrance_portal"
+    );
     const entrance_portal = new Portal("entrance_portal", 46, 80);
     entrance_portal.setRotation(180);
     const door1 = new Door("left_door", 27, 54, true);
@@ -66,9 +75,9 @@ const Experience: Component = () => {
   };
 
   const start = () => {
-    Renderer.init();
     GameLevel.dev_mode = true;
     GameLevel.level_image = new Image();
+    Renderer.init();
     GameLevel.init();
     Player.init();
     Camera.init();
@@ -86,8 +95,8 @@ const Experience: Component = () => {
     setPrevFrame(0);
     const loop = (timestep: number) => {
       const delta_time = (timestep - prevFrame()) / 1000;
-      if(delta_time === 0) return;
-      if(prevFrame() === 0){
+      if (delta_time === 0) return;
+      if (prevFrame() === 0) {
         setPrevFrame(timestep);
         requestAnimationFrame(loop);
         return;
@@ -101,6 +110,7 @@ const Experience: Component = () => {
       requestAnimationFrame(loop);
     };
     requestAnimationFrame(loop);
+    setLoading(false);
   };
 
   const setControls = () => {
@@ -136,17 +146,17 @@ const Experience: Component = () => {
     Camera.update(delta_time);
   };
   return (
-    <div class="relative w-full h-screen">
-      <canvas class="absolute" ref={background_canvas} />
-      <canvas class="absolute" ref={main_canvas} />
-      <Show when={uiState.show_guidance}>
-        <GuidanceMenu />
-      </Show>
-      <Show when={currentDialogue() !== undefined}>
-        <DialogueInterface dialogue={(currentDialogue() as Dialogue)}/>
-      </Show>
-      <div class="w-full h-full absolute pointer-events-none" />
-    </div>
+      <div class="relative h-screen w-full">
+        <canvas class="absolute" ref={background_canvas} />
+        <canvas class="absolute" ref={main_canvas} />
+        <Show when={uiState.show_guidance}>
+          <GuidanceMenu />
+        </Show>
+        <Show when={currentDialogue() !== undefined}>
+          <DialogueInterface dialogue={currentDialogue() as Dialogue} />
+        </Show>
+        <div class="pointer-events-none absolute h-full w-full" />
+      </div>
   );
 };
 

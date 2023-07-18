@@ -94,28 +94,32 @@ export class Player {
     }
   }
 
-  static interact(ent?: string | Entity) {
+  static interact(ent?: string | Entity, _bubble?: boolean) {
     if(ent)  {
       if(typeof ent === "string") {
         for (const e of Entity.entities) {
           if (e.id === ent) {
-            e.interact();
             this.interacting_entity = e;
+            if (_bubble) return;
+            e.interact();
             return;
           }
         }
         console.error("no entity with name " + ent + " found");
         return;
       }
-      ent.interact();
       this.interacting_entity = ent;
+      if(_bubble) return;
+      ent.interact();
+      return;
     }
     const entity = this.interactable_entities_in_range.sort(
       (a, b) => a.distance_to_player - b.distance_to_player
     )[0];
     if (!entity) return;
-    entity.interact();
     this.interacting_entity = entity;
+    if (_bubble) return;
+    entity.interact();
   }
 
   static uninteract() {

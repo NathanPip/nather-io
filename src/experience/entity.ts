@@ -398,6 +398,7 @@ export class Entity {
 
   defaultInteract() {
     this.interacting = true;
+    Player.interact(this, true);
   }
 
   customInteract() {}

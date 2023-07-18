@@ -18,7 +18,7 @@ export let dialogues: { [key: string]: Dialogue } = {
   //Test Character
 };
 
-export const loadDialogues = () => {
+export function loadDialogues () {
   dialogues = {
     //////////// TEST CHARACTER //////////////
 
@@ -293,8 +293,15 @@ export const loadDialogues = () => {
         {
           character: Character.characters["Ugrad"],
           line: "nice job"
+        },
+        {
+          line: "now again"
         }
       ],
+      restart: true,
+      finish: () => {
+        Player.uninteract();
+      }
     })
   };
-};
+}

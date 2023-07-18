@@ -36,10 +36,10 @@ const MovementTutorial = () => {
         checkComplete();
       }
     };
-    addEventListener("keydown", (e) => inputHandler(e));
+    addEventListener("keydown", inputHandler);
 
     onCleanup(() => {
-      removeEventListener("keydown", (e) => inputHandler(e));
+      removeEventListener("keydown", inputHandler);
     });
   });
 
