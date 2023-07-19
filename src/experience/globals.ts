@@ -6,6 +6,7 @@ import { Player } from "./player";
 import { type Vector2d } from "./types";
 import { easeInOut, lerp } from "./utils";
 import { Entity } from "./entity";
+import { Sprite } from "./sprite";
 
 export const keys: { [key: string]: boolean } = {
   w: false,
@@ -154,17 +155,16 @@ export class Renderer {
   static render_scale = 2;
   static tile_size = 64;
   static current_frame = 0;
-  static interact_bubble: HTMLImageElement;
+  static interact_bubble: Sprite;
   static default_draw_color = "black";
 
   static init() {
-    this.interact_bubble = new Image();
-    this.interact_bubble.src = "./nather-io-interact-bubble.png";
+    this.interact_bubble = new Sprite("./nather-io-interact-bubble.png", 32, 32);
   }
 
   static renderInteractableBubble(position: Vector | Vector2d) {
     if (!this.context) return;
-    Renderer.renderSprite(Renderer.interact_bubble, position.x, position.y, 0.5, 0.5);
+    Renderer.renderSprite(position.x, position.y, this.interact_bubble);
   }
 
   static renderEntity(entity: Entity) {
@@ -196,38 +196,34 @@ export class Renderer {
   }
 
   static renderSprite(
-    image: HTMLImageElement,
     x: number,
     y: number,
-    width: number,
-    height: number,
-    animation = 0,
-    animation_frame = 0,
-    angle = 0,
-    scale = 1
+    sprite: Sprite,
+    rotation = 0,
+    scale = 1,
   ) {
     if (!this.context) return;
     this.context.save();
     this.context.translate(
-      x * this.tile_size * this.render_scale * scale -
+      x * this.tile_size * this.render_scale -
         Camera.position.x +
-        (width * this.tile_size * this.render_scale) / 2,
-      y * this.tile_size * this.render_scale * scale -
+        (sprite.width * this.render_scale * sprite.scale * scale) / 2,
+      y * this.tile_size * this.render_scale -
         Camera.position.y +
-        (height * this.tile_size * this.render_scale) / 2
+        (sprite.height * this.render_scale * sprite.scale * scale) / 2
     );
-    this.context.rotate((2 * angle * Math.PI) / 360);
-    this.context.scale(this.render_scale, this.render_scale);
+    this.context.rotate((rotation * Math.PI) / 180);
+    this.context.scale(this.render_scale * sprite.scale * scale, this.render_scale * sprite.scale * scale);
     this.context.drawImage(
-      image,
-      width * this.tile_size * animation_frame + 1,
-      height * this.tile_size * animation + 1,
-      width * this.tile_size - 1,
-      height * this.tile_size - 1,
-      (-width * this.tile_size) / 2,
-      (-height * this.tile_size) / 2,
-      width * this.tile_size * scale,
-      height * this.tile_size * scale
+      sprite.sprite_img,
+      sprite.width * sprite.current_animation.frame + 1,
+      sprite.height * sprite.current_animation.column + 1,
+      sprite.width - 1,
+      sprite.height - 1,
+      (-sprite.width) / 2,
+      (-sprite.height) / 2,
+      sprite.width * sprite.scale * scale,
+      sprite.height * sprite.scale * scale
     );
     this.context.restore();
   }

@@ -2,8 +2,9 @@ import { Entity } from "./entity";
 import { Renderer, GameLevel, keys } from "./globals";
 import { Vector } from "./vector";
 import { checkCollision } from "./utils";
+import { Sprite } from "./sprite";
 
-type Animation = {
+type Anim = {
   column: number;
   limit: number;
   speed: number;
@@ -11,9 +12,17 @@ type Animation = {
 };
 
 export class Player {
+  static sprite = new Sprite("./nather-io-player-sheet.png", 64, 64, 1, {
+    "default": { column: 0, limit: 1, speed: 0, frame: 0},
+    "walk-right": { column: 1, limit: 4, speed: 6, frame: 0 },
+    "walk-left": { column: 3, limit: 4, speed: 6, frame: 0 },
+    "idle-right": { column: 0, limit: 1, speed: 0, frame: 0 },
+    "idle-left": { column: 2, limit: 1, speed: 0, frame: 0 },
+  })
   static position: Vector = new Vector(5, 93);
   static width = 1;
   static height = 1;
+  static rotation = 0;
   static input_enabled = true;
   static max_speed = 4;
   static deceleration = 20;
@@ -29,13 +38,13 @@ export class Player {
   static animation: string | undefined;
   static animation_frame = 0;
   static animation_interval: NodeJS.Timer | number | undefined;
-  static animations: { [name: string]: Animation } = {
+  static animations: { [name: string]: Anim } = {
     "walk-right": { column: 1, limit: 4, speed: 6 },
     "walk-left": { column: 3, limit: 4, speed: 6 },
     "idle-right": { column: 0, limit: 1, speed: 0 },
     "idle-left": { column: 2, limit: 1, speed: 0 },
   };
-  static render_collision_debug = false;
+  static render_collision_debug = true;
   static interactable_entities_in_range: Entity[] = [];
   static interact_pressed = false;
   static interacting_entity: Entity | undefined;
@@ -152,38 +161,6 @@ export class Player {
     }
   }
 
-  static stopAnimation() {
-    if (this.animation_interval) {
-      clearInterval(this.animation_interval);
-      this.animation_interval = undefined;
-    }
-  }
-
-  static clearAnimation() {
-    this.stopAnimation();
-    this.animation = undefined;
-    this.animation_frame = 0;
-  }
-
-  static playAnimation(animation: string, loop = false) {
-    if (this.animation === animation) return;
-    if (this.animation !== undefined) {
-      this.stopAnimation();
-    }
-    this.animation = animation;
-    this.animation_frame = this.animations[animation].start || 0;
-    this.animation_interval = setInterval(() => {
-      this.animation_frame++;
-      if (this.animation_frame >= this.animations[animation].limit) {
-        if (loop) {
-          this.animation_frame = 0;
-        } else {
-          this.stopAnimation();
-        }
-      }
-    }, 1000 / this.animations[animation].speed);
-  }
-
   static init() {
     this.character_sprite_sheet = new Image();
     this.character_sprite_sheet.src = "./nather-io-player-sheet.png";
@@ -208,27 +185,22 @@ export class Player {
     this.velocity.tendToZero(this.deceleration * delta_time);
     if (this.velocity.x === 0 && this.velocity.y === 0) {
       this.previous_velocityX > 0
-        ? this.playAnimation("idle-right", true)
-        : this.playAnimation("idle-left", true);
+        ? this.sprite.playAnimation("idle-right", true)
+        : this.sprite.playAnimation("idle-left", true);
     } else {
       this.previous_velocityX > 0
-        ? this.playAnimation("walk-right", true)
-        : this.playAnimation("walk-left", true);
+        ? this.sprite.playAnimation("walk-right", true)
+        : this.sprite.playAnimation("walk-left", true);
     }
   }
 
   static render() {
     if (!Renderer.context || !this.loading_complete) return;
     Renderer.renderSprite(
-      this.character_sprite_sheet,
       this.position.x,
       this.position.y,
-      this.width,
-      this.height,
-      this.animations[this.animation || ""]
-        ? this.animations[this.animation as string].column
-        : 0,
-      this.animation_frame
+      this.sprite,
+      this.rotation,
     );
     if (this.render_collision_debug) {
       Renderer.renderStrokeRect(

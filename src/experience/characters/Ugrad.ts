@@ -11,7 +11,7 @@ export class Ugrad extends Character {
     intro_complete = false;
 
     constructor() {
-      super("Ugrad", 7, 91, 1, 1);
+      super("Ugrad", 9, 91, 1, 1);
       this.is_interactable = true;
       this.current_dialogue = "game-start";
       this.debug = true;
