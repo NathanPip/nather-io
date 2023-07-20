@@ -44,7 +44,7 @@ export class Player {
     "idle-right": { column: 0, limit: 1, speed: 0 },
     "idle-left": { column: 2, limit: 1, speed: 0 },
   };
-  static render_collision_debug = true;
+  static render_collision_debug = false;
   static interactable_entities_in_range: Entity[] = [];
   static interact_pressed = false;
   static interacting_entity: Entity | undefined;

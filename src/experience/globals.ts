@@ -167,34 +167,6 @@ export class Renderer {
     Renderer.renderSprite(position.x, position.y, this.interact_bubble);
   }
 
-  static renderEntity(entity: Entity) {
-    if (!this.context) return;
-    this.context.save();
-    this.context.translate(
-      entity.world_position.x * this.tile_size * this.render_scale -
-        Camera.position.x +
-        (entity.width * this.tile_size * this.render_scale) / 2,
-      entity.world_position.y * this.tile_size * this.render_scale -
-        Camera.position.y +
-        (entity.height * this.tile_size * this.render_scale) / 2
-    );
-    this.context.rotate((entity.world_rotation * Math.PI) / 180);
-    this.context.scale(this.render_scale, this.render_scale);
-    if (entity.sprite_img)
-      this.context.drawImage(
-        entity.sprite_img,
-        entity.width * this.tile_size * entity._animation_frame + 1,
-        entity.height * this.tile_size * entity.animation + 1,
-        entity.width * this.tile_size - 1,
-        entity.height * this.tile_size - 1,
-        -entity.width * this.tile_size / 2,
-        -entity.height * this.tile_size / 2,
-        entity.width * this.tile_size,
-        entity.height * this.tile_size
-      );
-    this.context.restore();
-  }
-
   static renderSprite(
     x: number,
     y: number,

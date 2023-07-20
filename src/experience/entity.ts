@@ -3,6 +3,7 @@ import { Vector } from "./vector";
 import { Player } from "./player";
 import { BoundingBox, Vector2d } from "./types";
 import { easeInOut } from "./utils";
+import { Sprite } from "./sprite";
 
 export class Entity {
   _id: string;
@@ -19,9 +20,7 @@ export class Entity {
   _bounding_box: BoundingBox;
   _set_bounding_box: BoundingBox;
   custom_bounding_box = false;
-  sprite_src: string | undefined;
-  sprite_img: HTMLImageElement | undefined;
-  sprite_loading_complete: boolean;
+  sprite?: Sprite;
   animation: number;
   _animation_frame: number;
   is_static: boolean;
@@ -35,6 +34,7 @@ export class Entity {
   acceleration = 0.02;
   distance_to_player = 0;
   velocity: Vector;
+  rendering = true;
   render_interactable_bubble = false;
   rendering_interactable = false;
   moveTo_vector: Vector | Vector2d | undefined;
@@ -82,19 +82,18 @@ export class Entity {
     sprite_src?: string
   ) {
     let count = 0;
-    for(const e of Entity.entities) {
-      if(typeof e._id !== "string") continue;
-      if(e._id.startsWith(id)) count += 1;
+    for (const e of Entity.entities) {
+      if (typeof e._id !== "string") continue;
+      if (e._id.startsWith(id)) count += 1;
     }
-    if(count > 0) id = `${id}_${count}`;
+    if (count > 0) id = `${id}_${count}`;
     this._id = id;
     this._world_position = new Vector(x, y);
     this._local_position = new Vector(0, 0);
     this.width = width;
     this.height = height;
-    this.sprite_src = sprite_src;
+    if (sprite_src) this.sprite = new Sprite(sprite_src, width*Renderer.tile_size, height*Renderer.tile_size);
     this.is_static = true;
-    this.sprite_loading_complete = false;
     this.is_interactable = false;
     this.debug = false;
     this.animation = 0;
@@ -295,17 +294,7 @@ export class Entity {
     this.parent = undefined;
   }
 
-  _defaultInit() {
-    if (this.sprite_src === undefined) {
-      this.sprite_loading_complete = true;
-      return;
-    }
-    this.sprite_img = new Image();
-    this.sprite_img.src = this.sprite_src;
-    this.sprite_img.onload = () => {
-      this.sprite_loading_complete = true;
-    };
-  }
+  _defaultInit() {}
 
   moveTo(
     vector: Vector | Vector2d,
@@ -335,7 +324,8 @@ export class Entity {
       },
       easeProgress
     );
-    if (this._moveTo_progress < this.moveTo_time) this._moveTo_progress += delta_time;
+    if (this._moveTo_progress < this.moveTo_time)
+      this._moveTo_progress += delta_time;
   }
 
   clearMove() {
@@ -354,13 +344,13 @@ export class Entity {
       ) {
         this._prev_parent_pos = this.parent.world_position;
         this._setRelativeWorldPosition();
-        console.log("calling 1")
+        console.log("calling 1");
       }
       if (this._inherited_rotation !== this.parent.world_rotation) {
         this._inherited_rotation = this.parent.world_rotation;
         this._setRelativeWorldPosition();
         this._setRelativeBoundingBox();
-        console.log("calling 2")
+        console.log("calling 2");
       }
     }
     if (this.moveTo_vector !== undefined) {
@@ -373,17 +363,25 @@ export class Entity {
     } else {
       this._moveTo_progress = 1;
     }
-    this.setWorldPosition(this.world_position.add(this.velocity.multiply(delta_time)));
+    this.setWorldPosition(
+      this.world_position.add(this.velocity.multiply(delta_time))
+    );
     this.velocity.tendToZero(this.deceleration * delta_time);
   }
 
   interactableUpdate(delta_time: number) {
     if (!this.is_interactable) return;
     this.distance_to_player = this.world_position.distanceTo(Player.position);
-    if (this.distance_to_player < this.interactable_distance && !this.rendering_interactable) {
+    if (
+      this.distance_to_player < this.interactable_distance &&
+      !this.rendering_interactable
+    ) {
       Player.interactable_entities_in_range.push(this);
       this.rendering_interactable = true;
-    } else if (this.distance_to_player >= this.interactable_distance && this.rendering_interactable) {
+    } else if (
+      this.distance_to_player >= this.interactable_distance &&
+      this.rendering_interactable
+    ) {
       Player.interactable_entities_in_range.splice(
         Player.interactable_entities_in_range.indexOf(this),
         1
@@ -415,8 +413,15 @@ export class Entity {
   }
 
   _renderSprite() {
-    if (!this.sprite_loading_complete) return;
-    Renderer.renderEntity(this);
+    if (!this.rendering) return; 
+    if (this.sprite){
+      Renderer.renderSprite(
+        this.world_position.x,
+        this.world_position.y,
+        this.sprite,
+        this.world_rotation
+      );
+    }
     if (this.rendering_interactable && this.render_interactable_bubble) {
       Renderer.renderInteractableBubble({
         x: this.world_position.x + (this.width / 2 - 0.28125),
@@ -425,7 +430,7 @@ export class Entity {
     }
   }
   _renderDebug() {
-    if (!Renderer.context) return;
+    if (!Renderer.context || !this.rendering) return;
     Renderer.renderStrokeRect(
       this.world_position.x + this.bounding_box.x_offset,
       this.world_position.y + this.bounding_box.y_offset,

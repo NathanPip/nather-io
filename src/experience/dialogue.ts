@@ -30,9 +30,7 @@ export class Dialogue {
   lines: DialogueLine[];
   finish?: () => void;
   restart = false;
-  constructor(
-    properties: DialogueProps,
-  ) {
+  constructor(properties: DialogueProps) {
     this.lines = properties.lines;
     this.restart = properties.restart || false;
     this.returning_line = properties.returning_line;
@@ -41,58 +39,63 @@ export class Dialogue {
 }
 
 export function nextLine(dialogue: Dialogue) {
-    setCanSkipDialogue(() => true);
-    if (dialogue.index + 1 >= dialogue.lines.length) {
-      endDialogue(dialogue);
-      dialogue.index++;
-      if (dialogue.finish) {
-        dialogue.finish();
-      }
-      if (dialogue.restart) {
-        resetDialogue(dialogue);
-      }
-      return;
+  setCanSkipDialogue(() => true);
+  if (dialogue.index + 1 >= dialogue.lines.length) {
+    endDialogue(dialogue);
+    dialogue.index++;
+    if (dialogue.finish) {
+      dialogue.finish();
     }
-    if (currentDialogueLine() !== dialogue.returning_line) {
-      dialogue.index++;
+    if (dialogue.restart) {
+      resetDialogue(dialogue);
     }
-    if (dialogue.lines[dialogue.index].choices) setCanSkipDialogue(() => false);
-    if (dialogue.lines[dialogue.index].character)
-      Camera.moveTo(dialogue.lines[dialogue.index].character!.world_position);
-    setCurrentDialogueLine(dialogue.lines[dialogue.index]);
+    return;
+  }
+  if (currentDialogueLine() !== dialogue.returning_line) {
+    dialogue.index++;
+  }
+  if (dialogue.lines[dialogue.index].choices) setCanSkipDialogue(() => false);
+  if (dialogue.lines[dialogue.index].character !== undefined) {
+    const character = dialogue.lines[dialogue.index].character;
+    Camera.moveTo({
+      x: character!.world_position.x + character!.width / 2,
+      y: character!.world_position.y + character!.height / 2,
+    });
+  }
+  setCurrentDialogueLine(dialogue.lines[dialogue.index]);
 }
 
 export function jumpLine(dialogue: Dialogue, num: number) {
-    dialogue.index += num-1;
-    nextLine(dialogue);
+  dialogue.index += num - 1;
+  nextLine(dialogue);
 }
 
 export function setLine(dialogue: Dialogue, index: number) {
-    dialogue.index = index-1;
-    nextLine(dialogue);
+  dialogue.index = index - 1;
+  nextLine(dialogue);
 }
 
 export function resetDialogue(dialogue: Dialogue) {
-    dialogue.index = 0;
+  dialogue.index = 0;
 }
 
 export function startDialogue(dialogue: Dialogue) {
-    setDisplayDialogue(() => true);
-    setCanSkipDialogue(() => true);
-    setCurrentDialogue(() => dialogue);
-    if (dialogue.index == 0) {
-      setCurrentDialogueLine(() => dialogue.lines[dialogue.index]);
-    } else if (dialogue.returning_line) {
-      setCurrentDialogueLine(() => dialogue.returning_line);
-    } else {
-      if (dialogue.lines[dialogue.index].choices) setCanSkipDialogue(() => false);
-      setCurrentDialogueLine(() => dialogue.lines[dialogue.index]);
-    }
+  setDisplayDialogue(() => true);
+  setCanSkipDialogue(() => true);
+  setCurrentDialogue(() => dialogue);
+  if (dialogue.index == 0) {
+    setCurrentDialogueLine(() => dialogue.lines[dialogue.index]);
+  } else if (dialogue.returning_line) {
+    setCurrentDialogueLine(() => dialogue.returning_line);
+  } else {
+    if (dialogue.lines[dialogue.index].choices) setCanSkipDialogue(() => false);
+    setCurrentDialogueLine(() => dialogue.lines[dialogue.index]);
+  }
 }
 
 export function endDialogue(dialogue: Dialogue) {
-    setDisplayDialogue(() => false);
-    setCanSkipDialogue(() => false);
-    setCurrentDialogue(() => undefined);
-    setCurrentDialogueLine(() => undefined);
+  setDisplayDialogue(() => false);
+  setCanSkipDialogue(() => false);
+  setCurrentDialogue(() => undefined);
+  setCurrentDialogueLine(() => undefined);
 }
