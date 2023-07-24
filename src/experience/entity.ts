@@ -7,6 +7,7 @@ import { Sprite } from "./sprite";
 
 export class Entity {
   _id: string;
+  tag?: string;
   _world_position: Vector;
   _local_position: Vector;
   _rotation = 0;
@@ -138,6 +139,13 @@ export class Entity {
 
   get bounding_box() {
     return this._bounding_box;
+  }
+
+  get forward_vector() {
+    return {
+      x: Math.cos((this.world_rotation + 90) * (Math.PI / 180)),
+      y: Math.sin((this.world_rotation + 90) * (Math.PI / 180))
+    };
   }
 
   setRotation(rotation: number) {
@@ -371,7 +379,7 @@ export class Entity {
 
   interactableUpdate(delta_time: number) {
     if (!this.is_interactable) return;
-    this.distance_to_player = this.world_position.distanceTo(Player.position);
+    this.distance_to_player = this.world_position.distanceTo(Player.world_position);
     if (
       this.distance_to_player < this.interactable_distance &&
       !this.rendering_interactable

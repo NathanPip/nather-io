@@ -16,6 +16,9 @@ import { loadDialogues } from "../game/dialogues";
 import { Ugrad } from "../characters/Ugrad";
 import GuidanceMenu from "./GuidanceMenu";
 import { uiState } from "../game/state";
+import { Pickup } from "../base-entities/pickup";
+import { Sprite } from "../sprite";
+import PlayerInventory from "./PlayerInventory";
 
 const Experience: Component = () => {
   const [homePageState] = useHomePageContext();
@@ -36,6 +39,7 @@ const Experience: Component = () => {
       Camera.width = window.innerWidth;
       Camera.height = window.innerHeight;
     });
+    console.log(window.innerWidth, window.innerHeight);
   });
 
   createEffect(() => {
@@ -48,6 +52,8 @@ const Experience: Component = () => {
       main_canvas.height = window.innerHeight;
       background_canvas.width = window.innerWidth;
       background_canvas.height = window.innerHeight;
+      Renderer.default_render_scale = window.innerWidth/1280;
+      Renderer.render_scale = window.innerWidth/1280;
     }
   });
 
@@ -62,6 +68,11 @@ const Experience: Component = () => {
     // const testEntity2 = new TestEntity2(300, 1000, 64, 64, testEntity.position);
     const character = new TestCharacter("test", 27, 56, 1, 1);
     const ugrad = new Ugrad();
+    const testPickup = new Pickup("test_pickup")
+    testPickup.debug = true;
+    testPickup.sprite = new Sprite("/sprites/data-packet.png", 64, 64, .5);
+    testPickup.setWorldPosition({x:5, y:94});
+    testPickup.show();
     const game_start_portal = new Portal(
       "game_start_portal",
       11,
@@ -134,8 +145,8 @@ const Experience: Component = () => {
     if (!mainContext() || !backgroundContext()) return;
     mainContext()?.clearRect(0, 0, Camera.width, Camera.height);
     backgroundContext()?.clearRect(0, 0, Camera.width, Camera.height);
-    Entity.renderAll();
     Player.render();
+    Entity.renderAll();
     GameLevel.render();
     // GameLevel.renderBoundaries();
     // GameLevel.renderGrid();
@@ -155,6 +166,7 @@ const Experience: Component = () => {
         <Show when={currentDialogue() !== undefined}>
           <DialogueInterface dialogue={currentDialogue() as Dialogue} />
         </Show>
+        <PlayerInventory />
         <div class="pointer-events-none absolute h-full w-full" />
       </div>
   );

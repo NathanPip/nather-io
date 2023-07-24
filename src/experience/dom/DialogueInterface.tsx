@@ -1,4 +1,4 @@
-import { type Component, Show, For } from "solid-js";
+import { type Component, Show, For, createEffect, onCleanup } from "solid-js";
 import {
   Dialogue,
   canSkipDialogue,
@@ -16,6 +16,23 @@ export const DialogueInterface: Component<{
     if (!canSkipDialogue()) return;
     nextLine(props.dialogue);
   };
+
+  createEffect(() => {
+    if (!currentDialogueLine()) return;
+    if (!currentDialogueLine()!.choices) return;
+    const eventHandler = (e: KeyboardEvent) => {
+      const num = parseInt(e.key);
+      if (isNaN(num)) return;
+      const choices = Object.keys(currentDialogueLine()!.choices!);
+      if (num > choices.length) return;
+      currentDialogueLine()!.choices![choices[num - 1]]();
+    };
+    addEventListener("keydown", eventHandler);
+
+    onCleanup(() => {
+      removeEventListener("keydown", eventHandler);
+    });
+  });
 
   return (
     <div

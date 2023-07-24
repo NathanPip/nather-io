@@ -178,8 +178,8 @@ export class Portal extends Entity {
 
   customInteract() {
     if (this.dest_vec) {
-      Player.position.x = this.dest_vec.x;
-      Player.position.y = this.dest_vec.y;
+      Player.world_position.x = this.dest_vec.x;
+      Player.world_position.y = this.dest_vec.y;
     }
   }
 }

@@ -1,5 +1,6 @@
 import { createStore } from "solid-js/store";
 import {type Part} from "solid-js/store/types"
+import { Pickup } from "../base-entities/pickup";
 
 export const game_state = {
   intro_complete: false,
@@ -15,12 +16,16 @@ export const game_state = {
   },
 };
 
-export const [uiState, _setUIState] = createStore({
-  show_guidance: false,
-  show_movement_tutorial: false,
-});
-
-export function setUIState(object: Part<typeof uiState>, value: boolean) {
-  _setUIState(object, value);
-  _setUIState("show_guidance", value);
+type TUIState = {
+  show_guidance: boolean;
+  show_movement_tutorial: boolean;
+  player_inventory: Pickup[];
+  inHand?: Pickup;
 }
+
+export const [uiState, setUIState] = createStore({
+  show_guidance: true,
+  show_movement_tutorial: false,
+  player_inventory: [],
+  inHand: undefined,
+} as TUIState);

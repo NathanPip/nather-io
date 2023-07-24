@@ -163,6 +163,9 @@ export function loadDialogues () {
             "What is an Ugra?": () => {
               startDialogue(dialogues["what-is-an-ugra"]);
             },
+            "Okay, got it.": () => {
+              nextLine(dialogues["what-is-ugras"]);
+            }
           },
         },
       ],

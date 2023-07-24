@@ -59,7 +59,9 @@ const MovementTutorial = () => {
   }
 
   return (
-    <div class="ml-auto flex w-fit flex-wrap justify-center">
+    <>
+    <p class="flex-1 font-bold text-xl">Press the WASD keys to move your Ugra around</p>
+    <div class="ml-auto mt-auto flex w-fit flex-wrap justify-center flex-2">
       <div class="w-full">
         <div class={`w-fit mx-auto transition-all ${keyPressed.w ? "bg-stone-900" : ""}`}>
           <img
@@ -89,15 +91,19 @@ const MovementTutorial = () => {
         />
       </div>
     </div>
+    </>
   );
 };
 
 const GuidanceMenu: Component = () => {
   return (
-    <div class="absolute left-0 top-0 m-6 w-1/4 rounded-lg border-2 border-stone-950 p-4">
+    <div class="absolute left-0 top-0 m-6 w-1/3 rounded-lg border-2 border-stone-950 p-4 min-h-[20vh]">
+      <h2 class="mx-auto text-center text-2xl font-bold mb-4 tracking-widest border-b-2 border-b-stone-900">UGRAS Guidance</h2>
+      <div class="flex justify-between mt-auto">
       <Show when={uiState.show_movement_tutorial}>
         <MovementTutorial />
       </Show>
+      </div>
     </div>
   );
 };

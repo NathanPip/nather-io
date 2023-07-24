@@ -32,7 +32,7 @@ export class Camera {
   static easing: "linear" | "ease-in-out" = "linear";
 
   static returnToPlayer() {
-    Camera.following_vector = Player.position;
+    Camera.following_vector = Player.world_position;
   }
 
   static init() {
@@ -179,21 +179,21 @@ export class Renderer {
     this.context.translate(
       x * this.tile_size * this.render_scale -
         Camera.position.x +
-        (sprite.width * this.render_scale * sprite.scale * scale) / 2,
+        (sprite.width * sprite.scale * this.render_scale * scale) / 2,
       y * this.tile_size * this.render_scale -
         Camera.position.y +
-        (sprite.height * this.render_scale * sprite.scale * scale) / 2
+        (sprite.height * sprite.scale * this.render_scale * scale) / 2
     );
     this.context.rotate((rotation * Math.PI) / 180);
-    this.context.scale(this.render_scale * sprite.scale * scale, this.render_scale * sprite.scale * scale);
+    this.context.scale(this.render_scale * scale, this.render_scale * scale);
     this.context.drawImage(
       sprite.sprite_img,
       sprite.width * sprite.current_animation.frame + 1,
       sprite.height * sprite.current_animation.column + 1,
       sprite.width - 1,
       sprite.height - 1,
-      (-sprite.width) / 2,
-      (-sprite.height) / 2,
+      (-sprite.width * sprite.scale) / 2,
+      (-sprite.height * sprite.scale) / 2,
       sprite.width * sprite.scale * scale,
       sprite.height * sprite.scale * scale
     );
