@@ -160,13 +160,13 @@ const Experience: Component = () => {
       <div class="relative h-screen w-full">
         <canvas class="absolute" ref={background_canvas} />
         <canvas class="absolute" ref={main_canvas} />
+        <PlayerInventory />
         <Show when={uiState.show_guidance}>
           <GuidanceMenu />
         </Show>
         <Show when={currentDialogue() !== undefined}>
           <DialogueInterface dialogue={currentDialogue() as Dialogue} />
         </Show>
-        <PlayerInventory />
         <div class="pointer-events-none absolute h-full w-full" />
       </div>
   );

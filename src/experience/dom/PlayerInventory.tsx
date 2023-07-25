@@ -1,13 +1,16 @@
 import { type Component, For } from "solid-js";
 import { uiState } from "../game/state";
 import { type Pickup } from "../base-entities/pickup";
+import { Player } from "../player";
 
 const PlayerInventory: Component = () => {
   const itemClickHandler = (item: Pickup) => {
     if (uiState.inHand === item) {
       item.hide();
+      Player.removeFromHand();
     } else {
       item.show();
+      Player.addToHand(item);
     }
   };
 

@@ -54,7 +54,7 @@ const MovementTutorial = () => {
     ) {
       game_state.movement_tutorial_complete =  true;
       setUIState("show_movement_tutorial", false);
-      Character.characters["Ugrad"].interact();
+      startDialogue(dialogues["interact-tutorial-start"]);
     }
   }
 
@@ -95,6 +95,10 @@ const MovementTutorial = () => {
   );
 };
 
+const InteractTutorial = () => {
+  return <p class="flex-1 font-bold text-xl">Approach Ugrad and press E</p>
+}
+
 const GuidanceMenu: Component = () => {
   return (
     <div class="absolute left-0 top-0 m-6 w-1/3 rounded-lg border-2 border-stone-950 p-4 min-h-[20vh]">
@@ -102,6 +106,9 @@ const GuidanceMenu: Component = () => {
       <div class="flex justify-between mt-auto">
       <Show when={uiState.show_movement_tutorial}>
         <MovementTutorial />
+      </Show>
+      <Show when={uiState.show_interact_tutorial}>
+        <InteractTutorial />
       </Show>
       </div>
     </div>

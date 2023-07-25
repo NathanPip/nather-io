@@ -19,6 +19,7 @@ export const game_state = {
 type TUIState = {
   show_guidance: boolean;
   show_movement_tutorial: boolean;
+  show_interact_tutorial: boolean;
   player_inventory: Pickup[];
   inHand?: Pickup;
 }
@@ -26,6 +27,7 @@ type TUIState = {
 export const [uiState, setUIState] = createStore({
   show_guidance: true,
   show_movement_tutorial: false,
+  show_interact_tutorial: false,
   player_inventory: [],
   inHand: undefined,
 } as TUIState);

@@ -1,6 +1,6 @@
 import { Entity } from "./entity";
 import { Renderer, GameLevel, keys } from "./globals";
-import { Vector } from "./vector";
+import { Vector, normalizeVector } from "./vector";
 import { checkCollision } from "./utils";
 import { Sprite } from "./sprite";
 import { type Pickup } from "./base-entities/pickup";
@@ -169,10 +169,14 @@ export class Player {
 
   static addToHand(pickup: Pickup) {
     this.inHand = pickup;
+    this.inHand.is_interactable = false;
+    console.log(this.inHand)
     setUIState("inHand", pickup);
   }
 
   static removeFromHand() {
+    if(this.inHand === undefined) return;
+    this.inHand.is_interactable = true;
     this.inHand = undefined;
     setUIState("inHand", undefined);
   }

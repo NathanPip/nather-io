@@ -7,6 +7,7 @@ import { normalizeVector, type Vector } from "../vector";
 export class Pickup extends Entity {
   owner?: Character | Player;
   owner_name?: string;
+  tag = "Pickup";
   constructor(
     name: string,
     sprite?: string,
@@ -19,6 +20,7 @@ export class Pickup extends Entity {
       super(name, 0, 0, 0.5, 0.5, sprite);
     }
     this.rendering = false;
+    this.deceleration = 10;
     this.is_static = false;
     this.is_interactable = true;
     this.render_interactable_bubble = true;
@@ -51,24 +53,20 @@ export class Pickup extends Entity {
   }
 
   throw(direction: Vector2d | Vector) {
-    this.owner = undefined;
-    this.render_interactable_bubble = true;
-    this.velocity.set(direction).multiplyTo(3);
+    this.drop();
+    this.velocity.set(direction).multiplyTo(10);
   }
 
   hide() {
     this.rendering = false;
-    Player.removeFromHand();
   }
 
   show() {
     this.rendering = true;
-    Player.addToHand(this);
   }
 
   customInteract() {
     if(!this.owner){
-      console.log("no owner");
       this.pickup(Player);
       Player.addToInventory(this);
     }

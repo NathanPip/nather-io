@@ -3,10 +3,14 @@ import { Entity } from "./entity";
 import { Camera } from "./globals";
 import { dialogues } from "./game/dialogues";
 import { startDialogue } from "./dialogue";
+import { Pickup } from "./base-entities/pickup";
 
 export class Character extends Entity {
     name: string;
+    tag = "Character"
     dialogues: string[] | undefined;
+    inventory: Pickup[] = [];
+    inHand?: Pickup;
     current_dialogue: string;
     can_interact = true;
     display_dialogue = false;

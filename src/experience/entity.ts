@@ -4,6 +4,7 @@ import { Player } from "./player";
 import { BoundingBox, Vector2d } from "./types";
 import { easeInOut } from "./utils";
 import { Sprite } from "./sprite";
+import { Character } from "./character";
 
 export class Entity {
   _id: string;
@@ -13,6 +14,7 @@ export class Entity {
   _rotation = 0;
   _inherited_rotation = 0;
   interactable_distance = 1;
+  in_interactable_range = false;
   width: number;
   height: number;
   parent: Entity | undefined;
@@ -25,14 +27,14 @@ export class Entity {
   animation: number;
   _animation_frame: number;
   is_static: boolean;
-  is_interactable: boolean;
+  _is_interactable: boolean;
   collision_overlap = false;
   collision_physics = false;
   interacting = false;
   debug: boolean;
-  max_speed = 0.1;
-  deceleration = 0.01;
-  acceleration = 0.02;
+  max_speed = 4;
+  deceleration = 1;
+  acceleration = 2;
   distance_to_player = 0;
   velocity: Vector;
   rendering = true;
@@ -95,7 +97,7 @@ export class Entity {
     this.height = height;
     if (sprite_src) this.sprite = new Sprite(sprite_src, width*Renderer.tile_size, height*Renderer.tile_size);
     this.is_static = true;
-    this.is_interactable = false;
+    this._is_interactable = false;
     this.debug = false;
     this.animation = 0;
     this._animation_frame = 0;
@@ -146,6 +148,24 @@ export class Entity {
       x: Math.cos((this.world_rotation + 90) * (Math.PI / 180)),
       y: Math.sin((this.world_rotation + 90) * (Math.PI / 180))
     };
+  }
+
+  set is_interactable(bool: boolean) {
+    if(bool === true) {
+      this._is_interactable = true;
+    } else {
+      this._is_interactable = false;
+      this.in_interactable_range = false;
+      Player.interactable_entities_in_range.forEach((ent, i) => {
+        if(ent === this) {
+          Player.interactable_entities_in_range.splice(i, 1);
+        }
+      })
+    }
+  }
+
+  get is_interactable() {
+    return this._is_interactable;
   }
 
   setRotation(rotation: number) {
@@ -352,13 +372,11 @@ export class Entity {
       ) {
         this._prev_parent_pos = this.parent.world_position;
         this._setRelativeWorldPosition();
-        console.log("calling 1");
       }
       if (this._inherited_rotation !== this.parent.world_rotation) {
         this._inherited_rotation = this.parent.world_rotation;
         this._setRelativeWorldPosition();
         this._setRelativeBoundingBox();
-        console.log("calling 2");
       }
     }
     if (this.moveTo_vector !== undefined) {
@@ -371,6 +389,7 @@ export class Entity {
     } else {
       this._moveTo_progress = 1;
     }
+
     this.setWorldPosition(
       this.world_position.add(this.velocity.multiply(delta_time))
     );
@@ -382,18 +401,20 @@ export class Entity {
     this.distance_to_player = this.world_position.distanceTo(Player.world_position);
     if (
       this.distance_to_player < this.interactable_distance &&
-      !this.rendering_interactable
+      !this.in_interactable_range
     ) {
       Player.interactable_entities_in_range.push(this);
       this.rendering_interactable = true;
+      this.in_interactable_range = true;
     } else if (
       this.distance_to_player >= this.interactable_distance &&
-      this.rendering_interactable
+      this.in_interactable_range
     ) {
       Player.interactable_entities_in_range.splice(
         Player.interactable_entities_in_range.indexOf(this),
         1
       );
+      this.in_interactable_range = false;
       this.rendering_interactable = false;
     }
   }
@@ -407,11 +428,11 @@ export class Entity {
     Player.interact(this, true);
   }
 
-  customInteract() {}
+  customInteract(ent?: Character | Player) {}
 
-  interact() {
+  interact(ent?: Character | Player) {
     this.defaultInteract();
-    this.customInteract();
+    this.customInteract(ent);
   }
 
   async asyncInteract() {}
