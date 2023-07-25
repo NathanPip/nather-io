@@ -136,6 +136,7 @@ export class Door extends Entity {
 export class Portal extends Entity {
   _dest_portal_name?: string;
   portal_exit: Entity;
+  is_open = false;
   dest_vec?: Vector2d | Vector;
   constructor(
     id: string,
@@ -150,7 +151,6 @@ export class Portal extends Entity {
     } else if (dest_portal !== undefined) {
       this.dest_vec = dest_portal;
     }
-    this.is_interactable = true;
     this.debug = true;
     this.collision_physics = true;
     this.interactable_distance = 2;
@@ -166,6 +166,22 @@ export class Portal extends Entity {
     this.portal_exit.setParent(this);
     this.portal_exit.setLocalPosition({ x: 0, y: 1 });
     this.portal_exit.debug = true;
+    this.onInteract(() => {
+      if (this.dest_vec) {
+        Player.world_position.x = this.dest_vec.x;
+        Player.world_position.y = this.dest_vec.y;
+      }
+    })
+  }
+
+  open() {
+    this.is_open = true;
+    this.is_interactable = true;
+  }
+
+  close() {
+    this.is_open = false;
+    this.is_interactable = false;
   }
 
   init() {
@@ -176,10 +192,4 @@ export class Portal extends Entity {
     }
   }
 
-  customInteract() {
-    if (this.dest_vec) {
-      Player.world_position.x = this.dest_vec.x;
-      Player.world_position.y = this.dest_vec.y;
-    }
-  }
 }

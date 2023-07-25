@@ -7,7 +7,7 @@ export type DialogueLine = {
   character?: Character;
   line: string;
   choices?: { [key: string]: () => void };
-  finish?: boolean;
+  finish?: () => void;
 };
 
 type DialogueProps = {
@@ -15,6 +15,7 @@ type DialogueProps = {
   restart?: boolean;
   is_ending?: boolean;
   finish?: () => void;
+  start?: () => void;
   returning_line?: DialogueLine;
 };
 
@@ -29,19 +30,25 @@ export class Dialogue {
   returning_line?: DialogueLine;
   lines: DialogueLine[];
   finish?: () => void;
+  start?: () => void;
   restart = false;
+  move = true;
   constructor(properties: DialogueProps) {
     this.lines = properties.lines;
     this.restart = properties.restart || false;
     this.returning_line = properties.returning_line;
     this.finish = properties.finish;
+    this.start = properties.start;
   }
 }
 
 export function nextLine(dialogue: Dialogue) {
   setCanSkipDialogue(() => true);
+  if(dialogue.lines[dialogue.index].finish){
+    (dialogue.lines[dialogue.index] as any).finish();
+  }
   if (dialogue.index + 1 >= dialogue.lines.length) {
-    endDialogue(dialogue);
+    endDialogue();
     dialogue.index++;
     if (dialogue.finish) {
       dialogue.finish();
@@ -80,6 +87,15 @@ export function resetDialogue(dialogue: Dialogue) {
 }
 
 export function startDialogue(dialogue: Dialogue) {
+  Player.can_move = false;
+  if(dialogue.start !== undefined) {dialogue.start();}
+  if(dialogue.move && dialogue.lines[dialogue.index].character !== undefined) {
+    const character = dialogue.lines[dialogue.index].character;
+    Camera.moveTo({
+      x: character!.world_position.x + character!.width / 2,
+      y: character!.world_position.y + character!.height / 2,
+    });
+  }
   setDisplayDialogue(() => true);
   setCanSkipDialogue(() => true);
   setCurrentDialogue(() => dialogue);
@@ -93,9 +109,18 @@ export function startDialogue(dialogue: Dialogue) {
   }
 }
 
-export function endDialogue(dialogue: Dialogue) {
+export function endDialogue() {
+  Player.can_move = true;
   setDisplayDialogue(() => false);
   setCanSkipDialogue(() => false);
   setCurrentDialogue(() => undefined);
   setCurrentDialogueLine(() => undefined);
+}
+
+export function showDialogue() {
+  setDisplayDialogue(() => true);
+}
+
+export function hideDialogue() {
+  setDisplayDialogue(() => false);
 }

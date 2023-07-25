@@ -1,15 +1,20 @@
+import { Pickup } from "../base-entities/pickup";
 import { Character } from "../character";
 import {
   Dialogue,
   endDialogue,
+  hideDialogue,
   nextLine,
   resetDialogue,
   setLine,
+  showDialogue,
   startDialogue,
 } from "../dialogue";
 import { Entity } from "../entity";
+import { TutorialDataPacket } from "../game-entities/data-packet";
 import { Camera } from "../globals";
 import { Player } from "../player";
+import { Sprite } from "../sprite";
 import { type Door } from "./entities";
 import { endGame, openDoor } from "./functions";
 import { game_state, setUIState } from "./state";
@@ -20,70 +25,6 @@ export let dialogues: { [key: string]: Dialogue } = {
 
 export function loadDialogues () {
   dialogues = {
-    //////////// TEST CHARACTER //////////////
-
-    "test-first": new Dialogue({
-      lines: [
-        { character: Character.characters["test"], line: "Hello chosen one" },
-        {
-          character: Character.characters["test"],
-          line: "Welcome to the world without will",
-        },
-        {
-          character: Character.characters["test"],
-          line: "well except for yours",
-        },
-        {
-          character: Character.characters["test"],
-          line: "and now go on and use it, make a choice... Right or Left?",
-          choices: {
-            "open left door": () => {
-              nextLine(dialogues["test-first"]);
-              openDoor("left_door");
-            },
-            "open right door": () => {
-              nextLine(dialogues["test-first"]);
-              openDoor("right_door");
-            },
-          },
-        },
-      ],
-    }),
-    "test-second": new Dialogue({
-      lines: [
-        {
-          character: Character.characters["test"],
-          line: "woah you're talking to me again",
-        },
-        {
-          character: Character.characters["test"],
-          line: "it's working once again",
-        },
-        {
-          character: Character.characters["test"],
-          line: "honestly not too surprised now",
-        },
-        {
-          character: Character.characters["test"],
-          line: "I mean it is you we're talking about",
-        },
-        { character: Character.characters["test"], line: "shit's cool" },
-        {
-          character: Character.characters["test"],
-          line: "anyway, dueces again my dude",
-        },
-      ],
-    }),
-    "test-default": new Dialogue({
-      lines: [
-        {
-          character: Character.characters["test"],
-          line: "okay no more talking",
-        },
-      ],
-      restart: true,
-    }),
-
     /////////// UGRAD /////////////
 
     "game-start": new Dialogue({
@@ -288,22 +229,79 @@ export function loadDialogues () {
       restart: true,
       finish: () => {
         setUIState("show_movement_tutorial", true);
+        game_state.movement_tutorial_complete = true;
         Player.uninteract();
       }
     }),
-    "interact-tutorial": new Dialogue({
+    "interact-tutorial-start": new Dialogue({
       lines: [
         {
           character: Character.characters["Ugrad"],
           line: "nice job"
         },
         {
-          line: "now again"
+          line: "now let's learn about interacting with things in this digital world"
+        },
+        {
+          line: "to interact with something, you must first approach it and then press the E key"
+        },
+        {
+          line: "go ahead and try it on me now"
+        }
+      ],
+      finish: () => {
+        setUIState("show_interact_tutorial", true);
+        Player.uninteract();
+        Camera.clearMove();
+      }
+    }),
+    "interact-tutorial-talk": new Dialogue({
+      lines: [
+        {
+          character: Character.characters["Ugrad"],
+          line: "you learn quick"
+        },
+        {
+          line: "now let's learn about picking objects up",
+          finish: () => {
+            Character.characters["Ugrad"].is_interactable = false;
+            hideDialogue();
+            const pickup = new TutorialDataPacket();
+            pickup.throw({x: -2, y: 0});
+            Camera.moveTo(pickup.world_position, 15, "ease-in-out")
+            setTimeout(() => {
+              showDialogue();
+              Camera.moveTo(Character.characters["Ugrad"].world_position.add({x:1, y:1}), 45, "ease-in-out")
+            }, 1500);
+          }
+        },
+        {
+          line: "Approach the packet I just threw out and pick it up by pressing the E key"
+        },
+      ],
+      start: () => {
+        setUIState("show_interact_tutorial", false);
+      },
+      finish: () => {
+        Player.uninteract();
+      }
+    }),
+    "interact-tutorial-pickup": new Dialogue({
+      lines: [
+        {
+          character: Character.characters["Ugrad"],
+          line: "The packet is now attached to your Ugra."
+        }, 
+        {
+          line: "While an object like a packet is attached to your Ugra you can use it on other objects in the world by approaching them and pressing the E key"
+        },
+        {
+          line: "Go ahead and try it on that terminal to the right of me"
         }
       ],
       restart: true,
       finish: () => {
-        Player.uninteract();
+        Camera.clearMove();
       }
     })
   };

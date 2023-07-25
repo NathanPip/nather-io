@@ -19,13 +19,19 @@ export class Pickup extends Entity {
     } else {
       super(name, 0, 0, 0.5, 0.5, sprite);
     }
-    this.rendering = false;
-    this.deceleration = 10;
+    this.deceleration = 7;
     this.is_static = false;
     this.is_interactable = true;
     this.render_interactable_bubble = true;
     this.interactable_distance = 1.5;
     this.owner_name = owner;
+    this.debug = true;
+    this.onInteract(() => {
+      if (!this.owner) {
+        this.pickup(Player);
+        Player.addToInventory(this);
+      }
+    });
   }
 
   pickup(owner: Character | string | undefined | Player) {
@@ -45,7 +51,7 @@ export class Pickup extends Entity {
   }
 
   drop() {
-    if(!this.owner) return;
+    if (!this.owner) return;
     this.owner.uninteract();
     Player.removeFromInventory(this);
     this.owner = undefined;
@@ -63,13 +69,6 @@ export class Pickup extends Entity {
 
   show() {
     this.rendering = true;
-  }
-
-  customInteract() {
-    if(!this.owner){
-      this.pickup(Player);
-      Player.addToInventory(this);
-    }
   }
 
   update(delta_time: number) {

@@ -16,13 +16,22 @@ export class Vector {
     return this;
   }
 
-  addTo(other: Vector | Vector2d) {
+  addTo(other: Vector | Vector2d | number) {
+    if(typeof other === "number"){
+      this.x += other;
+      this.y += other;
+      this.constrainToMax();
+      return;
+    }
     this.x += other.x;
     this.y += other.y;
     this.constrainToMax();
   }
 
-  add(other: Vector | Vector2d) {
+  add(other: Vector | Vector2d | number) {
+    if(typeof other === "number") {
+      return new Vector(this.x + other, this.y + other);
+    }
     return new Vector(this.x + other.x, this.y + other.y);
   }
 

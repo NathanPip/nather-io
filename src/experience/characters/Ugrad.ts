@@ -28,7 +28,7 @@ export class Ugrad extends Character {
         return;
       }
       if (!game_state.interact_tutorial_complete) {
-        this.current_dialogue = "interact-tutorial";
+        this.current_dialogue = "interact-tutorial-talk";
         return;
       }
     }

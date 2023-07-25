@@ -11,7 +11,7 @@ import { Door, Portal, TestCharacter } from "~/experience/game/entities";
 import { DialogueInterface } from "./DialogueInterface";
 import { Entity } from "../entity";
 import { Player } from "../player";
-import { Dialogue, currentDialogue } from "../dialogue";
+import { Dialogue, currentDialogue, displayDialogue } from "../dialogue";
 import { loadDialogues } from "../game/dialogues";
 import { Ugrad } from "../characters/Ugrad";
 import GuidanceMenu from "./GuidanceMenu";
@@ -66,13 +66,11 @@ const Experience: Component = () => {
   const setupEntities = () => {
     // const testEntity = new TestEntity(1000, 1000, 64, 64);
     // const testEntity2 = new TestEntity2(300, 1000, 64, 64, testEntity.position);
-    const character = new TestCharacter("test", 27, 56, 1, 1);
     const ugrad = new Ugrad();
-    const testPickup = new Pickup("test_pickup")
-    testPickup.debug = true;
-    testPickup.sprite = new Sprite("/sprites/data-packet.png", 64, 64, .5);
-    testPickup.setWorldPosition({x:5, y:94});
-    testPickup.show();
+    // const testPickup = new Pickup("test_pickup")
+    // testPickup.sprite = new Sprite("/sprites/data-packet.png", 64, 64, .5);
+    // testPickup.setWorldPosition({x:5, y:94});
+    // testPickup.show();
     const game_start_portal = new Portal(
       "game_start_portal",
       11,
@@ -81,8 +79,6 @@ const Experience: Component = () => {
     );
     const entrance_portal = new Portal("entrance_portal", 46, 80);
     entrance_portal.setRotation(180);
-    const door1 = new Door("left_door", 27, 54, true);
-    const door2 = new Door("right_door", 33, 54, true);
   };
 
   const start = () => {
@@ -164,7 +160,7 @@ const Experience: Component = () => {
         <Show when={uiState.show_guidance}>
           <GuidanceMenu />
         </Show>
-        <Show when={currentDialogue() !== undefined}>
+        <Show when={displayDialogue()}>
           <DialogueInterface dialogue={currentDialogue() as Dialogue} />
         </Show>
         <div class="pointer-events-none absolute h-full w-full" />

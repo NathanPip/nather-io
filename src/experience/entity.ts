@@ -31,15 +31,15 @@ export class Entity {
   collision_overlap = false;
   collision_physics = false;
   interacting = false;
+  interactions: Array<(ent?: Character | Player) => void> = [];
   debug: boolean;
   max_speed = 4;
   deceleration = 1;
-  acceleration = 2;
+  acceleration = 0;
   distance_to_player = 0;
   velocity: Vector;
   rendering = true;
   render_interactable_bubble = false;
-  rendering_interactable = false;
   moveTo_vector: Vector | Vector2d | undefined;
   moveTo_time = 60;
   _moveTo_progress = 1;
@@ -389,7 +389,7 @@ export class Entity {
     } else {
       this._moveTo_progress = 1;
     }
-
+    this.velocity.addTo(this.acceleration * delta_time);
     this.setWorldPosition(
       this.world_position.add(this.velocity.multiply(delta_time))
     );
@@ -404,7 +404,6 @@ export class Entity {
       !this.in_interactable_range
     ) {
       Player.interactable_entities_in_range.push(this);
-      this.rendering_interactable = true;
       this.in_interactable_range = true;
     } else if (
       this.distance_to_player >= this.interactable_distance &&
@@ -415,7 +414,6 @@ export class Entity {
         1
       );
       this.in_interactable_range = false;
-      this.rendering_interactable = false;
     }
   }
 
@@ -428,11 +426,14 @@ export class Entity {
     Player.interact(this, true);
   }
 
-  customInteract(ent?: Character | Player) {}
+  onInteract(interaction: (ent?: Character | Player) => void) {
+    interaction.bind(this);
+    this.interactions.push(interaction);
+  }
 
   interact(ent?: Character | Player) {
     this.defaultInteract();
-    this.customInteract(ent);
+    this.interactions.forEach(interaction => {interaction()});
   }
 
   async asyncInteract() {}
@@ -451,7 +452,7 @@ export class Entity {
         this.world_rotation
       );
     }
-    if (this.rendering_interactable && this.render_interactable_bubble) {
+    if (this.in_interactable_range && this.render_interactable_bubble) {
       Renderer.renderInteractableBubble({
         x: this.world_position.x + (this.width / 2 - 0.28125),
         y: this.world_position.y - 0.5625,

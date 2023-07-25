@@ -65,7 +65,7 @@ export const DialogueInterface: Component<{
         <button
           class="ml-auto rounded-lg border-2 border-black p-1 px-3 py-1 font-game text-3xl transition-all duration-300 ease-in-out hover:-translate-y-1"
           onClick={() => {
-            endDialogue(props.dialogue);
+            endDialogue();
             Player.uninteract();
           }}
         >

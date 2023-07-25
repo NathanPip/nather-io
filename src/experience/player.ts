@@ -16,12 +16,12 @@ type Anim = {
 
 export class Player {
   static sprite = new Sprite("./nather-io-player-sheet.png", 64, 64, 1, {
-    "default": { column: 0, limit: 1, speed: 0, frame: 0},
+    default: { column: 0, limit: 1, speed: 0, frame: 0 },
     "walk-right": { column: 1, limit: 4, speed: 6, frame: 0 },
     "walk-left": { column: 3, limit: 4, speed: 6, frame: 0 },
     "idle-right": { column: 0, limit: 1, speed: 0, frame: 0 },
     "idle-left": { column: 2, limit: 1, speed: 0, frame: 0 },
-  })
+  });
   static world_position: Vector = new Vector(5, 93);
   static inventory: Pickup[] = [];
   static inHand?: Pickup;
@@ -52,6 +52,7 @@ export class Player {
   static interactable_entities_in_range: Entity[] = [];
   static interact_pressed = false;
   static interacting_entity: Entity | undefined;
+  static can_move = true;
 
   static checkCollisions(delta_time: number) {
     for (const entity of Entity.entities) {
@@ -108,8 +109,8 @@ export class Player {
   }
 
   static interact(ent?: string | Entity, _bubble?: boolean) {
-    if(ent)  {
-      if(typeof ent === "string") {
+    if (ent) {
+      if (typeof ent === "string") {
         for (const e of Entity.entities) {
           if (e.id === ent) {
             this.interacting_entity = e;
@@ -122,7 +123,7 @@ export class Player {
         return;
       }
       this.interacting_entity = ent;
-      if(_bubble) return;
+      if (_bubble) return;
       ent.interact();
       return;
     }
@@ -142,40 +143,41 @@ export class Player {
   }
 
   static checkInput(delta_time: number) {
-      if (keys.w) {
-        this.velocity.addTo({ x: 0, y: -this.acceleration * delta_time });
-      }
-      if (keys.d) {
-        this.velocity.addTo({ x: this.acceleration * delta_time, y: 0 });
-      }
-      if (keys.s) {
-        this.velocity.addTo({ x: 0, y: this.acceleration * delta_time });
-      }
-      if (keys.a) {
-        this.velocity.addTo({ x: -this.acceleration * delta_time, y: 0 });
-      }
+    if (!this.can_move) return;
+    if (keys.w) {
+      this.velocity.addTo({ x: 0, y: -this.acceleration * delta_time });
+    }
+    if (keys.d) {
+      this.velocity.addTo({ x: this.acceleration * delta_time, y: 0 });
+    }
+    if (keys.s) {
+      this.velocity.addTo({ x: 0, y: this.acceleration * delta_time });
+    }
+    if (keys.a) {
+      this.velocity.addTo({ x: -this.acceleration * delta_time, y: 0 });
+    }
 
-      if (keys.e && !this.interact_pressed) {
-        this.interact();
-        this.interact_pressed = true;
-      } else if (!keys.e) {
-        this.interact_pressed = false;
-      }
+    if (keys.e && !this.interact_pressed) {
+      this.interact();
+      this.interact_pressed = true;
+    } else if (!keys.e) {
+      this.interact_pressed = false;
+    }
 
-      if(keys.q && this.inHand) {
-        this.inHand.drop();
-      }
+    if (keys.q && this.inHand) {
+      this.inHand.drop();
+    }
   }
 
   static addToHand(pickup: Pickup) {
     this.inHand = pickup;
     this.inHand.is_interactable = false;
-    console.log(this.inHand)
+    console.log(this.inHand);
     setUIState("inHand", pickup);
   }
 
   static removeFromHand() {
-    if(this.inHand === undefined) return;
+    if (this.inHand === undefined) return;
     this.inHand.is_interactable = true;
     this.inHand = undefined;
     setUIState("inHand", undefined);
@@ -184,13 +186,15 @@ export class Player {
   static addToInventory(pickup: Pickup) {
     this.addToHand(pickup);
     this.inventory.push(pickup);
-    setUIState("player_inventory", prev => [...prev, pickup]);
+    setUIState("player_inventory", (prev) => [...prev, pickup]);
   }
 
   static removeFromInventory(pickup: Pickup) {
-    this.inventory = this.inventory.filter(p => p.id !== pickup.id);
-    setUIState("player_inventory", prev => prev.filter(p => p.id !== pickup.id));
-    if(this.inHand === pickup) {
+    this.inventory = this.inventory.filter((p) => p.id !== pickup.id);
+    setUIState("player_inventory", (prev) =>
+      prev.filter((p) => p.id !== pickup.id)
+    );
+    if (this.inHand === pickup) {
       this.removeFromHand();
     }
   }
@@ -210,7 +214,7 @@ export class Player {
     if (this.velocity.y !== 0) {
       this.previous_velocity.y = this.velocity.y;
     }
-    if(this.input_enabled) {
+    if (this.input_enabled) {
       this.checkInput(delta_time);
     }
     this.checkCollisions(delta_time);
@@ -233,7 +237,7 @@ export class Player {
       this.world_position.x,
       this.world_position.y,
       this.sprite,
-      this.rotation,
+      this.rotation
     );
     if (this.render_collision_debug) {
       Renderer.renderStrokeRect(
