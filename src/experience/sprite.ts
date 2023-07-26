@@ -1,3 +1,5 @@
+import { image_pool } from "./game/imagePool";
+
 type Anim = {
   column: number;
   limit: number;
@@ -5,8 +7,6 @@ type Anim = {
   frame: number;
   start?: number;
 };
-
-const image_pool: { [url: string]: HTMLImageElement } = {};
 
 export class Sprite {
   sprite_img: HTMLImageElement;
@@ -28,9 +28,8 @@ export class Sprite {
     if (image_pool[sprite_url]) {
       this.sprite_img = image_pool[sprite_url];
     } else {
+      console.error("no image found with name " + sprite_url);
       this.sprite_img = new Image();
-      this.sprite_img.src = sprite_url;
-      image_pool[sprite_url] = this.sprite_img;
     }
     this.width = width;
     this.height = height;

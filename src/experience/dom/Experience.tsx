@@ -19,6 +19,8 @@ import { uiState } from "../game/state";
 import { Pickup } from "../base-entities/pickup";
 import { Sprite } from "../sprite";
 import PlayerInventory from "./PlayerInventory";
+import { DataReceiver } from "../game-entities/data-packet";
+import { imagesLoaded, loadImages } from "../game/imagePool";
 
 const Experience: Component = () => {
   const [homePageState] = useHomePageContext();
@@ -39,7 +41,7 @@ const Experience: Component = () => {
       Camera.width = window.innerWidth;
       Camera.height = window.innerHeight;
     });
-    console.log(window.innerWidth, window.innerHeight);
+    loadImages();
   });
 
   createEffect(() => {
@@ -58,7 +60,7 @@ const Experience: Component = () => {
   });
 
   createEffect(() => {
-    if (homePageState.scrollDown) {
+    if (homePageState.scrollDown && imagesLoaded()) {
       start();
     }
   });
@@ -71,6 +73,7 @@ const Experience: Component = () => {
     // testPickup.sprite = new Sprite("/sprites/data-packet.png", 64, 64, .5);
     // testPickup.setWorldPosition({x:5, y:94});
     // testPickup.show();
+    const receiver = new DataReceiver(9, 90);
     const game_start_portal = new Portal(
       "game_start_portal",
       11,
@@ -153,9 +156,9 @@ const Experience: Component = () => {
     Camera.update(delta_time);
   };
   return (
-      <div class="relative h-screen w-full">
-        <canvas class="absolute" ref={background_canvas} />
-        <canvas class="absolute" ref={main_canvas} />
+      <div style={{"image-rendering": "crisp-edges"}} class="relative h-screen w-full">
+        <canvas style={{"image-rendering": "crisp-edges"}} class="absolute" ref={background_canvas} />
+        <canvas style={{"image-rendering": "crisp-edges"}} class="absolute" ref={main_canvas} />
         <PlayerInventory />
         <Show when={uiState.show_guidance}>
           <GuidanceMenu />

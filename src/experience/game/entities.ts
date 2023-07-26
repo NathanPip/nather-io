@@ -67,7 +67,7 @@ export class Door extends Entity {
       this.world_position.y,
       2,
       1,
-      "./sprites/Top_Door.png"
+      "door"
     );
     this.door.is_static = false;
     this.door.collision_physics = true;

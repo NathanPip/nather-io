@@ -159,7 +159,7 @@ export class Renderer {
   static default_draw_color = "black";
 
   static init() {
-    this.interact_bubble = new Sprite("./nather-io-interact-bubble.png", 32, 32);
+    this.interact_bubble = new Sprite("interact-bubble", 32, 32);
   }
 
   static renderInteractableBubble(position: Vector | Vector2d) {
@@ -311,7 +311,7 @@ export class GameLevel {
 
   static init() {
     if (!this.context || !this.level_image) return;
-    this.level_image.src = "./nather-io-map.png";
+    this.level_image.src = "./sprites/map.png";
     this.level_image.onload = () => {
       this.image_loaded = true;
     };

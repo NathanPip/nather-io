@@ -10,7 +10,7 @@ export class Ugrad extends Character {
 
   constructor() {
     super("Ugrad", 5, 90, 2, 2);
-    this.sprite = new Sprite("/sprites/Ugrad-sheet.png", 128, 128, 1, {
+    this.sprite = new Sprite("ugrad-sheet", 128, 128, 1, {
       default: { column: 0, limit: 1, speed: 0, frame: 0 },
     });
     this.interactable_distance = 2.5

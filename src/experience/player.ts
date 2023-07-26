@@ -15,7 +15,7 @@ type Anim = {
 };
 
 export class Player {
-  static sprite = new Sprite("./nather-io-player-sheet.png", 64, 64, 1, {
+  static sprite = new Sprite("player-sheet", 64, 64, 1, {
     default: { column: 0, limit: 1, speed: 0, frame: 0 },
     "walk-right": { column: 1, limit: 4, speed: 6, frame: 0 },
     "walk-left": { column: 3, limit: 4, speed: 6, frame: 0 },
@@ -200,11 +200,13 @@ export class Player {
   }
 
   static init() {
-    this.character_sprite_sheet = new Image();
-    this.character_sprite_sheet.src = "./nather-io-player-sheet.png";
-    this.character_sprite_sheet.onload = () => {
-      this.loading_complete = true;
-    };
+    this.sprite = new Sprite("player-sheet", 64, 64, 1, {
+      default: { column: 0, limit: 1, speed: 0, frame: 0 },
+      "walk-right": { column: 1, limit: 4, speed: 6, frame: 0 },
+      "walk-left": { column: 3, limit: 4, speed: 6, frame: 0 },
+      "idle-right": { column: 0, limit: 1, speed: 0, frame: 0 },
+      "idle-left": { column: 2, limit: 1, speed: 0, frame: 0 },
+    });
   }
 
   static update(delta_time: number) {
@@ -232,7 +234,7 @@ export class Player {
   }
 
   static render() {
-    if (!Renderer.context || !this.loading_complete) return;
+    if (!Renderer.context) return;
     Renderer.renderSprite(
       this.world_position.x,
       this.world_position.y,
