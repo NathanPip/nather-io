@@ -1,5 +1,5 @@
 import { createSignal, createEffect } from "solid-js";
-const images = ["data-packet", "data-receiver-sheet", "door", "interact-bubble", "map", "player-sheet", "ugrad-sheet"];
+const images = ["data-packet", "data-receiver-sheet", "data-receiver-stand", "door", "interact-bubble", "map", "player-sheet", "ugrad-sheet"];
 
 export const image_pool: {[key: string]: HTMLImageElement} = {};
 

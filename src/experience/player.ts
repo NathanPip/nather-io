@@ -144,6 +144,7 @@ export class Player {
 
   static checkInput(delta_time: number) {
     if (!this.can_move) return;
+    console.log(keys.w)
     if (keys.w) {
       this.velocity.addTo({ x: 0, y: -this.acceleration * delta_time });
     }

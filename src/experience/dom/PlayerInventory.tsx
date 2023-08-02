@@ -26,7 +26,7 @@ const PlayerInventory: Component = () => {
               uiState.inHand === item ? "-translate-y-3" : ""
             }`}
           >
-            <img src={item.sprites?.sprite_img.src}></img>
+            <img src={item.sprites ? item.sprites[0].sprite_img.src : ""}></img>
           </div>
         )}
       </For>

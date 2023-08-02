@@ -54,8 +54,8 @@ const Experience: Component = () => {
       main_canvas.height = window.innerHeight;
       background_canvas.width = window.innerWidth;
       background_canvas.height = window.innerHeight;
-      Renderer.default_render_scale = window.innerWidth/1280;
-      Renderer.render_scale = window.innerWidth/1280;
+      Renderer.default_render_scale = window.innerWidth/960;
+      Renderer.render_scale = window.innerWidth/960;
     }
   });
 
@@ -75,6 +75,7 @@ const Experience: Component = () => {
     // testPickup.show();
     // const door = new Door("door-1", 5, 94);
     const receiver = new DataReceiver(9, 90);
+    receiver.setRotation(-90);
     const game_start_portal = new Portal(
       "game_start_portal",
       11,
