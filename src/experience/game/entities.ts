@@ -44,7 +44,7 @@ export class Door extends Entity {
   x_translation = 0;
   y_translation = 0;
   locked: boolean;
-  auto_door = false;
+  auto_door = true;
   opening: boolean;
   closing: boolean;
   is_open: boolean;
@@ -72,7 +72,7 @@ export class Door extends Entity {
     this.door.is_static = false;
     this.door.collision_physics = true;
     this.is_interactable = true;
-    this.door.setBoundingBox(this.width, this.height / 8, 0, this.height / 4);
+    this.door.setBoundingBox(this.width, this.height/8, 0, this.height / 6);
     this.door.debug = true;
     this.addChild(this.door);
     this.opening = false;
@@ -98,6 +98,7 @@ export class Door extends Entity {
   }
 
   update(delta_time: number) {
+    this.setRotation(this.world_rotation + 10 * delta_time);
     if (this.locked) return;
     if (this.distance_to_player < 2 && !this.is_open && this.auto_door) {
       this.open();

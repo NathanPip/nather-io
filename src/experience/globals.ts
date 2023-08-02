@@ -104,7 +104,8 @@ export class Camera {
       },
       easeProgress
     );
-    if (this.moveTo_progress < this.moveTo_time) this.moveTo_progress += delta_time;
+    if (this.moveTo_progress < this.moveTo_time)
+      this.moveTo_progress += delta_time;
   }
 
   static clearMove() {
@@ -164,25 +165,27 @@ export class Renderer {
 
   static renderInteractableBubble(position: Vector | Vector2d) {
     if (!this.context) return;
-    Renderer.renderSprite(position.x, position.y, this.interact_bubble);
+    Renderer.renderSprite(position.x, position.y, .5, .5, this.interact_bubble);
   }
 
   static renderSprite(
     x: number,
     y: number,
+    width: number,
+    height: number,
     sprite: Sprite,
     rotation = 0,
-    scale = 1,
+    scale = 1
   ) {
     if (!this.context) return;
     this.context.save();
     this.context.translate(
-      x * this.tile_size * this.render_scale -
+      (x * this.tile_size) * this.render_scale -
         Camera.position.x +
-        (sprite.width * sprite.scale * this.render_scale * scale) / 2,
-      y * this.tile_size * this.render_scale -
+        (width * this.tile_size * scale * this.render_scale * scale) / 2,
+      (y * this.tile_size) * this.render_scale -
         Camera.position.y +
-        (sprite.height * sprite.scale * this.render_scale * scale) / 2
+        (height * this.tile_size * scale * this.render_scale * scale) / 2
     );
     this.context.rotate((rotation * Math.PI) / 180);
     this.context.scale(this.render_scale * scale, this.render_scale * scale);
@@ -192,8 +195,8 @@ export class Renderer {
       sprite.height * sprite.current_animation.column + 1,
       sprite.width - 1,
       sprite.height - 1,
-      (-sprite.width * sprite.scale) / 2,
-      (-sprite.height * sprite.scale) / 2,
+      ((-width * this.tile_size + sprite.offset.x)) / 2,
+      ((-height * this.tile_size + sprite.offset.y)) / 2,
       sprite.width * sprite.scale * scale,
       sprite.height * sprite.scale * scale
     );
@@ -274,7 +277,7 @@ export class GameLevel {
           currentCell === 32 ||
           currentCell === 33 ||
           currentCell === 34 ||
-          currentCell === 35 
+          currentCell === 35
         ) {
           let addedTo = false;
           for (const boundary of GameLevel.boundaries) {

@@ -238,6 +238,8 @@ export class Player {
     Renderer.renderSprite(
       this.world_position.x,
       this.world_position.y,
+      1,
+      1,
       this.sprite,
       this.rotation
     );

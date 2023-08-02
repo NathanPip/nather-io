@@ -73,6 +73,7 @@ const Experience: Component = () => {
     // testPickup.sprite = new Sprite("/sprites/data-packet.png", 64, 64, .5);
     // testPickup.setWorldPosition({x:5, y:94});
     // testPickup.show();
+    const door = new Door("door-1", 5, 94);
     const receiver = new DataReceiver(9, 90);
     const game_start_portal = new Portal(
       "game_start_portal",

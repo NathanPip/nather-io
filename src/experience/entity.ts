@@ -111,7 +111,7 @@ export class Entity {
       x_offset: 0,
       y_offset: 0,
     };
-    this._set_bounding_box = this._bounding_box;
+    this._set_bounding_box = {...this._bounding_box};
     Entity.entities.push(this);
   }
 
@@ -249,22 +249,31 @@ export class Entity {
   _setRelativeBoundingBox() {
     const aCos = Math.cos(this.world_rotation * (Math.PI / 180));
     const aSin = Math.sin(this.world_rotation * (Math.PI / 180));
-    this._bounding_box.width = Math.abs(
-      this._set_bounding_box.width * aCos - this._set_bounding_box.height * aSin
-    );
-    this._bounding_box.height = Math.abs(
-      this._set_bounding_box.height * aCos - this._set_bounding_box.width * aSin
-    );
-    this._bounding_box.x_offset =
-      this.width / 2 -
-      this._bounding_box.width / 2 -
-      (this._set_bounding_box.x_offset * aCos -
-        this._set_bounding_box.y_offset * aSin);
-    this._bounding_box.y_offset =
-      this.height / 2 -
-      this._bounding_box.height / 2 -
-      (this._set_bounding_box.y_offset * aCos -
-        this._set_bounding_box.x_offset * aSin);
+    const centerX = this.width / 2;
+    const centerY = this.height / 2;
+    
+    const x1 = (this._set_bounding_box.x_offset - centerX) * aCos - (this._set_bounding_box.y_offset - centerY) * aSin;
+    const x2 = (this._set_bounding_box.x_offset + this._set_bounding_box.width - centerX) * aCos - (this._set_bounding_box.y_offset - centerY) * aSin;
+    const x3 = (this._set_bounding_box.x_offset - centerX) * aCos - (this._set_bounding_box.y_offset + this._set_bounding_box.height  - centerY) * aSin;
+    const x4 = (this._set_bounding_box.x_offset + this._set_bounding_box.width - centerX) * aCos - (this._set_bounding_box.y_offset + this._set_bounding_box.height  - centerY) * aSin;
+
+    const y1 = (this._set_bounding_box.y_offset - centerY) * aCos + (this._set_bounding_box.x_offset - centerX) * aSin;
+    const y2 = (this._set_bounding_box.y_offset - centerY) * aCos + (this._set_bounding_box.x_offset + this._set_bounding_box.width - centerX) * aSin;
+    const y3 = (this._set_bounding_box.y_offset + this._set_bounding_box.height - centerY) * aCos + (this._set_bounding_box.x_offset - centerX) * aSin;
+    const y4 = (this._set_bounding_box.y_offset + this._set_bounding_box.height - centerY) * aCos + (this._set_bounding_box.x_offset + this._set_bounding_box.width - centerX) * aSin;
+
+    const minX = Math.min(x1, x2, x3, x4);
+    const maxX = Math.max(x1, x2, x3, x4);
+    const minY = Math.min(y1, y2, y3, y4);
+    const maxY = Math.max(y1, y2, y3, y4);
+
+    this._bounding_box.x_offset = minX + centerX;
+    this._bounding_box.y_offset = minY + centerY;
+    this._bounding_box.width = maxX - minX;
+    this._bounding_box.height = maxY - minY;
+
+    console.log("box", this._bounding_box);
+    console.log("set", this._set_bounding_box);
   }
 
   setBoundingBox(
@@ -448,6 +457,8 @@ export class Entity {
       Renderer.renderSprite(
         this.world_position.x,
         this.world_position.y,
+        this.width,
+        this.height,
         this.sprite,
         this.world_rotation
       );

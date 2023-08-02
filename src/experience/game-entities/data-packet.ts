@@ -21,11 +21,19 @@ export class DataReceiver extends Entity {
       reject: { column: 2, limit: 5, speed: 3, frame: 0 },
       resolve: { column: 3, limit: 5, speed: 3, frame: 0 },
     });
+    this.sprite.offset = {x: 64, y: 64}
+    // this.setRotation(91);
     this.sprite.current_animation_name = "sdfs";
     this.sprite.playAnimation("default", true);
     this.collision_physics = true;
     this.is_interactable = true;
     this.debug = true;
+    this.setBoundingBox(.5,.5,.5,.5)
+  }
+
+  update(delta_time: number) {
+    // if(this.world_rotation < 90)
+      this.setRotation(this.world_rotation + 20 * delta_time);
   }
 }
 

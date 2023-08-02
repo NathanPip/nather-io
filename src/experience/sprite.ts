@@ -1,4 +1,6 @@
 import { image_pool } from "./game/imagePool";
+import { type Vector2d } from "./types";
+import { type Vector } from "./vector";
 
 type Anim = {
   column: number;
@@ -13,6 +15,7 @@ export class Sprite {
   width: number;
   height: number;
   scale: number;
+  offset: Vector2d | Vector = { x: 0, y: 0 };
   current_animation_name: string;
   current_animation: Anim;
   animations: { default: Anim; [name: string]: Anim };
