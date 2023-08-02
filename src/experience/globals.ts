@@ -191,8 +191,8 @@ export class Renderer {
     this.context.scale(this.render_scale * scale, this.render_scale * scale);
     this.context.drawImage(
       sprite.sprite_img,
-      sprite.width * sprite.current_animation.frame + 1,
-      sprite.height * sprite.current_animation.column + 1,
+      sprite.width * (sprite.current_animation ? sprite.current_animation.frame : 0) + 1,
+      sprite.height * (sprite.current_animation ? sprite.current_animation.column : 0) + 1,
       sprite.width - 1,
       sprite.height - 1,
       ((-width * this.tile_size + sprite.offset.x)) / 2,

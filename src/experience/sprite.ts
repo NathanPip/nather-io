@@ -16,8 +16,8 @@ export class Sprite {
   height: number;
   scale: number;
   offset: Vector2d | Vector = { x: 0, y: 0 };
-  current_animation_name: string;
-  current_animation: Anim;
+  current_animation_name?: string;
+  current_animation?: Anim;
   animations: { default: Anim; [name: string]: Anim };
   animation_interval: NodeJS.Timer | number | undefined;
 
@@ -40,8 +40,6 @@ export class Sprite {
     this.animations = animations || {
       default: { column: 0, limit: 1, speed: 1, frame: 0 },
     };
-    this.current_animation_name = Object.keys(this.animations)[0];
-    this.current_animation = this.animations[this.current_animation_name];
   }
 
   playAnimation(animation: string, loop = false) {
@@ -49,8 +47,10 @@ export class Sprite {
     this.stopAnimation();
     this.current_animation_name = animation;
     this.current_animation = this.animations[animation];
+    if(!this.current_animation) return;
     this.current_animation.frame = this.current_animation.start || 0;
     this.animation_interval = setInterval(() => {
+      if(!this.current_animation) return;
       this.current_animation.frame++;
       if (this.current_animation.frame >= this.current_animation.limit) {
         if (loop) {
@@ -71,7 +71,7 @@ export class Sprite {
 
   clearAnimation() {
     this.stopAnimation();
-    this.current_animation.frame = 0;
-    this.current_animation = this.animations["default"];
+    this.current_animation = undefined;
+    this.current_animation_name = undefined;
   }
 }

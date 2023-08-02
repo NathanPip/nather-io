@@ -23,7 +23,7 @@ export class Entity {
   _bounding_box: BoundingBox;
   _set_bounding_box: BoundingBox;
   custom_bounding_box = false;
-  sprite?: Sprite;
+  sprites?: Sprite[];
   animation: number;
   _animation_frame: number;
   is_static: boolean;
@@ -57,7 +57,7 @@ export class Entity {
 
   static renderAll() {
     for (const entity of Entity.entities) {
-      entity._renderSprite();
+      entity._renderSprites();
       if (entity.debug) entity._renderDebug();
     }
   }
@@ -95,7 +95,7 @@ export class Entity {
     this._local_position = new Vector(0, 0);
     this.width = width;
     this.height = height;
-    if (sprite_src) this.sprite = new Sprite(sprite_src, width*Renderer.tile_size, height*Renderer.tile_size);
+    if (sprite_src) this.addSprite(new Sprite(sprite_src, width*Renderer.tile_size, height*Renderer.tile_size));
     this.is_static = true;
     this._is_interactable = false;
     this.debug = false;
@@ -166,6 +166,11 @@ export class Entity {
 
   get is_interactable() {
     return this._is_interactable;
+  }
+
+  addSprite(sprite: Sprite) {
+    if(this.sprites === undefined) this.sprites = [];
+    this.sprites.push(sprite);
   }
 
   setRotation(rotation: number) {
@@ -272,8 +277,6 @@ export class Entity {
     this._bounding_box.width = maxX - minX;
     this._bounding_box.height = maxY - minY;
 
-    console.log("box", this._bounding_box);
-    console.log("set", this._set_bounding_box);
   }
 
   setBoundingBox(
@@ -346,7 +349,6 @@ export class Entity {
 
   move(delta_time: number) {
     if (this.moveTo_vector === undefined) return;
-    console.log("moving");
     const timer_progress = this._moveTo_progress / this.moveTo_time;
     const easeProgress =
       this.easing === "linear"
@@ -451,17 +453,19 @@ export class Entity {
     this.interacting = false;
   }
 
-  _renderSprite() {
+  _renderSprites() {
     if (!this.rendering) return; 
-    if (this.sprite){
-      Renderer.renderSprite(
-        this.world_position.x,
-        this.world_position.y,
-        this.width,
-        this.height,
-        this.sprite,
-        this.world_rotation
-      );
+    if (this.sprites){
+      for(const sprite of this.sprites) {
+        Renderer.renderSprite(
+          this.world_position.x,
+          this.world_position.y,
+          this.width,
+          this.height,
+          sprite,
+          this.world_rotation
+        );
+      }
     }
     if (this.in_interactable_range && this.render_interactable_bubble) {
       Renderer.renderInteractableBubble({
