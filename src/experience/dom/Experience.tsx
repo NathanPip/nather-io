@@ -19,7 +19,7 @@ import { uiState } from "../game/state";
 import { Pickup } from "../base-entities/pickup";
 import { Sprite } from "../sprite";
 import PlayerInventory from "./PlayerInventory";
-import { DataReceiver } from "../game-entities/data-packet";
+import { DataPacket, DataReceiver, TutorialDataPacket } from "../game-entities/data-packet";
 import { imagesLoaded, loadImages } from "../game/imagePool";
 
 const Experience: Component = () => {
@@ -74,6 +74,8 @@ const Experience: Component = () => {
     // testPickup.setWorldPosition({x:5, y:94});
     // testPickup.show();
     // const door = new Door("door-1", 5, 94);
+    const test = new DataPacket();
+    test.setWorldPosition({x: 5, y: 94});
     const receiver = new DataReceiver(9, 90);
     receiver.setRotation(-90);
     const game_start_portal = new Portal(

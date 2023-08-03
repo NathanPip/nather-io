@@ -6,6 +6,7 @@ import { Sprite } from "./sprite";
 import { type Pickup } from "./base-entities/pickup";
 import { createStore } from "solid-js/store";
 import { setUIState, uiState } from "./game/state";
+import { Character } from "./character";
 
 type Anim = {
   column: number;
@@ -124,7 +125,7 @@ export class Player {
       }
       this.interacting_entity = ent;
       if (_bubble) return;
-      ent.interact();
+      ent.interact(this);
       return;
     }
     const entity = this.interactable_entities_in_range.sort(
@@ -133,7 +134,7 @@ export class Player {
     if (!entity) return;
     this.interacting_entity = entity;
     if (_bubble) return;
-    entity.interact();
+    entity.interact(this);
   }
 
   static uninteract() {

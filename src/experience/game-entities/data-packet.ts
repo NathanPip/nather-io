@@ -6,9 +6,11 @@ import { dialogues } from "../game/dialogues";
 import { Sprite } from "../sprite";
 
 export class DataPacket extends Pickup {
+  type = "data-packet";
+  data_type = "default";
   constructor() {
     super("data-packet");
-    this.addSprite(new Sprite("data-packet", 64, 64, 0.5));
+    this.addSprite(new Sprite("data-packet", 32, 32, 1));
   }
 }
 
@@ -25,13 +27,26 @@ export class DataReceiver extends Entity {
     this.addSprite(receiverSprite);
     this.collision_physics = true;
     this.is_interactable = true;
-    // this.setBoundingBox(.5,.5,.5,.5)
+    this.render_interactable_bubble = true;
+    this.interactable_distance = 2;
+
+    this.onInteract((ent) => {
+      console.log(ent)
+      if (!ent) return;
+      if(!ent.inHand) return;
+      if(ent.inHand.type !== "data-packet") return;
+      const packet = ent.inHand as DataPacket;
+      packet.drop();
+      this.addChild(packet);
+      packet.setRotation(0);
+      packet.setLocalPosition({ x: .9, y: .25 });
+    })
   }
 
   update(delta_time: number) {
-    // if(this.world_rotation < 90)
-      // this.setRotation(this.world_rotation + 20 * delta_time);
+
   }
+
 }
 
 export class TutorialDataPacket extends DataPacket {

@@ -9,6 +9,7 @@ import { Character } from "./character";
 export class Entity {
   _id: string;
   tag?: string;
+  type?: string;
   _world_position: Vector;
   _local_position: Vector;
   _rotation = 0;
@@ -31,7 +32,7 @@ export class Entity {
   collision_overlap = false;
   collision_physics = false;
   interacting = false;
-  interactions: Array<(ent?: Character | Player) => void> = [];
+  interactions: Array<(ent?: Character) => void> = [];
   debug: boolean;
   max_speed = 4;
   deceleration = 1;
@@ -437,14 +438,14 @@ export class Entity {
     Player.interact(this, true);
   }
 
-  onInteract(interaction: (ent?: Character | Player) => void) {
+  onInteract(interaction: (ent?: Character) => void) {
     interaction.bind(this);
     this.interactions.push(interaction);
   }
 
-  interact(ent?: Character | Player) {
+  interact(ent?: Character) {
     this.defaultInteract();
-    this.interactions.forEach(interaction => {interaction()});
+    this.interactions.forEach(interaction => {interaction(ent)});
   }
 
   async asyncInteract() {}
