@@ -1,6 +1,6 @@
 import { type Component, For } from "solid-js";
 import { uiState } from "../game/state";
-import { type Pickup } from "../base-entities/pickup";
+import { type Pickup } from "../entities-base/pickup";
 import { Player } from "../player";
 
 const PlayerInventory: Component = () => {

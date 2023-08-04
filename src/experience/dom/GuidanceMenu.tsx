@@ -1,9 +1,9 @@
 import { Component, Show, createEffect, onCleanup } from "solid-js";
 import { createStore } from "solid-js/store";
 import { game_state, setUIState, uiState } from "../game/state";
-import { startDialogue } from "../dialogue";
+import { startDialogue } from "../systems/dialogue";
 import { dialogues } from "../game/dialogues";
-import { Character } from "../character";
+import { Character } from "../entities-base/character";
 
 const MovementTutorial = () => {
   const [keyPressed, setKeysPressed] = createStore({

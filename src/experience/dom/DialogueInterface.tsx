@@ -6,7 +6,7 @@ import {
   endDialogue,
   nextLine,
   setCurrentDialogueLine,
-} from "../dialogue";
+} from "../systems/dialogue";
 import { Player } from "../player";
 
 export const DialogueInterface: Component<{

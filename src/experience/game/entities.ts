@@ -1,6 +1,6 @@
-import { Character } from "../character";
+import { Character } from "../entities-base/character";
 import { Entity } from "../entity";
-import { Camera, Renderer } from "../globals";
+import { Camera, Renderer } from "../systems/globals";
 import { Vector } from "../vector";
 import { Player } from "../player";
 import { Vector2d } from "../types";

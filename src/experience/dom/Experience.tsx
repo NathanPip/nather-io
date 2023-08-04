@@ -6,20 +6,20 @@ import {
   Show,
 } from "solid-js";
 import { useHomePageContext } from "~/routes";
-import { Camera, Renderer, GameLevel, keys } from "~/experience/globals";
+import { Camera, Renderer, GameLevel, keys } from "~/experience/systems/globals";
 import { Door, Portal, TestCharacter } from "~/experience/game/entities";
 import { DialogueInterface } from "./DialogueInterface";
 import { Entity } from "../entity";
 import { Player } from "../player";
-import { Dialogue, currentDialogue, displayDialogue } from "../dialogue";
+import { Dialogue, currentDialogue, displayDialogue } from "../systems/dialogue";
 import { loadDialogues } from "../game/dialogues";
 import { Ugrad } from "../characters/Ugrad";
 import GuidanceMenu from "./GuidanceMenu";
 import { uiState } from "../game/state";
-import { Pickup } from "../base-entities/pickup";
+import { Pickup } from "../entities-base/pickup";
 import { Sprite } from "../sprite";
 import PlayerInventory from "./PlayerInventory";
-import { DataPacket, DataReceiver, TutorialDataPacket } from "../game-entities/data-packet";
+import { DataPacket, DataReceiver, TutorialDataPacket } from "../entities-game/data-packet";
 import { imagesLoaded, loadImages } from "../game/imagePool";
 
 const Experience: Component = () => {

@@ -1,7 +1,7 @@
 import { createSignal } from "solid-js";
-import { type Character } from "./character";
+import { type Character } from "../entities-base/character";
 import { Camera } from "./globals";
-import { Player } from "./player";
+import { Player } from "../player";
 
 export type DialogueLine = {
   character?: Character;

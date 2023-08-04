@@ -1,5 +1,5 @@
 import { Entity } from "../entity";
-import { Camera } from "../globals";
+import { Camera } from "../systems/globals";
 import { type Door } from "./entities";
 
 export const openDoor = (door_id: string) => {

@@ -1,5 +1,5 @@
-import { Character } from "../character";
-import { Dialogue } from "../dialogue";
+import { Character } from "../entities-base/character";
+import { Dialogue } from "../systems/dialogue";
 import { game_state } from "../game/state";
 import { Sprite } from "../sprite";
 

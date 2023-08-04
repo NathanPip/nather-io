@@ -1,12 +1,12 @@
 import { createSignal } from "solid-js";
-import { Boundary } from "./game/entities";
-import { collisionMap } from "./game/nather-io-map-data";
-import { Vector } from "./vector";
-import { Player } from "./player";
-import { type Vector2d } from "./types";
-import { easeInOut, lerp } from "./utils";
-import { Entity } from "./entity";
-import { Sprite } from "./sprite";
+import { Boundary } from "../game/entities";
+import { collisionMap } from "../game/nather-io-map-data";
+import { Vector } from "../vector";
+import { Player } from "../player";
+import { type Vector2d } from "../types";
+import { easeInOut, lerp } from "../utils";
+import { Entity } from "../entity";
+import { Sprite } from "../sprite";
 
 export const keys: { [key: string]: boolean } = {
   w: false,

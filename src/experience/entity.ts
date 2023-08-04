@@ -1,10 +1,10 @@
-import { Camera, Renderer } from "./globals";
+import { Camera, Renderer } from "./systems/globals";
 import { Vector } from "./vector";
 import { Player } from "./player";
 import { BoundingBox, Vector2d } from "./types";
 import { easeInOut } from "./utils";
 import { Sprite } from "./sprite";
-import { Character } from "./character";
+import { Character } from "./entities-base/character";
 
 export class Entity {
   _id: string;
@@ -336,37 +336,6 @@ export class Entity {
   }
 
   _defaultInit() {}
-
-  moveTo(
-    vector: Vector | Vector2d,
-    time?: number,
-    easing?: "linear" | "ease-in-out"
-  ) {
-    this.moveTo_finished = false;
-    this.moveTo_vector = vector;
-    this.moveTo_time = time || 60;
-    if (easing) this.easing = easing;
-  }
-
-  move(delta_time: number) {
-    if (this.moveTo_vector === undefined) return;
-    const timer_progress = this._moveTo_progress / this.moveTo_time;
-    const easeProgress =
-      this.easing === "linear"
-        ? timer_progress
-        : false || this.easing === "ease-in-out"
-        ? easeInOut(timer_progress)
-        : timer_progress;
-    this.world_position.lerp(
-      {
-        x: this.moveTo_vector.x,
-        y: this.moveTo_vector.y,
-      },
-      easeProgress
-    );
-    if (this._moveTo_progress < this.moveTo_time)
-      this._moveTo_progress += delta_time;
-  }
 
   clearMove() {
     this.moveTo_vector = undefined;

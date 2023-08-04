@@ -1,9 +1,9 @@
 import { createSignal } from "solid-js";
-import { Entity } from "./entity";
-import { Camera } from "./globals";
-import { dialogues } from "./game/dialogues";
-import { startDialogue } from "./dialogue";
-import { Pickup } from "./base-entities/pickup";
+import { Entity } from "../entity";
+import { Camera } from "../systems/globals";
+import { dialogues } from "../game/dialogues";
+import { startDialogue } from "../systems/dialogue";
+import { Pickup } from "./pickup";
 
 export class Character extends Entity {
   name: string;

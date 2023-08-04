@@ -1,4 +1,4 @@
-import { Character } from "../character";
+import { Character } from "./character";
 import { Entity } from "../entity";
 import { Player } from "../player";
 import { type Vector2d } from "../types";
@@ -79,12 +79,6 @@ export class Pickup extends Entity {
             .add({ x: 0.25, y: 0.5 })
             .add((this.owner as Character).velocity.multiply(0.05))
         );
-        // const normalizedForward = normalizeVector(
-        //   (this.owner as Entity).velocity
-        // );
-        // this.setWorldRotation(
-        //   Math.atan2(normalizedForward.y, normalizedForward.x) * 180 / Math.PI
-        // );
       }
     }
   }

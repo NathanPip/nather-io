@@ -1,12 +1,12 @@
 import { Entity } from "./entity";
-import { Renderer, GameLevel, keys } from "./globals";
+import { Renderer, GameLevel, keys } from "./systems/globals";
 import { Vector, normalizeVector } from "./vector";
 import { checkCollision } from "./utils";
 import { Sprite } from "./sprite";
-import { type Pickup } from "./base-entities/pickup";
+import { type Pickup } from "./entities-base/pickup";
 import { createStore } from "solid-js/store";
 import { setUIState, uiState } from "./game/state";
-import { Character } from "./character";
+import { Character } from "./entities-base/character";
 
 type Anim = {
   column: number;

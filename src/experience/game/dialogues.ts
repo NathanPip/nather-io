@@ -1,5 +1,5 @@
-import { Pickup } from "../base-entities/pickup";
-import { Character } from "../character";
+import { Pickup } from "../entities-base/pickup";
+import { Character } from "../entities-base/character";
 import {
   Dialogue,
   endDialogue,
@@ -9,10 +9,10 @@ import {
   setLine,
   showDialogue,
   startDialogue,
-} from "../dialogue";
+} from "../systems/dialogue";
 import { Entity } from "../entity";
-import { TutorialDataPacket } from "../game-entities/data-packet";
-import { Camera } from "../globals";
+import { TutorialDataPacket } from "../entities-game/data-packet";
+import { Camera } from "../systems/globals";
 import { Player } from "../player";
 import { Sprite } from "../sprite";
 import { type Door } from "./entities";

@@ -1,6 +1,6 @@
-import { Pickup } from "../base-entities/pickup";
-import { Character } from "../character";
-import { startDialogue } from "../dialogue";
+import { Pickup } from "../entities-base/pickup";
+import { Character } from "../entities-base/character";
+import { startDialogue } from "../systems/dialogue";
 import { Entity } from "../entity";
 import { dialogues } from "../game/dialogues";
 import { Sprite } from "../sprite";

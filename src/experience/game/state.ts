@@ -1,6 +1,6 @@
 import { createStore } from "solid-js/store";
 import {type Part} from "solid-js/store/types"
-import { Pickup } from "../base-entities/pickup";
+import { Pickup } from "../entities-base/pickup";
 
 export const game_state = {
   intro_complete: false,
