@@ -21,6 +21,7 @@ import { Sprite } from "../sprite";
 import PlayerInventory from "./PlayerInventory";
 import { DataPacket, DataReceiver, TutorialDataPacket } from "../entities-game/data-packet";
 import { imagesLoaded, loadImages } from "../game/imagePool";
+import { EntityLerper } from "../systems/lerper";
 
 const Experience: Component = () => {
   const [homePageState] = useHomePageContext();
@@ -156,6 +157,7 @@ const Experience: Component = () => {
   };
   const update = (delta_time: number) => {
     Entity.updateAll(delta_time);
+    EntityLerper.update(delta_time);
     Player.update(delta_time);
     Camera.update(delta_time);
   };

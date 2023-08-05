@@ -32,7 +32,10 @@ class Action {
         }
     }
 
-    then(action: Action) {
+    then(action: Action | (() => void), time?: number) {
+        if(typeof action === "function") {
+            action = new Action(action, time || 0);
+        }
         this.nextAction = action;
         action.prevAction = this;
         return action;

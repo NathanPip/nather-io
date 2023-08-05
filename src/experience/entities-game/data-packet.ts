@@ -4,6 +4,8 @@ import { startDialogue } from "../systems/dialogue";
 import { Entity } from "../entity";
 import { dialogues } from "../game/dialogues";
 import { Sprite } from "../sprite";
+import { action } from "../systems/action";
+import { EntityLerper } from "../systems/lerper";
 
 export class DataPacket extends Pickup {
   type = "data-packet";
@@ -31,22 +33,34 @@ export class DataReceiver extends Entity {
     this.interactable_distance = 2;
 
     this.onInteract((ent) => {
-      console.log(ent)
+      console.log(ent);
       if (!ent) return;
-      if(!ent.inHand) return;
-      if(ent.inHand.type !== "data-packet") return;
+      if (!ent.inHand) return;
+      if (ent.inHand.type !== "data-packet") return;
       const packet = ent.inHand as DataPacket;
-      packet.drop();
-      this.addChild(packet);
-      packet.setRotation(0);
-      packet.setLocalPosition({ x: .9, y: .25 });
-    })
+      action(() => {
+        packet.drop();
+        this.addChild(packet);
+      }, 10)
+        .run()
+        .then(() => {
+          EntityLerper.addLerp(
+            packet,
+            "localPosition",
+            { x: 0.9, y: 0.25 },
+            1
+          );
+          EntityLerper.addLerp(packet, "rotation", 0, 1);
+        }, 1000).then(() => {
+          console.log("done")
+        });
+      // this.addChild(packet);
+      // packet.setRotation(0);
+      // packet.setLocalPosition({ x: .9, y: .25 });
+    });
   }
 
-  update(delta_time: number) {
-
-  }
-
+  update(delta_time: number) {}
 }
 
 export class TutorialDataPacket extends DataPacket {

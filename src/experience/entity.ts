@@ -212,6 +212,17 @@ export class Entity {
     });
   }
 
+  _setRelativeLocalPosition() {
+    if (!this.parent) return;
+    console.log(this._inherited_rotation);
+    const aCos = Math.cos(this._inherited_rotation * (Math.PI / 180));
+    const aSin = Math.sin(this._inherited_rotation * (Math.PI / 180));
+    this._local_position.x =
+      (this.world_position.x - this.parent.world_position.x)*aCos - (this.world_position.y - this.parent.world_position.y) * aSin
+    this._local_position.y =
+      (this.world_position.y - this.parent.world_position.y) * aCos - (this.world_position.x - this.parent.world_position.x) * aSin
+  }
+
   setLocalPosition(position: Vector | Vector2d) {
     if (!this.parent) {
       this.setWorldPosition({
@@ -298,12 +309,11 @@ export class Entity {
 
   setParent(parent: Entity, _bubbled = false) {
     this.parent = parent;
-    this._local_position.x = this.world_position.x - parent.world_position.x;
-    this._local_position.y = this.world_position.y - parent.world_position.y;
     this._inherited_rotation = parent.world_rotation;
     this._rotation = this._rotation - this._inherited_rotation;
     this._prev_parent_pos.x = parent.world_position.x;
     this._prev_parent_pos.y = parent.world_position.y;
+    this._setRelativeLocalPosition();
     if (!_bubbled) parent.addChild(this, true);
   }
 
@@ -359,16 +369,6 @@ export class Entity {
         this._setRelativeWorldPosition();
         this._setRelativeBoundingBox();
       }
-    }
-    if (this.moveTo_vector !== undefined) {
-      if (this._moveTo_progress !== this.moveTo_time) {
-        this.move(delta_time);
-      } else {
-        this.moveTo_finished = true;
-      }
-      return;
-    } else {
-      this._moveTo_progress = 1;
     }
     this.velocity.addTo(this.acceleration * delta_time);
     this.setWorldPosition(

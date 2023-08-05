@@ -94,6 +94,12 @@ export class Vector {
   }
 }
 
+export function lerpVector(min: Vector | Vector2d, max: Vector | Vector2d, progress: number) {
+  const x = min.x + (max.x - min.x) * progress;
+  const y = min.y + (max.y - min.y) * progress;
+  return {x, y};
+}
+
 export function normalizeVector(vec: Vector | Vector2d): Vector2d {
   const mag = Math.sqrt(Math.pow(vec.x, 2) + Math.pow(vec.y, 2));
   return { x: vec.x / mag, y: vec.y / mag };
