@@ -160,12 +160,12 @@ export class Portal extends Entity {
       "portal-exit",
       this.world_position.x,
       this.world_position.y,
-      1,
-      1
+      .5,
+      .5
     );
     this.portal_exit.is_static = false;
     this.portal_exit.setParent(this);
-    this.portal_exit.setLocalPosition({ x: 0, y: 1 });
+    this.portal_exit.setLocalPosition({ x: .25, y: 1 });
     this.portal_exit.debug = true;
     this.onInteract(() => {
       if (this.dest_vec) {

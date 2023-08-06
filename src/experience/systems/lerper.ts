@@ -67,14 +67,12 @@ export class EntityLerper {
           }
         }
         this.lerpActions.splice(this.lerpActions.indexOf(lerpAction), 1);
-        console.log("all done")
       } else {
         if (
           typeof lerpAction.location !== "number" &&
           typeof lerpAction.start !== "number"
         ) {
           if (lerpAction.prop === "localPosition") {
-            console.log(lerpAction.start, lerpAction.ent.local_position)
             lerpAction.ent.setLocalPosition(
               lerpVector(
                 lerpAction.start,

@@ -96,7 +96,14 @@ export class Entity {
     this._local_position = new Vector(0, 0);
     this.width = width;
     this.height = height;
-    if (sprite_src) this.addSprite(new Sprite(sprite_src, width*Renderer.tile_size, height*Renderer.tile_size));
+    if (sprite_src)
+      this.addSprite(
+        new Sprite(
+          sprite_src,
+          width * Renderer.tile_size,
+          height * Renderer.tile_size
+        )
+      );
     this.is_static = true;
     this._is_interactable = false;
     this.debug = false;
@@ -112,7 +119,7 @@ export class Entity {
       x_offset: 0,
       y_offset: 0,
     };
-    this._set_bounding_box = {...this._bounding_box};
+    this._set_bounding_box = { ...this._bounding_box };
     Entity.entities.push(this);
   }
 
@@ -147,21 +154,21 @@ export class Entity {
   get forward_vector() {
     return {
       x: Math.cos((this.world_rotation + 90) * (Math.PI / 180)),
-      y: Math.sin((this.world_rotation + 90) * (Math.PI / 180))
+      y: Math.sin((this.world_rotation + 90) * (Math.PI / 180)),
     };
   }
 
   set is_interactable(bool: boolean) {
-    if(bool === true) {
+    if (bool === true) {
       this._is_interactable = true;
     } else {
       this._is_interactable = false;
       this.in_interactable_range = false;
       Player.interactable_entities_in_range.forEach((ent, i) => {
-        if(ent === this) {
+        if (ent === this) {
           Player.interactable_entities_in_range.splice(i, 1);
         }
-      })
+      });
     }
   }
 
@@ -170,7 +177,7 @@ export class Entity {
   }
 
   addSprite(sprite: Sprite) {
-    if(this.sprites === undefined) this.sprites = [];
+    if (this.sprites === undefined) this.sprites = [];
     this.sprites.push(sprite);
   }
 
@@ -202,25 +209,55 @@ export class Entity {
     const aSin = Math.sin(this._inherited_rotation * (Math.PI / 180));
     this.setWorldPosition({
       x:
-        this._local_position.x * aCos -
-        this._local_position.y * aSin +
-        this.parent.world_position.x,
+        (this._local_position.x + this.width / 2 - this.parent.width / 2) *
+          aCos -
+        (this._local_position.y + this.height / 2 - this.parent.height / 2) *
+          aSin +
+        this.parent.world_position.x -
+        this.width / 2 +
+        this.parent.width / 2,
       y:
-        this._local_position.y * aCos -
-        this._local_position.x * aSin +
-        this.parent.world_position.y,
+        (this._local_position.y + this.height / 2 - this.parent.height / 2) *
+          aCos +
+        (this._local_position.x + this.width / 2 - this.parent.width / 2) *
+          aSin +
+        this.parent.world_position.y -
+        this.height / 2 +
+        this.parent.height / 2,
     });
   }
 
   _setRelativeLocalPosition() {
     if (!this.parent) return;
     console.log(this._inherited_rotation);
-    const aCos = Math.cos(this._inherited_rotation * (Math.PI / 180));
-    const aSin = Math.sin(this._inherited_rotation * (Math.PI / 180));
+    const aCos = Math.cos(-this._inherited_rotation * (Math.PI / 180));
+    const aSin = Math.sin(-this._inherited_rotation * (Math.PI / 180));
     this._local_position.x =
-      (this.world_position.x - this.parent.world_position.x)*aCos - (this.world_position.y - this.parent.world_position.y) * aSin
+      (this.world_position.x -
+        this.parent.world_position.x +
+        this.width / 2 -
+        this.parent.width / 2) *
+        aCos -
+      (this.world_position.y -
+        this.parent.world_position.y +
+        this.height / 2 -
+        this.parent.height / 2) *
+        aSin -
+      this.width / 2 +
+      this.parent.width / 2;
     this._local_position.y =
-      (this.world_position.y - this.parent.world_position.y) * aCos - (this.world_position.x - this.parent.world_position.x) * aSin
+      (this.world_position.y -
+        this.parent.world_position.y +
+        this.height / 2 -
+        this.parent.height / 2) *
+        aCos +
+      (this.world_position.x -
+        this.parent.world_position.x +
+        this.width / 2 -
+        this.parent.width / 2) *
+        aSin -
+      this.height / 2 +
+      this.parent.height / 2;
   }
 
   setLocalPosition(position: Vector | Vector2d) {
@@ -268,16 +305,56 @@ export class Entity {
     const aSin = Math.sin(this.world_rotation * (Math.PI / 180));
     const centerX = this.width / 2;
     const centerY = this.height / 2;
-    
-    const x1 = (this._set_bounding_box.x_offset - centerX) * aCos - (this._set_bounding_box.y_offset - centerY) * aSin;
-    const x2 = (this._set_bounding_box.x_offset + this._set_bounding_box.width - centerX) * aCos - (this._set_bounding_box.y_offset - centerY) * aSin;
-    const x3 = (this._set_bounding_box.x_offset - centerX) * aCos - (this._set_bounding_box.y_offset + this._set_bounding_box.height  - centerY) * aSin;
-    const x4 = (this._set_bounding_box.x_offset + this._set_bounding_box.width - centerX) * aCos - (this._set_bounding_box.y_offset + this._set_bounding_box.height  - centerY) * aSin;
 
-    const y1 = (this._set_bounding_box.y_offset - centerY) * aCos + (this._set_bounding_box.x_offset - centerX) * aSin;
-    const y2 = (this._set_bounding_box.y_offset - centerY) * aCos + (this._set_bounding_box.x_offset + this._set_bounding_box.width - centerX) * aSin;
-    const y3 = (this._set_bounding_box.y_offset + this._set_bounding_box.height - centerY) * aCos + (this._set_bounding_box.x_offset - centerX) * aSin;
-    const y4 = (this._set_bounding_box.y_offset + this._set_bounding_box.height - centerY) * aCos + (this._set_bounding_box.x_offset + this._set_bounding_box.width - centerX) * aSin;
+    const x1 =
+      (this._set_bounding_box.x_offset - centerX) * aCos -
+      (this._set_bounding_box.y_offset - centerY) * aSin;
+    const x2 =
+      (this._set_bounding_box.x_offset +
+        this._set_bounding_box.width -
+        centerX) *
+        aCos -
+      (this._set_bounding_box.y_offset - centerY) * aSin;
+    const x3 =
+      (this._set_bounding_box.x_offset - centerX) * aCos -
+      (this._set_bounding_box.y_offset +
+        this._set_bounding_box.height -
+        centerY) *
+        aSin;
+    const x4 =
+      (this._set_bounding_box.x_offset +
+        this._set_bounding_box.width -
+        centerX) *
+        aCos -
+      (this._set_bounding_box.y_offset +
+        this._set_bounding_box.height -
+        centerY) *
+        aSin;
+
+    const y1 =
+      (this._set_bounding_box.y_offset - centerY) * aCos +
+      (this._set_bounding_box.x_offset - centerX) * aSin;
+    const y2 =
+      (this._set_bounding_box.y_offset - centerY) * aCos +
+      (this._set_bounding_box.x_offset +
+        this._set_bounding_box.width -
+        centerX) *
+        aSin;
+    const y3 =
+      (this._set_bounding_box.y_offset +
+        this._set_bounding_box.height -
+        centerY) *
+        aCos +
+      (this._set_bounding_box.x_offset - centerX) * aSin;
+    const y4 =
+      (this._set_bounding_box.y_offset +
+        this._set_bounding_box.height -
+        centerY) *
+        aCos +
+      (this._set_bounding_box.x_offset +
+        this._set_bounding_box.width -
+        centerX) *
+        aSin;
 
     const minX = Math.min(x1, x2, x3, x4);
     const maxX = Math.max(x1, x2, x3, x4);
@@ -288,7 +365,6 @@ export class Entity {
     this._bounding_box.y_offset = minY + centerY;
     this._bounding_box.width = maxX - minX;
     this._bounding_box.height = maxY - minY;
-
   }
 
   setBoundingBox(
@@ -379,7 +455,9 @@ export class Entity {
 
   interactableUpdate(delta_time: number) {
     if (!this.is_interactable) return;
-    this.distance_to_player = this.world_position.distanceTo(Player.world_position);
+    this.distance_to_player = this.world_position.distanceTo(
+      Player.world_position
+    );
     if (
       this.distance_to_player < this.interactable_distance &&
       !this.in_interactable_range
@@ -414,7 +492,9 @@ export class Entity {
 
   interact(ent?: Character) {
     this.defaultInteract();
-    this.interactions.forEach(interaction => {interaction(ent)});
+    this.interactions.forEach((interaction) => {
+      interaction(ent);
+    });
   }
 
   async asyncInteract() {}
@@ -424,9 +504,9 @@ export class Entity {
   }
 
   _renderSprites() {
-    if (!this.rendering) return; 
-    if (this.sprites){
-      for(const sprite of this.sprites) {
+    if (!this.rendering) return;
+    if (this.sprites) {
+      for (const sprite of this.sprites) {
         Renderer.renderSprite(
           this.world_position.x,
           this.world_position.y,
@@ -450,7 +530,15 @@ export class Entity {
       this.world_position.x + this.bounding_box.x_offset,
       this.world_position.y + this.bounding_box.y_offset,
       this.bounding_box.width,
-      this.bounding_box.height
+      this.bounding_box.height,
+      "#ff0000"
+    );
+    Renderer.renderStrokeRect(
+      this.world_position.x,
+      this.world_position.y,
+      this.width,
+      this.height,
+      "#00ff00"
     );
   }
 }

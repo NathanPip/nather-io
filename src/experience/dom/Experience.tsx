@@ -77,7 +77,7 @@ const Experience: Component = () => {
     // const door = new Door("door-1", 5, 94);
     const test = new DataPacket();
     test.setWorldPosition({x: 5, y: 94});
-    const receiver = new DataReceiver(9, 90);
+    const receiver = new DataReceiver(10, 90, "entrance_portal");
     receiver.setRotation(-90);
     const game_start_portal = new Portal(
       "game_start_portal",
