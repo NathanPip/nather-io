@@ -19,7 +19,7 @@ import { uiState } from "../game/state";
 import { Pickup } from "../entities-base/pickup";
 import { Sprite } from "../sprite";
 import PlayerInventory from "./PlayerInventory";
-import { DataPacket, DataReceiver, TutorialDataPacket } from "../entities-game/data-packet";
+import { DataPacket, DataReceiver, TutorialDataPacket, TutorialDataReceiver } from "../entities-game/data-packet";
 import { imagesLoaded, loadImages } from "../game/imagePool";
 import { EntityLerper } from "../systems/lerper";
 
@@ -55,8 +55,8 @@ const Experience: Component = () => {
       main_canvas.height = window.innerHeight;
       background_canvas.width = window.innerWidth;
       background_canvas.height = window.innerHeight;
-      Renderer.default_render_scale = window.innerWidth/960;
-      Renderer.render_scale = window.innerWidth/960;
+      Renderer.default_render_scale = window.innerWidth/1280;
+      Renderer.render_scale = window.innerWidth/1280;
     }
   });
 
@@ -75,9 +75,9 @@ const Experience: Component = () => {
     // testPickup.setWorldPosition({x:5, y:94});
     // testPickup.show();
     // const door = new Door("door-1", 5, 94);
-    const test = new DataPacket();
-    test.setWorldPosition({x: 5, y: 94});
-    const receiver = new DataReceiver(10, 90, "entrance_portal");
+    // const test = new DataPacket();
+    // test.setWorldPosition({x: 5, y: 94});
+    const receiver = new TutorialDataReceiver(8, 90);
     receiver.setRotation(-90);
     const game_start_portal = new Portal(
       "game_start_portal",

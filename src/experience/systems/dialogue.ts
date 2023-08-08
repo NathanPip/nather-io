@@ -87,6 +87,10 @@ export function resetDialogue(dialogue: Dialogue) {
 }
 
 export function startDialogue(dialogue: Dialogue) {
+  if(dialogue === undefined) {
+    console.error("Dialogue is undefined");
+    return;
+  }
   Player.can_move = false;
   if(dialogue.start !== undefined) {dialogue.start();}
   if(dialogue.move && dialogue.lines[dialogue.index].character !== undefined) {

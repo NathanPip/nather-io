@@ -25,7 +25,6 @@ export class Pickup extends Entity {
     this.render_interactable_bubble = true;
     this.interactable_distance = 1.5;
     this.owner_name = owner;
-    this.debug = true;
     this.onInteract(() => {
       if (!this.owner) {
         this.pickup(Player);

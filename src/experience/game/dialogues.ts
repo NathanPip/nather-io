@@ -11,7 +11,7 @@ import {
   startDialogue,
 } from "../systems/dialogue";
 import { Entity } from "../entity";
-import { TutorialDataPacket } from "../entities-game/data-packet";
+import { DataPacket, TutorialDataPacket } from "../entities-game/data-packet";
 import { Camera } from "../systems/globals";
 import { Player } from "../player";
 import { Sprite } from "../sprite";
@@ -300,6 +300,26 @@ export function loadDialogues () {
         }
       ],
       restart: true,
+      finish: () => {
+        Camera.clearMove();
+      }
+    }),
+    "interact-tutorial-receiver-fail": new Dialogue({
+      lines: [
+        {
+          character: Character.characters["Ugrad"],
+          line: "Whoops... I think I gave you the wrong one. My bad... one sec here."
+        }, 
+        {
+          line: "Okay, here's the right one. Go ahead and take that other one out of the terminal.",
+          finish: () => {
+            const pickup = new DataPacket();
+            pickup.setWorldPosition(Character.characters["Ugrad"].world_position);
+            pickup.throw({x: -2, y: 0});
+            pickup.data_type = "enter";
+          }
+        },
+      ],
       finish: () => {
         Camera.clearMove();
       }

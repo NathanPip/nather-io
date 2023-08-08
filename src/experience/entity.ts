@@ -127,6 +127,10 @@ export class Entity {
     return this._id;
   }
 
+  set id(id: string) {
+    this._id = id;
+  }
+
   get world_position() {
     return this._world_position;
   }
@@ -181,26 +185,79 @@ export class Entity {
     this.sprites.push(sprite);
   }
 
+
+  setSize(width: number, height: number) {
+    this.width = width;
+    this.height = height;
+    if (!this.custom_bounding_box) {
+      this._bounding_box = {
+        width: width,
+        height: height,
+        x_offset: 0,
+        y_offset: 0,
+      };
+    }
+  }
+
   setRotation(rotation: number) {
     this._rotation = rotation;
     this._setRelativeBoundingBox();
+    this.setSpriteRotations();
+    if(this.children.length > 0) {
+      for(const child of this.children) {
+        child._inherited_rotation = rotation;
+        child.setSpriteRotations();
+        child._setRelativeWorldPosition();
+        child._setRelativeBoundingBox();
+      }
+    }
   }
 
   setWorldRotation(rotation: number) {
     this.setRotation(
       this._inherited_rotation + (rotation - this._inherited_rotation)
     );
+    if(this.children.length > 0) {
+      for(const child of this.children) {
+        child._inherited_rotation = rotation;
+        child._setRelativeWorldPosition();
+        child._setRelativeBoundingBox();
+      }
+    }
   }
 
   setWorldPosition(position: Vector | Vector2d) {
     this._world_position.x = position.x;
     this._world_position.y = position.y;
+    if(this.children.length > 0) {
+      for(const child of this.children) {
+        child._setRelativeWorldPosition();
+      }
+    }
     // if (this.parent !== undefined) {
     //   this._local_position.x =
     //     this.world_position.x - this.parent.world_position.x;
     //   this._local_position.y =
     //     this.world_position.y - this.parent.world_position.y;
     // }
+  }
+
+  setLocalPosition(position: Vector | Vector2d) {
+    if (!this.parent) {
+      this.setWorldPosition({
+        x: position.x + this.world_position.x,
+        y: position.y + this.world_position.y,
+      });
+      return;
+    }
+    this._local_position.x = position.x;
+    this._local_position.y = position.y;
+    this._setRelativeWorldPosition();
+    if(this.children.length > 0) {
+      for(const child of this.children) {
+        child._setRelativeWorldPosition();
+      }
+    }
   }
 
   _setRelativeWorldPosition() {
@@ -258,46 +315,6 @@ export class Entity {
         aSin -
       this.height / 2 +
       this.parent.height / 2;
-  }
-
-  setLocalPosition(position: Vector | Vector2d) {
-    if (!this.parent) {
-      this.setWorldPosition({
-        x: position.x + this.world_position.x,
-        y: position.y + this.world_position.y,
-      });
-      return;
-    }
-    this._local_position.x = position.x;
-    this._local_position.y = position.y;
-    this._setRelativeWorldPosition();
-  }
-
-  // animate(animation: number, speed: number, limit: number) {
-  //   if (this.animation !== animation) {
-  //     this._animation_frame = 0;
-  //     this.animation = animation;
-  //   }
-  //   if (Renderer.current_frame % Math.round(Renderer.FPS / speed) === 0) {
-  //     if (this._animation_frame < limit) {
-  //       this._animation_frame++;
-  //     } else {
-  //       this._animation_frame = 0;
-  //     }
-  //   }
-  // }
-
-  setSize(width: number, height: number) {
-    this.width = width;
-    this.height = height;
-    if (!this.custom_bounding_box) {
-      this._bounding_box = {
-        width: width,
-        height: height,
-        x_offset: 0,
-        y_offset: 0,
-      };
-    }
   }
 
   _setRelativeBoundingBox() {
@@ -367,6 +384,15 @@ export class Entity {
     this._bounding_box.height = maxY - minY;
   }
 
+  setSpriteRotations() {
+    if (!this.sprites) return;
+    for (const sprite of this.sprites) {
+      if(!sprite.lock_rotation){
+        sprite.rotation = this.world_rotation;
+      }
+    }
+  }
+
   setBoundingBox(
     width: number,
     height: number,
@@ -389,6 +415,7 @@ export class Entity {
     this._rotation = this._rotation - this._inherited_rotation;
     this._prev_parent_pos.x = parent.world_position.x;
     this._prev_parent_pos.y = parent.world_position.y;
+    this.setSpriteRotations();
     this._setRelativeLocalPosition();
     if (!_bubbled) parent.addChild(this, true);
   }
@@ -423,29 +450,8 @@ export class Entity {
 
   _defaultInit() {}
 
-  clearMove() {
-    this.moveTo_vector = undefined;
-    this.moveTo_time = 60;
-    this._moveTo_progress = 1;
-    this.moveTo_finished = true;
-  }
-
   physicsUpdate(delta_time: number) {
     if (this.is_static) return;
-    if (this.parent) {
-      if (
-        this._prev_parent_pos.x !== this.parent.world_position.x ||
-        this._prev_parent_pos.y !== this.parent.world_position.y
-      ) {
-        this._prev_parent_pos = this.parent.world_position;
-        this._setRelativeWorldPosition();
-      }
-      if (this._inherited_rotation !== this.parent.world_rotation) {
-        this._inherited_rotation = this.parent.world_rotation;
-        this._setRelativeWorldPosition();
-        this._setRelativeBoundingBox();
-      }
-    }
     this.velocity.addTo(this.acceleration * delta_time);
     this.setWorldPosition(
       this.world_position.add(this.velocity.multiply(delta_time))
@@ -513,7 +519,7 @@ export class Entity {
           this.width,
           this.height,
           sprite,
-          this.world_rotation
+          sprite.rotation
         );
       }
     }

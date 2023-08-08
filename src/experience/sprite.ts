@@ -16,6 +16,8 @@ export class Sprite {
   height: number;
   scale: number;
   offset: Vector2d | Vector = { x: 0, y: 0 };
+  rotation = 0;
+  lock_rotation = false;
   current_animation_name?: string;
   current_animation?: Anim;
   animations: { default: Anim; [name: string]: Anim };
