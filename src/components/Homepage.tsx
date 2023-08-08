@@ -7,7 +7,7 @@ const HomePage: Component = () => {
   const [pageState] = usePageState();
 
   return (
-    <div class="flex h-screen flex-col py-12">
+    <div class="flex h-screen flex-col py-12 max-w-7xl mx-auto">
       <div class="mt-4 flex flex-col lg:mt-12 lg:flex-row">
         <Motion.h1
           animate={{ y: ["-150%", 0] }}

@@ -7,7 +7,7 @@ import { svgrComponent } from 'vite-plugin-svgr-component';
 export default defineConfig(() => {
   return {
     plugins: [
-      solid({ ssr: true, adapter: vercel({ edge: false }) }),
+      solid({ ssr: false, adapter: vercel({ edge: false }) }),
       svgrComponent(),
     ],
   };

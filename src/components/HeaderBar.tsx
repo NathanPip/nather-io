@@ -12,12 +12,13 @@ import { usePageState } from "../Context/page-state";
 const HeaderBar: Component = () => {
   const [pageState] = usePageState();
   const location = useLocation();
-  const noShowPaths = ["/blog/create"];
+  const noShowPaths = ["/blog/create", "/"];
   const [noShow, setNoShow] = createSignal(true);
 
   createRenderEffect(() => {
     for (const i of noShowPaths) {
-      if (location.pathname.includes(i) || location.pathname === i) {
+      console.log(location.pathname)
+      if (location.pathname === i) {
         setNoShow(true);
         return;
       }
