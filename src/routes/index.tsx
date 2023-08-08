@@ -50,7 +50,7 @@ const Home: VoidComponent = () => {
         <div class="h-screen w-screen overflow-hidden">
           <div class={`${homePageState.scrollDown ? "translate-y-[-100vh]" : ""} transition-transform duration-500`}>
             <HomePage />
-            <Experience />
+            {/* <Experience /> */}
           </div>
         </div>
       </homePageContext.Provider>
